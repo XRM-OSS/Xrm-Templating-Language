@@ -38,3 +38,7 @@ a new case was associated with your account TheShire Limited, you can open it us
 
 ## License
 Licensed using the MIT license, enjoy!
+
+## Credits
+I learnt writing the interpreter using the [Let's Build a Compiler Tutorial](https://compilers.iecc.com/crenshaw/) by Jack Crenshaw.
+Although being quite old, the technics are still the same and the advice is invaluable, it's a great resource for learning.
