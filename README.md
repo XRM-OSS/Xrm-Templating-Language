@@ -1,4 +1,4 @@
-# XTL - Xrm-Templating-Language
+# XTL - Xrm Templating Language
 A domain specific language for Dynamics CRM allowing for easy text template processing
 
 ## Purpose
