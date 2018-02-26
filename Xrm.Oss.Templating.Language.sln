@@ -1,0 +1,34 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xrm.Oss.XTL.Interpreter", "src\lib\Xrm.Oss.XTL.Interpreter\Xrm.Oss.XTL.Interpreter.shproj", "{8BBFE374-09C1-43C5-8BC4-BB8E1FB51457}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Oss.XTL.Templating", "src\lib\Xrm.Oss.XTL.Templating\Xrm.Oss.XTL.Templating.csproj", "{49ADDB8F-E8A8-4087-A1DC-F28CF3A9748F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Oss.XTL.Interpreter.Tests", "src\test\Xrm.Oss.XTL.Interpreter.Tests\Xrm.Oss.XTL.Interpreter.Tests.csproj", "{2F63E2A2-B455-4DD9-B806-22796B24C793}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\lib\Xrm.Oss.XTL.Interpreter\Xrm.Oss.XTL.Interpreter.projitems*{2f63e2a2-b455-4dd9-b806-22796b24c793}*SharedItemsImports = 4
+		src\lib\Xrm.Oss.XTL.Interpreter\Xrm.Oss.XTL.Interpreter.projitems*{49addb8f-e8a8-4087-a1dc-f28cf3a9748f}*SharedItemsImports = 4
+		src\lib\Xrm.Oss.XTL.Interpreter\Xrm.Oss.XTL.Interpreter.projitems*{8bbfe374-09c1-43c5-8bc4-bb8e1fb51457}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49ADDB8F-E8A8-4087-A1DC-F28CF3A9748F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49ADDB8F-E8A8-4087-A1DC-F28CF3A9748F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49ADDB8F-E8A8-4087-A1DC-F28CF3A9748F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49ADDB8F-E8A8-4087-A1DC-F28CF3A9748F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F63E2A2-B455-4DD9-B806-22796B24C793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F63E2A2-B455-4DD9-B806-22796B24C793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F63E2A2-B455-4DD9-B806-22796B24C793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F63E2A2-B455-4DD9-B806-22796B24C793}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
