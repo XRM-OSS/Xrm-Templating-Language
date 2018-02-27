@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Text;
+using FakeItEasy;
+using FakeXrmEasy;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using NUnit.Framework;
 using Xrm.Oss.XTL.Interpreter;
 
 namespace Xrm.Oss.RecursiveDescentParser.Tests
 {
     [TestFixture]
-    public class ParserTests
+    public class XTLInterpreterTests
     {
         [Test]
         public void It_Should_Return_First_Level_Text ()
@@ -176,6 +179,78 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
             Assert.That(result1, Is.EqualTo("Not both null"));
             Assert.That(result2, Is.EqualTo("Both null"));
             Assert.That(result3, Is.EqualTo("Not both null"));
+        }
+
+        [Test]
+        public void It_Should_Retrieve_Related_Entity_Values()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            var emailWithSubject = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            context.Initialize(new Entity[] { contact, emailWithSubject });
+
+            var formula = "Text(\"regardingobjectid.firstname\")";
+
+            var result1 = new XTLInterpreter(formula, emailWithSubject, service).Produce();
+
+            Assert.That(result1, Is.EqualTo("Frodo"));
+        }
+
+        [Test]
+        public void It_Should_Only_Execute_Relevant_SubTree()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            var emailWithSubject = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            context.Initialize(new Entity[] { contact, emailWithSubject });
+
+            var formula = "If ( Not ( IsNull ( Value(\"regardingobjectid\") ) ), Text(\"regardingobjectid.firstname\"), Text(\"regardingobjectid.lastname\") )";
+            var result1 = new XTLInterpreter(formula, emailWithSubject, service).Produce();
+
+            Assert.That(result1, Is.EqualTo("Frodo"));
+            A.CallTo(() => service.RetrieveMultiple(A<QueryBase>._)).MustHaveHappened(Repeated.Exactly.Once);
         }
     }
 }

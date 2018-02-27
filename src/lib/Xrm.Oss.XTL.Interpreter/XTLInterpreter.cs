@@ -23,8 +23,8 @@ namespace Xrm.Oss.XTL.Interpreter
             { "And", And },
             { "Not", Not },
             { "IsNull", IsNull },
-            //{ "IsEqual", IsEqual },
-            { "Value", GetText },
+            { "IsEqual", IsEqual },
+            { "Value", GetValue },
             { "Text", GetText },
             { "RecordUrl", GetRecordUrl },
             { "PrimaryRecord", GetPrimaryRecord }
@@ -40,6 +40,38 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             return new List<object> { !((bool) target) };
+        };
+
+        private static Func<Entity, IOrganizationService, List<object>, List<object>> IsEqual = (primary, service, parameters) =>
+        {
+            if (parameters.Count != 2)
+            {
+                throw new InterpreterException("IsEqual expects exactly 2 parameters!");
+            }
+
+            var expected = parameters[0];
+            var actual = parameters[1];
+
+            var falseReturn = new List<object> { false };
+            var trueReturn = new List<object> { true };
+
+            if (expected == null && actual == null)
+            {
+                return trueReturn;
+            }
+
+            if (expected == null && actual != null)
+            {
+                return falseReturn;
+            }
+
+            if (expected != null && actual == null)
+            {
+                return falseReturn;
+            }
+
+            // TODO: Compare Logic per CRM Type
+            return trueReturn;
         };
 
         private static Func<Entity, IOrganizationService, List<object>, List<object>> And = (primary, service, parameters) =>
