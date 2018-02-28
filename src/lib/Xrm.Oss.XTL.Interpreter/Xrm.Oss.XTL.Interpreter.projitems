@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DataRetriever.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionHandlers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InterpreterException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)XTLInterpreter.cs" />
   </ItemGroup>

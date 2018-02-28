@@ -1,0 +1,10 @@
+FakeItEasy
+FakeXrmEasy.365
+Microsoft.CrmSdk.CoreAssemblies
+Microsoft.CrmSdk.Deployment
+Microsoft.CrmSdk.Workflow
+Microsoft.CrmSdk.XrmTooling.CoreAssembly
+Microsoft.IdentityModel
+Microsoft.IdentityModel.Clients.ActiveDirectory
+NUnit
+NUnit3TestAdapter

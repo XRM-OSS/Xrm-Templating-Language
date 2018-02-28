@@ -1,0 +1,14 @@
+source https://api.nuget.org/v3/index.json
+
+nuget FAKE
+nuget FakeItEasy 3.2.0
+nuget FakeXrmEasy.365 1.39.4
+nuget Microsoft.CrmSdk.CoreAssemblies 8.2.0.2
+nuget Microsoft.CrmSdk.Deployment 8.2.0.1
+nuget Microsoft.CrmSdk.Workflow 8.2.0.1
+nuget Microsoft.CrmSdk.XrmTooling.CoreAssembly 8.2.0.1
+nuget Microsoft.IdentityModel 6.1.7600.16394
+nuget Microsoft.IdentityModel.Clients.ActiveDirectory 2.22.302111727
+nuget NUnit 3.9.0
+nuget nunit.consolerunner
+nuget NUnit3TestAdapter 3.9.0

@@ -12,10 +12,12 @@ namespace Xrm.Oss.XTL.Templating
     public class XTLProcessor : IPlugin
     {
         private ProcessorConfig _config;
+        private OrganizationConfig _organizationConfig;
 
         public XTLProcessor (string unsecure, string secure)
         {
             _config = ProcessorConfig.Parse(unsecure);
+            _organizationConfig = OrganizationConfig.Parse(secure);
         }
 
         public void Execute(IServiceProvider serviceProvider)
@@ -37,6 +39,22 @@ namespace Xrm.Oss.XTL.Templating
                 return;
             }
 
+            // "Merge" pre entity images with targets for having all attribute values
+            var dataSource = new Entity();
+
+            foreach(var image in context.PreEntityImages.Values)
+            {
+                foreach (var property in image.Attributes)
+                {
+                    dataSource[property.Key] = property.Value;
+                }
+            }
+
+            foreach (var property in target.Attributes)
+            {
+                dataSource[property.Key] = property.Value;
+            }
+
             if (string.IsNullOrEmpty(targetField))
             {
                 throw new InvalidPluginExecutionException("Target field was null, please adapt the unsecure config!");
@@ -53,7 +71,7 @@ namespace Xrm.Oss.XTL.Templating
             }
             else
             {
-                templateText = target.GetAttributeValue<string>(templateField);
+                templateText = dataSource.GetAttributeValue<string>(templateField);
             }
 
             var tokenRegex = new Regex(@"\$\{(.*)?(?=\})\}", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -66,7 +84,7 @@ namespace Xrm.Oss.XTL.Templating
 
             tokens.ForEach(token =>
             {
-                var processor = new XTLInterpreter(token, target, service);
+                var processor = new XTLInterpreter(token, dataSource, _organizationConfig, service);
 
                 var processed = processor.Produce();
                 templateText = templateText.Replace($"${{{token}}}", processed);
