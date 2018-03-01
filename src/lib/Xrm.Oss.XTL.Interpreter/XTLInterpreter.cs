@@ -131,6 +131,10 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     returnValue.Add(digit);
                 }
+                else if (_current == ')')
+                {
+                    // Parameterless function encountered
+                }
                 // The first char of a function must not be a digit
                 else
                 {

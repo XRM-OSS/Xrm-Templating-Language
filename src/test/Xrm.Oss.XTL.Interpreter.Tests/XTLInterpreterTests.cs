@@ -6,6 +6,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using NUnit.Framework;
 using Xrm.Oss.XTL.Interpreter;
+using Xrm.Oss.XTL.Templating;
 
 namespace Xrm.Oss.RecursiveDescentParser.Tests
 {
@@ -29,6 +30,23 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
             var result = new XTLInterpreter(formula, email, null, null).Produce();
 
             Assert.That(result, Is.EqualTo("TestSubject"));
+        }
+
+        [Test]
+        public void It_Should_Execute_Parameterless_Function()
+        {
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "RecordUrl ( PrimaryRecord ( ) )";
+            Assert.That(() => new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, null).Produce(), Throws.Nothing);
         }
 
         [Test]
