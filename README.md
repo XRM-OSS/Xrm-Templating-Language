@@ -9,6 +9,30 @@ It is an interpreted programming language, with easy syntax for allowing everyon
 The parsing and interpreting is done using a custom recursive descent parser implemented in C#.
 It is embedded inside a plugin and does not need any external references, so that execution works in CRM online and on-premises environments.
 
+## Where to get it
+Build it yourself by running `build.cmd`, or simply download from [AppVeyor](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language/build/artifacts).
+
+## How To Register
+Register the assemblies using the Plugin Registration Tool.
+You can then create steps in the pre operation stage. If you're on update message, be sure to register a preimg with all attributes needed for generating your texts.
+
+You'll need an unsecure json configuration per step.
+
+Properties in there:
+- target: The target field for the generated text
+- templateField: The source field for the template (for "per record" templates, for example if replacing place holders inside emails)
+- template: A constant template that will be used for all records (for example when formatting addresses)
+
+Target always has to be set, in addition to either template or templateField.
+
+Sample (For formatting emails):
+```JSON
+{
+    target: "description",
+    templateField: "description"
+}
+```
+
 ## Benefits
 When dealing with the default e-mail editor of Dynamics CRM, the borders of what's possible are reached fast.
 XTL aims to integrate flawlessly into Dynamics CRM, to enhance the text processing capabilities. It is not limited to any specific CRM entity.
