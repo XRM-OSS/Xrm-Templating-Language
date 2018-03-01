@@ -28,8 +28,8 @@ Target always has to be set, in addition to either template or templateField.
 Sample (For formatting emails):
 ```JSON
 {
-    target: "description",
-    templateField: "description"
+    "target": "description",
+    "templateField": "description"
 }
 ```
 
