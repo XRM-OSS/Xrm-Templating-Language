@@ -17,7 +17,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (!(target is bool))
             {
-                throw new InterpreterException("Not expects a boolean input, consider using one of the Is methods");
+                throw new InvalidPluginExecutionException("Not expects a boolean input, consider using one of the Is methods");
             }
 
             return new List<object> { !((bool)target) };
@@ -27,7 +27,7 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             if (parameters.Count != 2)
             {
-                throw new InterpreterException("IsEqual expects exactly 2 parameters!");
+                throw new InvalidPluginExecutionException("IsEqual expects exactly 2 parameters!");
             }
 
             var expected = parameters[0];
@@ -80,19 +80,19 @@ namespace Xrm.Oss.XTL.Interpreter
                 return new List<object> { values[0].Equals(values[1]) };
             }
 
-            throw new InterpreterException($"Incompatible comparison types: {expected.GetType().Name} and {actual.GetType().Name}");
+            throw new InvalidPluginExecutionException($"Incompatible comparison types: {expected.GetType().Name} and {actual.GetType().Name}");
         };
 
         public static FunctionHandler And = (primary, service, organizationConfig, parameters) =>
         {
             if (parameters.Count != 2)
             {
-                throw new InterpreterException("And expects at least 2 conditions!");
+                throw new InvalidPluginExecutionException("And expects at least 2 conditions!");
             }
 
             if (parameters.Any(p => !(p is bool)))
             {
-                throw new InterpreterException("And: All conditions must be booleans!");
+                throw new InvalidPluginExecutionException("And: All conditions must be booleans!");
             }
 
             if (parameters.All(p => (bool)p))
@@ -107,12 +107,12 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             if (parameters.Count != 2)
             {
-                throw new InterpreterException("Or expects at least 2 conditions!");
+                throw new InvalidPluginExecutionException("Or expects at least 2 conditions!");
             }
 
             if (parameters.Any(p => !(p is bool)))
             {
-                throw new InterpreterException("Or: All conditions must be booleans!");
+                throw new InvalidPluginExecutionException("Or: All conditions must be booleans!");
             }
 
             if (parameters.Any(p => (bool)p))
@@ -139,7 +139,7 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             if (parameters.Count != 3)
             {
-                throw new InterpreterException("If-Then-Else expects exactly three parameters: Condition, True-Action, False-Action");
+                throw new InvalidPluginExecutionException("If-Then-Else expects exactly three parameters: Condition, True-Action, False-Action");
             }
 
             var condition = parameters[0];
@@ -148,7 +148,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (!(condition is bool))
             {
-                throw new InterpreterException("If condition must be a boolean!");
+                throw new InvalidPluginExecutionException("If condition must be a boolean!");
             }
 
             if ((bool)condition)
@@ -173,12 +173,12 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OrganizationUrl))
             {
-                throw new InterpreterException("GetRecordUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
+                throw new InvalidPluginExecutionException("GetRecordUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
             }
 
             if (!parameters.All(p => p is EntityReference || p is Entity || p == null))
             {
-                throw new InterpreterException("Only Entity Reference Objects are supported in GetRecordUrl");
+                throw new InvalidPluginExecutionException("Only Entity Reference Objects are supported in GetRecordUrl");
             }
 
             var refs = parameters.Where(p => p != null).Select(e =>
@@ -215,7 +215,7 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             if (parameters.Count < 4)
             {
-                throw new InterpreterException("GetSubRecords needs 4 parameters: Parent Entity / Entities, sub entity name, sub entity lookup, display field");
+                throw new InvalidPluginExecutionException("GetSubRecords needs 4 parameters: Parent Entity / Entities, sub entity name, sub entity lookup, display field");
             }
 
             var parentEntities = parameters[0];
@@ -254,7 +254,7 @@ namespace Xrm.Oss.XTL.Interpreter
             }
             else
             {
-                throw new InterpreterException($"Parent type {parentEntities.GetType()} is invalid, please pass an entity or entityreference or collections of these");
+                throw new InvalidPluginExecutionException($"Parent type {parentEntities.GetType()} is invalid, please pass an entity or entityreference or collections of these");
             }
 
             var records = new List<object>();
@@ -292,7 +292,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (field == null)
             {
-                throw new InterpreterException("Text requires a field target string as input");
+                throw new InvalidPluginExecutionException("Text requires a field target string as input");
             }
 
             return new List<object> { DataRetriever.ResolveTokenText(field, primary, service) };
@@ -309,7 +309,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (field == null)
             {
-                throw new InterpreterException("Value requires a field target string as input");
+                throw new InvalidPluginExecutionException("Value requires a field target string as input");
             }
 
             return new List<object> { DataRetriever.ResolveTokenValue(field, primary, service) };

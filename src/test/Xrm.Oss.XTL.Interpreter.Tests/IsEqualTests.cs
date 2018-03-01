@@ -63,7 +63,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             };
 
             var formula = "If ( IsEqual ( Value ( \"int\" ), \"1\" ), \"true\", \"false\" )";
-            Assert.That(() => new XTLInterpreter(formula, email, null, null).Produce(), Throws.TypeOf<InterpreterException>());
+            Assert.That(() => new XTLInterpreter(formula, email, null, null).Produce(), Throws.TypeOf<InvalidPluginExecutionException>());
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             };
 
             var formula = "If ( IsEqual ( Value ( \"gendercode\" ), \"1\" ), \"true\", \"false\" )";
-            Assert.That(() => new XTLInterpreter(formula, contact, null, null).Produce(), Throws.TypeOf<InterpreterException>());
+            Assert.That(() => new XTLInterpreter(formula, contact, null, null).Produce(), Throws.TypeOf<InvalidPluginExecutionException>());
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             };
 
             var formula = "If ( IsEqual ( Value ( \"donotsendbulkemails\" ), \"true\" ), \"true\", \"false\" )";
-            Assert.That(() => new XTLInterpreter(formula, contact, null, null).Produce(), Throws.TypeOf<InterpreterException>());
+            Assert.That(() => new XTLInterpreter(formula, contact, null, null).Produce(), Throws.TypeOf<InvalidPluginExecutionException>());
         }
     }
 }

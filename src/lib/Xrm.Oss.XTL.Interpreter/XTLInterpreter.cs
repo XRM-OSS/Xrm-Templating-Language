@@ -54,7 +54,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private void Expected(string expected)
         {
-            throw new InterpreterException($"{expected} Expected after {_previous}{_current}");
+            throw new InvalidPluginExecutionException($"{expected} Expected after {_previous}{_current}");
         }
 
         private void SkipWhiteSpace() 
@@ -146,7 +146,7 @@ namespace Xrm.Oss.XTL.Interpreter
         private List<object> ApplyExpression (string name, List<object> parameters) 
         {
             if (!_handlers.ContainsKey(name)) {
-                throw new InterpreterException($"Function {name} is not known!");
+                throw new InvalidPluginExecutionException($"Function {name} is not known!");
             }
 
             return _handlers[name](_primary, _service, _organizationConfig, parameters);
