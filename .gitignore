@@ -36,3 +36,4 @@ nuget/*
 Publish/*
 test/*
 .fake/*
+paket-files/*
