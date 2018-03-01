@@ -74,7 +74,7 @@ namespace Xrm.Oss.XTL.Templating
                 templateText = dataSource.GetAttributeValue<string>(templateField);
             }
 
-            var tokenRegex = new Regex(@"\$\{(.*)?(?=\})\}", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            var tokenRegex = new Regex(@"\${([^{]*)}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
             var tokens = tokenRegex.Matches(templateText)
                 .Cast<Match>()
