@@ -206,7 +206,8 @@ namespace Xrm.Oss.XTL.Interpreter
             return new List<object>{
                 string.Join(Environment.NewLine, refs.Select(e => 
                 {
-                    return $"<a href=\"{organizationUrl}main.aspx?etn={e.LogicalName}&id={e.Id}&newWindow=true&pagetype=entityrecord\"></a>";
+                    var url = $"{organizationUrl}main.aspx?etn={e.LogicalName}&id={e.Id}&newWindow=true&pagetype=entityrecord";
+                    return $"<a href=\"{url}\">{url}</a>";
                 }))
             };
         };

@@ -46,7 +46,11 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
             };
 
             var formula = "RecordUrl ( PrimaryRecord ( ) )";
-            Assert.That(() => new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, null).Produce(), Throws.Nothing);
+            var result = string.Empty;
+
+            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, null).Produce(), Throws.Nothing);
+
+            Assert.That(result, Is.EqualTo($"<a href=\"https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord\">https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord</a>"));
         }
 
         [Test]
