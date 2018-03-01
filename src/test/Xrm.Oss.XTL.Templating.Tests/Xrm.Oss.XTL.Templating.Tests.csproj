@@ -63,7 +63,7 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\Xrm.Oss.XTL.Templating\Xrm.Oss.XTL.Templating.csproj">
+    <ProjectReference Include="..\..\plugin\Xrm.Oss.XTL.Templating\Xrm.Oss.XTL.Templating.csproj">
       <Project>{49addb8f-e8a8-4087-a1dc-f28cf3a9748f}</Project>
       <Name>Xrm.Oss.XTL.Templating</Name>
     </ProjectReference>

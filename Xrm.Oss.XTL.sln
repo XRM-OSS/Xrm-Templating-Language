@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{EBCE4C
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xrm.Oss.XTL.Interpreter", "src\lib\Xrm.Oss.XTL.Interpreter\Xrm.Oss.XTL.Interpreter.shproj", "{8BBFE374-09C1-43C5-8BC4-BB8E1FB51457}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Oss.XTL.Templating", "src\lib\Xrm.Oss.XTL.Templating\Xrm.Oss.XTL.Templating.csproj", "{49ADDB8F-E8A8-4087-A1DC-F28CF3A9748F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Oss.XTL.Templating", "src\plugin\Xrm.Oss.XTL.Templating\Xrm.Oss.XTL.Templating.csproj", "{49ADDB8F-E8A8-4087-A1DC-F28CF3A9748F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Oss.XTL.Interpreter.Tests", "src\test\Xrm.Oss.XTL.Interpreter.Tests\Xrm.Oss.XTL.Interpreter.Tests.csproj", "{2F63E2A2-B455-4DD9-B806-22796B24C793}"
 EndProject

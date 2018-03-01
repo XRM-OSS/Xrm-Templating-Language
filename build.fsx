@@ -17,13 +17,11 @@ let authors = ["Florian Kroenert"]
 
 // Directories
 let buildDir  = @".\build\"
-let interpreterBuildDir = buildDir + @"interpreter\"
-let templatingBuildDir = buildDir + @"templating"
+let pluginBuildDir = buildDir + @"plugin\"
 let testDir   = @".\test\"
 
 let deployDir = @".\Publish\"
-let interpreterDeployDir = deployDir + @"interpreter\"
-let templatingDeployDir = deployDir + @"templating"
+let pluginDeployDir = deployDir + @"plugin"
 
 let nugetDir = @".\nuget\"
 let packagesDir = @".\packages\"
@@ -64,15 +62,9 @@ Target "AssemblyInfo" (fun _ ->
                                               })
 )
 
-Target "BuildInterpreter" (fun _ ->
-    !! @"src\lib\Xrm.Oss.XTL.Interpreter\*.csproj"
-        |> MSBuildRelease interpreterBuildDir "Build"
-        |> Log "Build-Output: "
-)
-
-Target "BuildTemplating" (fun _ ->
-    !! @"src\lib\Xrm.Oss.XTL.Templating\*.csproj"
-        |> MSBuildRelease templatingBuildDir "Build"
+Target "BuildPlugin" (fun _ ->
+    !! @"src\plugin\Xrm.Oss.XTL.Templating\*.csproj"
+        |> MSBuildRelease pluginBuildDir "Build"
         |> Log "Build-Output: "
 )
 
@@ -94,22 +86,17 @@ Target "NUnit" (fun _ ->
 )
 
 Target "Publish" (fun _ ->
-    CreateDir interpreterDeployDir
-    CreateDir templatingDeployDir
+    CreateDir pluginDeployDir
     
-    !! (interpreterBuildDir @@ @"*.*")
-        |> CopyTo interpreterDeployDir
-
-    !! (templatingDeployDir @@ @"*.*")
-        |> CopyTo templatingDeployDir
+    !! (pluginBuildDir @@ @"*.*")
+        |> CopyTo pluginDeployDir
 )
 
 // Dependencies
 "Clean"
   ==> "BuildVersions"
   =?> ("AssemblyInfo", not isLocalBuild )
-  ==> "BuildInterpreter"
-  ==> "BuildTemplating"
+  ==> "BuildPlugin"
   ==> "BuildTest"
   ==> "NUnit"
   ==> "Publish"
