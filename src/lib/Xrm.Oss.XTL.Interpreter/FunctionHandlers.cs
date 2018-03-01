@@ -53,22 +53,22 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (expected is string && actual is string)
             {
-                return new List<object> { expected == actual };
+                return new List<object> { expected.Equals(actual) };
             }
 
             if (expected is bool && actual is bool)
             {
-                return new List<object> { expected == actual };
+                return new List<object> { expected.Equals(actual) };
             }
 
             if (expected is int && actual is int)
             {
-                return new List<object> { expected == actual };
+                return new List<object> { expected.Equals(actual) };
             }
 
             if (expected is EntityReference && actual is EntityReference)
             {
-                return new List<object> { expected == actual };
+                return new List<object> { expected.Equals(actual) };
             }
 
             if (new[] { expected, actual }.All(v => v is int || v is OptionSetValue))
@@ -77,7 +77,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     .Select(v => v is OptionSetValue ? ((OptionSetValue)v).Value : (int)v)
                     .ToList();
 
-                return new List<object> { values[0] == values[1] };
+                return new List<object> { values[0].Equals(values[1]) };
             }
 
             throw new InterpreterException($"Incompatible comparison types: {expected.GetType().Name} and {actual.GetType().Name}");
