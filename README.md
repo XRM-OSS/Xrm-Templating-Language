@@ -57,6 +57,15 @@ Native Types:
 In addition, null is also a reserved keyword.
 
 ## Functions
+### If
+Takes 3 Parameters: A condition to check, a true action and a false action.
+If the condition resolves to true, the true action is executed, otherwise the false action.
+
+Example:
+```
+If( IsNull ( Text(\"subject\") ), \"No subject passed\", Text(\"subject\") )
+```
+
 ### Or
 Takes 2 ... n parameters and checks if any of them resolves to true.
 If yes, then true is returned, otherwise false
