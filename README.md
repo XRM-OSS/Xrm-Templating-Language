@@ -63,7 +63,7 @@ If the condition resolves to true, the true action is executed, otherwise the fa
 
 Example:
 ```
-If( IsNull ( Text(\"subject\") ), \"No subject passed\", Text(\"subject\") )
+If( IsNull ( Text("subject") ), "No subject passed", Text("subject") )
 ```
 
 ### Or
@@ -107,7 +107,7 @@ OptionSetValues are compared with their respective integer values.
 
 Example:
 ```
-IsEqual ( Value ( \"gendercode\" ), 1 )
+IsEqual ( Value ( "gendercode" ), 1 )
 ```
 
 ### Value
@@ -181,7 +181,7 @@ When creating an e-mail from above template or even just an outgoing e-mail with
 Hello Frodo,
 
 a new case was associated with your account TheShire Limited, you can open it using the following URL:
-[Ring Delivery Stuck](https://imagine-creative-url.local)
+https://imagine-creative-url.local
 ```
 
 ## License
