@@ -156,7 +156,7 @@ All subsequent parameters are treated as columns to retrieve.
  
 Example:
 ```
-SubRecordTable ( PrimaryRecord(), "task", "regardingobjectid", true, "subject", "description" )
+SubRecordTable ( Value ( "regardingobjectid"), "task", "regardingobjectid", true, "subject", "description" )
 ```
 
 ### PrimaryRecord
