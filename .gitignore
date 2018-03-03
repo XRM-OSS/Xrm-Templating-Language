@@ -37,3 +37,4 @@ Publish/*
 test/*
 .fake/*
 paket-files/*
+.vs/*

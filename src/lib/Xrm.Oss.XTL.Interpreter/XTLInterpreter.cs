@@ -32,6 +32,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Text", FunctionHandlers.GetText },
             { "RecordUrl", FunctionHandlers.GetRecordUrl },
             { "SubRecords", FunctionHandlers.GetSubRecords },
+            { "SubRecordTable", FunctionHandlers.GetSubRecordTable },
             { "PrimaryRecord", FunctionHandlers.GetPrimaryRecord }
         };
 

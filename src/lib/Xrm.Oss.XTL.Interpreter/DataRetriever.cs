@@ -57,39 +57,18 @@ namespace Xrm.Oss.XTL.Interpreter
                 }
 
                 var entityReference = currentObject as EntityReference;
-                var optionSet = currentObject as OptionSetValue;
-                var money = currentObject as Money;
-
+                
                 if (entityReference != null)
                 {
                     var nextField = path.Peek();
                     if (nextField != null)
                     {
                         currentEntity = service.Retrieve(entityReference.LogicalName, entityReference.Id, new ColumnSet(nextField));
-                    }
-                    else
-                    {
-                        value = currentEntity.FormattedValues.ContainsKey(currentField)
-                        ? currentEntity.FormattedValues[currentField]
-                        : entityReference.Name ?? entityReference.Id.ToString();
+                        continue;
                     }
                 }
-                else if (optionSet != null)
-                {
-                    value = currentEntity.FormattedValues.ContainsKey(currentField)
-                        ? currentEntity.FormattedValues[currentField]
-                        : optionSet.Value.ToString();
-                }
-                else if (money != null)
-                {
-                    value = currentEntity.FormattedValues.ContainsKey(currentField)
-                        ? currentEntity.FormattedValues[currentField]
-                        : money.Value.ToString();
-                }
-                else
-                {
-                    value = currentObject.ToString();
-                }
+
+                value = PropertyStringifier.Stringify(currentEntity, currentField);
             } while (path.Count > 0);
 
             return value;

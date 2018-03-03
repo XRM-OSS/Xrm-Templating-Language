@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using static Xrm.Oss.XTL.Interpreter.XTLInterpreter;
 
@@ -212,6 +214,71 @@ namespace Xrm.Oss.XTL.Interpreter
             };
         };
 
+        private static Func<string, IOrganizationService, Dictionary<string, string>> RetrieveColumnNames = (entityName, service) =>
+        {
+            return (service.Execute(new RetrieveEntityRequest
+            {
+                EntityFilters = EntityFilters.Attributes,
+                LogicalName = entityName
+            }) as RetrieveEntityResponse)
+            .EntityMetadata
+            .Attributes
+            .ToDictionary(a => a.LogicalName, a => a.DisplayName.UserLocalizedLabel.Label);
+        };
+
+        public static FunctionHandler GetSubRecordTable = (primary, service, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 4)
+            {
+                throw new InvalidPluginExecutionException("GetSubRecords needs at least 4 parameters: Parent Entity / Entities, sub entity name, sub entity lookup, add url boolean, display columns as separate string constants");
+            }
+
+            var subEntityName = parameters[1] as string;
+            var addRecordUrl = parameters[3] as bool?;
+            var displayColumns = parameters.Skip(4).Cast<string>();
+            var records = GetSubRecords(primary, service, organizationConfig, parameters).Cast<Entity>();
+            var columnNames = RetrieveColumnNames(subEntityName, service);
+
+            var tableHeadStyle = @"style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px""";
+            var tableDataStyle = @"style=""border:1px solid black;padding:1px 15px 1px 5px""";
+
+            // Create table header
+            var stringBuilder = new StringBuilder("<table>\n<tr>");
+            foreach (var column in displayColumns)
+            {
+                var name = columnNames.ContainsKey(column) ? columnNames[column] : column;
+                stringBuilder.AppendLine($"<th {tableHeadStyle}>{name}</th>");
+            }
+
+            // Add column for url if wanted
+            if (addRecordUrl.HasValue && addRecordUrl.Value)
+            {
+                stringBuilder.AppendLine($"<th {tableHeadStyle}>URL</th>");
+            }
+            stringBuilder.AppendLine("<tr />");
+
+            foreach (var record in records)
+            {
+                stringBuilder.AppendLine("<tr>");
+
+                foreach ( var column in displayColumns )
+                {
+                    stringBuilder.AppendLine($"<td {tableDataStyle}>{PropertyStringifier.Stringify(record, column)}</td>");
+                }
+
+                if (addRecordUrl.HasValue && addRecordUrl.Value)
+                {
+                    stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, organizationConfig, new List<object> { record }).FirstOrDefault()}</td>");
+                }
+
+                stringBuilder.AppendLine("<tr />");
+            }
+
+            stringBuilder.AppendLine("</table>");
+            
+            return new List<object> { stringBuilder.ToString() };
+        };
+
         public static FunctionHandler GetSubRecords = (primary, service, organizationConfig, parameters) =>
         {
             if (parameters.Count < 4)
@@ -222,13 +289,14 @@ namespace Xrm.Oss.XTL.Interpreter
             var parentEntities = parameters[0];
             var subEntityName = parameters[1] as string;
             var subEntityLookup = parameters[2] as string;
-            var displayName = parameters[3] as string;
+            var addRecordUrl = parameters[3] as bool?;
+            var displayColumns = parameters.Skip(4).Cast<string>();
 
             List<EntityReference> parents = new List<EntityReference>();
 
             if (parentEntities is IEnumerable)
             {
-                foreach(var item in (IEnumerable) parentEntities)
+                foreach (var item in (IEnumerable)parentEntities)
                 {
                     if (item is EntityReference)
                     {
@@ -266,7 +334,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 {
                     EntityName = subEntityName,
                     NoLock = true,
-                    ColumnSet = new ColumnSet(displayName),
+                    ColumnSet = new ColumnSet(new string[] { subEntityLookup }.Concat(displayColumns).ToArray()),
                     Criteria = new FilterExpression
                     {
                         Conditions =

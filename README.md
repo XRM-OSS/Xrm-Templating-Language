@@ -148,6 +148,16 @@ Example:
 SubRecords ( Value ( "regardingobjectid"), "task", "regardingobjectid", "subject" )
 ```
 
+### SubRecordTable
+Returns a table of sub records with specified columns and record url if wanted.
+First parameter is a list of parent records, second the name of the sub entity, third the lookup on the sub entity, fourth whether to include URL or not.
+All subsequent parameters are treated as columns to retrieve.
+ 
+Example:
+```
+SubRecordTable ( PrimaryRecord(), "task", "regardingobjectid", true, "subject", "description" )
+```
+
 ### PrimaryRecord
 Returns an entity reference to the current primary entity.
 No parameters are needed.
