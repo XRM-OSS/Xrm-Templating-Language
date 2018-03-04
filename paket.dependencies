@@ -12,3 +12,5 @@ nuget Microsoft.IdentityModel.Clients.ActiveDirectory 2.22.302111727
 nuget NUnit 3.9.0
 nuget nunit.consolerunner
 nuget NUnit3TestAdapter 3.9.0
+nuget OpenCover
+nuget ReportGenerator

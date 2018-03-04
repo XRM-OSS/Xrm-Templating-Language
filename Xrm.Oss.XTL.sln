@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{EBCE4C32-B9B8-44FC-848B-1FDA720003FC}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,6 +14,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Oss.XTL.Interpreter.Tests", "src\test\Xrm.Oss.XTL.Interpreter.Tests\Xrm.Oss.XTL.Interpreter.Tests.csproj", "{2F63E2A2-B455-4DD9-B806-22796B24C793}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Oss.XTL.Templating.Tests", "src\test\Xrm.Oss.XTL.Templating.Tests\Xrm.Oss.XTL.Templating.Tests.csproj", "{005C7F2D-010D-4457-AFE4-B06700C457F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{BA4A5D25-9BF3-4207-A552-959831A9140E}"
+	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
+		build.fsx = build.fsx
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -40,5 +46,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DC3083D9-E874-45FD-B0CB-2E8A3C531D80}
 	EndGlobalSection
 EndGlobal

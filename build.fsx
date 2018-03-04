@@ -9,6 +9,9 @@ open System.IO
 open System.Text.RegularExpressions
 open Fake.Paket
 open Fake.Git
+open Fake.OpenCoverHelper
+open Fake.ReportGeneratorHelper
+open Fake.FileHelper
 
 //Project config
 let projectName = "Xrm.Oss.XTL"
@@ -26,6 +29,7 @@ let pluginDeployDir = deployDir + @"plugin"
 let nugetDir = @".\nuget\"
 let packagesDir = @".\packages\"
 
+let nUnitPath = "packages" @@ "nunit.consolerunner" @@ "tools" @@ "nunit3-console.exe"
 let sha = Git.Information.getCurrentHash()
 
 // version info
@@ -82,7 +86,7 @@ Target "NUnit" (fun _ ->
         |> NUnit3 (fun test ->
              {test with
                    ShadowCopy = false;
-                   ToolPath = "packages" @@ "nunit.consolerunner" @@ "tools" @@ "nunit3-console.exe";})
+                   ToolPath = nUnitPath;})
 )
 
 Target "Publish" (fun _ ->
@@ -92,6 +96,27 @@ Target "Publish" (fun _ ->
         |> CopyTo pluginDeployDir
 )
 
+Target "CodeCoverage" (fun _ ->
+    OpenCover (fun p -> { p with 
+                                TestRunnerExePath = nUnitPath
+                                ExePath ="packages" @@ "OpenCover" @@ "tools" @@ "OpenCover.Console.exe"
+                                Register = RegisterType.RegisterUser
+                                WorkingDir = (testDir)
+                                Filter = "+[Xrm.Oss*]* -[*.Tests*]*"
+                                Output = "../coverage.xml"
+                        }) "Xrm.Oss.XTL.Interpreter.Tests.dll Xrm.Oss.XTL.Templating.Tests.dll"
+)
+
+Target "ReportCodeCoverage" (fun _ ->
+    ReportGenerator (fun p -> { p with 
+                                    ExePath = "packages" @@ "ReportGenerator" @@ "tools" @@ "ReportGenerator.exe"
+                                    WorkingDir = (testDir)
+                                    TargetDir = "../reports"
+                                    ReportTypes = [ReportGeneratorReportType.Html; ReportGeneratorReportType.Badges ]
+                               }) [ "..\coverage.xml" ]
+    
+)
+
 // Dependencies
 "Clean"
   ==> "BuildVersions"
@@ -99,6 +124,8 @@ Target "Publish" (fun _ ->
   ==> "BuildPlugin"
   ==> "BuildTest"
   ==> "NUnit"
+  ==> "CodeCoverage"
+  ==> "ReportCodeCoverage"
   ==> "Publish"
 
 // start build
