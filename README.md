@@ -113,6 +113,7 @@ IsEqual ( Value ( \"gendercode\" ), 1 )
 ### Value
 Returns the object value of the given property.
 You can jump to entities that are connected by a lookup by concatenating field names with a '.' as separator.
+Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as second parameter.
 
 Example:
 ```
@@ -122,6 +123,7 @@ Value ("regardingobjectid.firstname")
 ### Text
 Returns the textual representation of the given property.
 You can jump to entities that are connected by a lookup by concatenating field names with a '.' as separator.
+Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as second parameter.
 
 Lookups and OptionSetValues use their formatted values, all other properties are just stringified using .ToString.
 
@@ -139,27 +141,33 @@ Example:
 RecordUrl ( Value ( "regardingobjectid") )
 ```
 
-### SubRecords
-Returns a list of sub records to the passed records.
-First parameter is a list of parent records, second the name of the sub entity, third the lookup on the sub entity and fourth the display name.
+### Fetch
+Returns a list of records, which were retrieved using supplied query.
+First parameter is the fetch xml. You can optionally pass a list of further parameters, such as entity references, entities or option set values as references.
+Inside the fetch you can then reference them by {0}, {1}, ... and so on.
+The primary entity is always {0}, so additional references start at {1}.
  
 Example:
 ```
-SubRecords ( Value ( "regardingobjectid"), "task", "regardingobjectid", "subject" )
+Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) )
 ```
 
-### SubRecordTable
-Returns a table of sub records with specified columns and record url if wanted.
-First parameter is a list of parent records, second the name of the sub entity, third the lookup on the sub entity, fourth whether to include URL or not.
-All subsequent parameters are treated as columns to retrieve.
+### RecordTable
+Returns a table of records with specified columns and record url if wanted.
+First parameter is a list of records, for displaying inside the table. Consider retrieving them using the Fetch function.
+Second is the name of the sub entity, third whether to include URL or not.
+All subsequent parameters are treated as columns to retrieve and will be added in the same order.
+
+Below you can find an example, which executes on e-mail creation and searches for tasks associated to the mails regarding contact.
+It will then print the task subject and description, including an url, into the mail.
  
 Example:
 ```
-SubRecordTable ( PrimaryRecord(), "task", "regardingobjectid", true, "subject", "description" )
+RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, "subject", "description")}}
 ```
 
 ### PrimaryRecord
-Returns an entity reference to the current primary entity.
+Returns the current primary entity as Entity object.
 No parameters are needed.
 
 Example:

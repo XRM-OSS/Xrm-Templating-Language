@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace Xrm.Oss.XTL.Templating
         public void Execute(IServiceProvider serviceProvider)
         {
             var context = serviceProvider.GetService(typeof(IPluginExecutionContext)) as IPluginExecutionContext;
+            var tracing = serviceProvider.GetService(typeof(ITracingService)) as ITracingService;
             var serviceFactory = serviceProvider.GetService(typeof(IOrganizationServiceFactory)) as IOrganizationServiceFactory;
             var service = serviceFactory.CreateOrganizationService(null);
 
@@ -74,7 +76,10 @@ namespace Xrm.Oss.XTL.Templating
                 templateText = dataSource.GetAttributeValue<string>(templateField);
             }
 
-            var tokenRegex = new Regex(@"\${([^{]*)}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
+            // Templates inside e-mails will be HTML encoded
+            templateText = WebUtility.HtmlDecode(templateText);
+
+            var tokenRegex = new Regex(@"\${{(.*?(?=}}))}}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
             var tokens = tokenRegex.Matches(templateText)
                 .Cast<Match>()
@@ -84,10 +89,10 @@ namespace Xrm.Oss.XTL.Templating
 
             tokens.ForEach(token =>
             {
-                var processor = new XTLInterpreter(token, dataSource, _organizationConfig, service);
+                var processor = new XTLInterpreter(token, dataSource, _organizationConfig, service, tracing);
 
                 var processed = processor.Produce();
-                templateText = templateText.Replace($"${{{token}}}", processed);
+                templateText = templateText.Replace($"${{{{{token}}}}}", processed);
             });
 
             target[targetField] = templateText;

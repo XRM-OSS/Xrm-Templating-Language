@@ -16,9 +16,10 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private Entity _primary;
         private IOrganizationService _service;
+        private ITracingService _tracing;
         private OrganizationConfig _organizationConfig;
 
-        public delegate List<object> FunctionHandler(Entity primary, IOrganizationService service, OrganizationConfig organizationConfig, List<object> parameters);
+        public delegate List<object> FunctionHandler(Entity primary, IOrganizationService service, ITracingService tracing, OrganizationConfig organizationConfig, List<object> parameters);
 
         private Dictionary<string, FunctionHandler> _handlers = new Dictionary<string, FunctionHandler>
         {
@@ -31,15 +32,18 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Value", FunctionHandlers.GetValue },
             { "Text", FunctionHandlers.GetText },
             { "RecordUrl", FunctionHandlers.GetRecordUrl },
-            { "SubRecords", FunctionHandlers.GetSubRecords },
-            { "SubRecordTable", FunctionHandlers.GetSubRecordTable },
-            { "PrimaryRecord", FunctionHandlers.GetPrimaryRecord }
+            { "Fetch", FunctionHandlers.Fetch },
+            { "RecordTable", FunctionHandlers.RenderRecordTable },
+            { "PrimaryRecord", FunctionHandlers.GetPrimaryRecord },
+            { "First", FunctionHandlers.First },
+            { "Last", FunctionHandlers.Last}
         };
 
-        public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service)
+        public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
         {
             _primary = primary;
             _service = service;
+            _tracing = tracing;
             _organizationConfig = organizationConfig;
 
             _reader = new StringReader(input);
@@ -154,7 +158,11 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException($"Function {name} is not known!");
             }
 
-            return _handlers[name](_primary, _service, _organizationConfig, parameters);
+            _tracing.Trace($"Processing handler {name}");
+            var result = _handlers[name](_primary, _service, _tracing, _organizationConfig, parameters);
+            _tracing.Trace($"Successfully processed handler {name}");
+
+            return result;
         }
 
         private List<object> Formula()
@@ -182,7 +190,9 @@ namespace Xrm.Oss.XTL.Interpreter
 
         public string Produce() 
         {
+            _tracing.Trace($"Initiating interpreter");
             var output = Formula();
+            _tracing.Trace("All done");
 
             if (output.Any(item => !(item is string)))
             {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
@@ -13,7 +14,7 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public static class FunctionHandlers
     {
-        public static FunctionHandler Not = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler Not = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var target = parameters.FirstOrDefault();
 
@@ -25,7 +26,27 @@ namespace Xrm.Oss.XTL.Interpreter
             return new List<object> { !((bool)target) };
         };
 
-        public static FunctionHandler IsEqual = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler First = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count != 1)
+            {
+                throw new InvalidPluginExecutionException("First expects a list as only parameter!");
+            }
+
+            return new List<object> { ((List<object>) parameters.FirstOrDefault()).FirstOrDefault() };
+        };
+
+        public static FunctionHandler Last = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count != 1)
+            {
+                throw new InvalidPluginExecutionException("Last expects a list as only parameter!");
+            }
+
+            return new List<object> { ((List<object>)parameters.FirstOrDefault()).LastOrDefault() };
+        };
+
+        public static FunctionHandler IsEqual = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count != 2)
             {
@@ -85,7 +106,7 @@ namespace Xrm.Oss.XTL.Interpreter
             throw new InvalidPluginExecutionException($"Incompatible comparison types: {expected.GetType().Name} and {actual.GetType().Name}");
         };
 
-        public static FunctionHandler And = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler And = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count != 2)
             {
@@ -105,7 +126,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new List<object> { false };
         };
 
-        public static FunctionHandler Or = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler Or = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count != 2)
             {
@@ -125,7 +146,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new List<object> { false };
         };
 
-        public static FunctionHandler IsNull = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler IsNull = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var target = parameters.FirstOrDefault();
 
@@ -137,7 +158,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new List<object> { false };
         };
 
-        public static FunctionHandler If = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler If = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count != 3)
             {
@@ -161,17 +182,17 @@ namespace Xrm.Oss.XTL.Interpreter
             return new List<object> { falseAction };
         };
 
-        public static FunctionHandler GetPrimaryRecord = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler GetPrimaryRecord = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (primary == null)
             {
                 return null;
             }
 
-            return new List<object> { primary.ToEntityReference() };
+            return new List<object> { primary };
         };
 
-        public static FunctionHandler GetRecordUrl = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler GetRecordUrl = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OrganizationUrl))
             {
@@ -216,31 +237,44 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private static Func<string, IOrganizationService, Dictionary<string, string>> RetrieveColumnNames = (entityName, service) =>
         {
-            return (service.Execute(new RetrieveEntityRequest
+            return ((RetrieveEntityResponse) service.Execute(new RetrieveEntityRequest
             {
                 EntityFilters = EntityFilters.Attributes,
-                LogicalName = entityName
-            }) as RetrieveEntityResponse)
+                LogicalName = entityName,
+                RetrieveAsIfPublished = false
+            }))
             .EntityMetadata
             .Attributes
-            .ToDictionary(a => a.LogicalName, a => a.DisplayName.UserLocalizedLabel.Label);
+            .ToDictionary(a => a.LogicalName, a => a?.DisplayName?.UserLocalizedLabel?.Label ?? a.LogicalName);
         };
 
-        public static FunctionHandler GetSubRecordTable = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler RenderRecordTable = (primary, service, tracing, organizationConfig, parameters) =>
         {
-            if (parameters.Count < 4)
+            tracing.Trace("Parsing parameters");
+
+            if (parameters.Count < 3)
             {
-                throw new InvalidPluginExecutionException("GetSubRecords needs at least 4 parameters: Parent Entity / Entities, sub entity name, sub entity lookup, add url boolean, display columns as separate string constants");
+                throw new InvalidPluginExecutionException("RecordTable needs at least 3 parameters: Entities, entity name, add url boolean, display columns as separate string constants");
             }
 
-            var subEntityName = parameters[1] as string;
-            var addRecordUrl = parameters[3] as bool?;
-            var displayColumns = parameters.Skip(4).Cast<string>();
-            var records = GetSubRecords(primary, service, organizationConfig, parameters).Cast<Entity>();
-            var columnNames = RetrieveColumnNames(subEntityName, service);
+            var records = ((List<object>)parameters[0]).Cast<Entity>().ToList();
+            tracing.Trace($"Records: {records.Count}");
+
+            // We need the entity name although it should be set in the record. If no records are passed, we would fail to display the grid with proper columns otherwise
+            var entityName = parameters[1] as string;
+            var addRecordUrl = parameters[2] as bool?;
+
+            // We need the column names explicitly, since CRM does not return null-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
+            var displayColumns = parameters.Skip(3)?.Cast<string>() ?? new List<string>();
+
+            tracing.Trace("Retrieving column names");
+            var columnNames = RetrieveColumnNames(entityName, service);
+            tracing.Trace($"Column names done");
 
             var tableHeadStyle = @"style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px""";
             var tableDataStyle = @"style=""border:1px solid black;padding:1px 15px 1px 5px""";
+
+            tracing.Trace("Parsed parameters");
 
             // Create table header
             var stringBuilder = new StringBuilder("<table>\n<tr>");
@@ -257,21 +291,24 @@ namespace Xrm.Oss.XTL.Interpreter
             }
             stringBuilder.AppendLine("<tr />");
 
-            foreach (var record in records)
+            if (records != null)
             {
-                stringBuilder.AppendLine("<tr>");
-
-                foreach ( var column in displayColumns )
+                foreach (var record in records)
                 {
-                    stringBuilder.AppendLine($"<td {tableDataStyle}>{PropertyStringifier.Stringify(record, column)}</td>");
-                }
+                    stringBuilder.AppendLine("<tr>");
 
-                if (addRecordUrl.HasValue && addRecordUrl.Value)
-                {
-                    stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, organizationConfig, new List<object> { record }).FirstOrDefault()}</td>");
-                }
+                    foreach (var column in displayColumns)
+                    {
+                        stringBuilder.AppendLine($"<td {tableDataStyle}>{PropertyStringifier.Stringify(record, column)}</td>");
+                    }
 
-                stringBuilder.AppendLine("<tr />");
+                    if (addRecordUrl.HasValue && addRecordUrl.Value)
+                    {
+                        stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, tracing, organizationConfig, new List<object> { record }).FirstOrDefault()}</td>");
+                    }
+
+                    stringBuilder.AppendLine("<tr />");
+                }
             }
 
             stringBuilder.AppendLine("</table>");
@@ -279,78 +316,75 @@ namespace Xrm.Oss.XTL.Interpreter
             return new List<object> { stringBuilder.ToString() };
         };
 
-        public static FunctionHandler GetSubRecords = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler Fetch = (primary, service, tracing, organizationConfig, parameters) =>
         {
-            if (parameters.Count < 4)
+            if (parameters.Count < 1)
             {
-                throw new InvalidPluginExecutionException("GetSubRecords needs 4 parameters: Parent Entity / Entities, sub entity name, sub entity lookup, display field");
+                throw new InvalidPluginExecutionException("Fetch needs at least one parameter: Fetch XML.");
             }
 
-            var parentEntities = parameters[0];
-            var subEntityName = parameters[1] as string;
-            var subEntityLookup = parameters[2] as string;
-            var addRecordUrl = parameters[3] as bool?;
-            var displayColumns = parameters.Skip(4).Cast<string>();
+            var fetch = parameters[0] as string;
+            var @params = parameters.Skip(1).ToList();
+            
+            List<object> references = new List<object> { primary.Id };
 
-            List<EntityReference> parents = new List<EntityReference>();
-
-            if (parentEntities is IEnumerable)
+            if (@params is IEnumerable)
             {
-                foreach (var item in (IEnumerable)parentEntities)
+                foreach (var item in @params)
                 {
-                    if (item is EntityReference)
+                    var reference = item as EntityReference;
+                    if (reference != null)
                     {
-                        parents.Add(item as EntityReference);
+                        references.Add(reference.Id);
                     }
 
-                    if (item is Entity)
+                    var entity = item as Entity;
+                    if (entity != null)
                     {
-                        parents.Add((item as Entity).ToEntityReference());
+                        references.Add(entity.Id);
+                    }
+
+                    var optionSet = item as OptionSetValue;
+                    if (optionSet != null)
+                    {
+                        references.Add(optionSet.Value);
                     }
                 }
-            }
-            else if (parentEntities is EntityReference)
-            {
-                parents.Add(parentEntities as EntityReference);
-            }
-            else if (parentEntities is Entity)
-            {
-                parents.Add((parentEntities as Entity).ToEntityReference());
-            }
-            else if (parentEntities == null)
-            {
-                return null;
-            }
-            else
-            {
-                throw new InvalidPluginExecutionException($"Parent type {parentEntities.GetType()} is invalid, please pass an entity or entityreference or collections of these");
             }
 
             var records = new List<object>();
 
-            foreach (var parent in parents)
-            {
-                var query = new QueryExpression
-                {
-                    EntityName = subEntityName,
-                    NoLock = true,
-                    ColumnSet = new ColumnSet(new string[] { subEntityLookup }.Concat(displayColumns).ToArray()),
-                    Criteria = new FilterExpression
-                    {
-                        Conditions =
-                        {
-                            new ConditionExpression(subEntityLookup, ConditionOperator.Equal, parent.Id)
-                        }
-                    }
-                };
+            var query = fetch;
 
-                records.AddRange(service.RetrieveMultiple(query).Entities);
+            if (primary != null)
+            {
+                query = query.Replace("{0}", references[0].ToString());
             }
 
-            return records;
+            tracing.Trace("Replacing references");
+
+            var referenceRegex = new Regex("{([0-9]+)}", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            query = referenceRegex.Replace(query, match =>
+            {
+                var capture = match.Groups[1].Value;
+                var referenceNumber = int.Parse(capture);
+
+                if (referenceNumber >= references.Count)
+                {
+                    throw new InvalidPluginExecutionException($"You tried using reference {referenceNumber} in fetch, but there are less reference inputs than that.");
+                }
+
+                return references[referenceNumber].ToString();
+            });
+
+            tracing.Trace("References replaced");
+            tracing.Trace($"Executing fetch: {query}");
+            records.AddRange(service.RetrieveMultiple(new FetchExpression(query)).Entities);
+
+            return new List<object> { records };
         };
 
-        public static FunctionHandler GetText = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler GetText = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (primary == null)
             {
@@ -358,16 +392,22 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var field = parameters.FirstOrDefault() as string;
+            var target = primary;
+
+            if (parameters.Count > 1)
+            {
+                target = parameters[1] as Entity;
+            }
 
             if (field == null)
             {
                 throw new InvalidPluginExecutionException("Text requires a field target string as input");
             }
 
-            return new List<object> { DataRetriever.ResolveTokenText(field, primary, service) };
+            return new List<object> { DataRetriever.ResolveTokenText(field, target, service) };
         };
 
-        public static FunctionHandler GetValue = (primary, service, organizationConfig, parameters) =>
+        public static FunctionHandler GetValue = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (primary == null)
             {
@@ -375,13 +415,19 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var field = parameters.FirstOrDefault() as string;
+            var target = primary;
+
+            if (parameters.Count > 1)
+            {
+                target = parameters[1] as Entity;
+            }
 
             if (field == null)
             {
                 throw new InvalidPluginExecutionException("Value requires a field target string as input");
             }
 
-            return new List<object> { DataRetriever.ResolveTokenValue(field, primary, service) };
+            return new List<object> { DataRetriever.ResolveTokenValue(field, target, service) };
         };
     }
 }

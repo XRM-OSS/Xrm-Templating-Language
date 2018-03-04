@@ -7,7 +7,8 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xrm.Oss.XTL.Templating</RootNamespace>
     <AssemblyName>Xrm.Oss.XTL.Templating</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
