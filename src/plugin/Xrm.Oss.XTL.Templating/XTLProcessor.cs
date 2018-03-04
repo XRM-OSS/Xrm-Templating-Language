@@ -90,8 +90,17 @@ namespace Xrm.Oss.XTL.Templating
             tokens.ForEach(token =>
             {
                 var processor = new XTLInterpreter(token, dataSource, _organizationConfig, service, tracing);
+                var processed = string.Empty;
 
-                var processed = processor.Produce();
+                try
+                {
+                    processed = processor.Produce();
+                }
+                catch (Exception ex) 
+                {
+                    tracing.Trace($"Exception while processing token {token}, replacing by empty string. Message: {ex.Message}");
+                }
+
                 templateText = templateText.Replace($"${{{{{token}}}}}", processed);
             });
 
