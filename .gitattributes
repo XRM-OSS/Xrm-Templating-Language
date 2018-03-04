@@ -31,3 +31,6 @@
 *.sdf        binary
 *.pdf        binary
 *.png        binary
+
+# Exclude report coverage from linguist
+reports/* linguist-documentation
