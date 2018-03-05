@@ -69,6 +69,34 @@ namespace Xrm.Oss.XTL.Templating.Tests
         }
 
         [Test]
+        public void It_Should_Replace_Invalid_Placeholder_By_Empty_String()
+        {
+            var context = new XrmFakedContext();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello ${{Text(\"subject)}}" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"" }";
+            Assert.That(() => context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty), Throws.Nothing);
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello "));
+        }
+
+        [Test]
         public void It_Should_Not_Throw_But_Replace_By_Empty_String_On_Error()
         {
             var context = new XrmFakedContext();

@@ -13,6 +13,7 @@ namespace Xrm.Oss.XTL.Interpreter
         private StringReader _reader = null;
         private char _previous;
         private char _current;
+        private bool _eof;
 
         private Entity _primary;
         private IOrganizationService _service;
@@ -51,10 +52,20 @@ namespace Xrm.Oss.XTL.Interpreter
             SkipWhiteSpace();
         }
 
+        /// <summary>
+        /// Reads the next character and sets it as current. Old current char becomes previous.
+        /// </summary>
+        /// <returns>True if read succeeded, false if end of input</returns>
         private void GetChar()
         {
             _previous = _current;
-            _current = (char)_reader.Read();
+            var character = _reader.Read();
+            _current = (char)character;
+            
+            if (character == -1)
+            {
+                _eof = true;
+            }
         }
 
         private void Expected(string expected)
@@ -64,7 +75,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private void SkipWhiteSpace() 
         {
-            while(char.IsWhiteSpace(_current)) {
+            while(char.IsWhiteSpace(_current) && !_eof) {
                 GetChar();
             }
         }
@@ -88,7 +99,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var name = string.Empty;
 
-            while (char.IsLetterOrDigit(_current)) {
+            while (char.IsLetterOrDigit(_current) && !_eof) {
                 name += _current;
                 GetChar();
             }
@@ -114,7 +125,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     GetChar();
 
                     // Allow to escape quotes by backslashes
-                    while (_current != '"' || _previous == '\\')
+                    while ((_current != '"' || _previous == '\\') && !_eof)
                     {
                         stringConstant += _current;
                         GetChar();
@@ -132,7 +143,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     {
                         digit = digit * 10 + int.Parse(_current.ToString());
                         GetChar();
-                    } while (char.IsDigit(_current));
+                    } while (char.IsDigit(_current) && !_eof);
 
                     returnValue.Add(digit);
                 }
