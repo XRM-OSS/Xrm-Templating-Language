@@ -382,7 +382,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 if (referenceNumber >= references.Count)
                 {
-                    throw new InvalidPluginExecutionException($"You tried using reference {referenceNumber} in fetch, but there are less reference inputs than that.");
+                    throw new InvalidPluginExecutionException($"You tried using reference {referenceNumber} in fetch, but there are less reference inputs than that. You should probably wrap this fetch inside an if condition and only execute it, if your reference is non-null.");
                 }
 
                 return references[referenceNumber].ToString();
