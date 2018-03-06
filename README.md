@@ -204,7 +204,7 @@ a new case was associated with your account TheShire Limited, you can open it us
 https://imagine-creative-url.local
 ```
 
-Example:
+Example(Please note that in recent releases (>= v1.0.31) the Text function is removed. You can replace it by the value function):
 ![email_table](https://user-images.githubusercontent.com/4287938/36945291-e5173fa0-1fab-11e8-86e6-3007eac254c9.gif)
 
 ## License
