@@ -38,7 +38,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var formula = "If( IsNull ( Text(\"subject\") ), \"Fallback\", Text(\"subject\") )";
+            var formula = "If( IsNull ( Value(\"subject\") ), \"Fallback\", Value(\"subject\") )";
 
             var result1 = new XTLInterpreter(formula, emailWithSubject, null, service, tracing).Produce();
             var result2 = new XTLInterpreter(formula, emailWithoutSubject, null, service, tracing).Produce();
@@ -73,7 +73,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var formula = "If( Not ( IsNull ( Text(\"subject\") ) ), Text(\"subject\"), \"Fallback\" )";
+            var formula = "If( Not ( IsNull ( Value(\"subject\") ) ), Value(\"subject\"), \"Fallback\" )";
 
             var result1 = new XTLInterpreter(formula, emailWithSubject, null, service, tracing).Produce();
             var result2 = new XTLInterpreter(formula, emailWithoutSubject, null, service, tracing).Produce();
@@ -119,7 +119,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var formula = "If( Or ( IsNull ( Text(\"subject\") ), IsNull( Text (\"description\") ) ), \"Something was null\", \"Nothing null\" )";
+            var formula = "If( Or ( IsNull ( Value(\"subject\") ), IsNull( Value (\"description\") ) ), \"Something was null\", \"Nothing null\" )";
 
             var result1 = new XTLInterpreter(formula, emailWithSubject, null, service, tracing).Produce();
             var result2 = new XTLInterpreter(formula, emailWithoutSubject, null, service, tracing).Produce();
@@ -167,7 +167,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var formula = "If( And ( IsNull ( Text(\"subject\") ), IsNull( Text (\"description\") ) ), \"Both null\", \"Not both null\" )";
+            var formula = "If( And ( IsNull ( Value(\"subject\") ), IsNull( Value (\"description\") ) ), \"Both null\", \"Not both null\" )";
 
             var result1 = new XTLInterpreter(formula, emailWithSubject, null, service, tracing).Produce();
             var result2 = new XTLInterpreter(formula, emailWithoutSubject, null, service, tracing).Produce();

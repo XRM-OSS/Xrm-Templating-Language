@@ -20,7 +20,7 @@ namespace Xrm.Oss.XTL.Interpreter
         private ITracingService _tracing;
         private OrganizationConfig _organizationConfig;
 
-        public delegate List<object> FunctionHandler(Entity primary, IOrganizationService service, ITracingService tracing, OrganizationConfig organizationConfig, List<object> parameters);
+        public delegate ValueExpression FunctionHandler(Entity primary, IOrganizationService service, ITracingService tracing, OrganizationConfig organizationConfig, List<ValueExpression> parameters);
 
         private Dictionary<string, FunctionHandler> _handlers = new Dictionary<string, FunctionHandler>
         {
@@ -31,7 +31,6 @@ namespace Xrm.Oss.XTL.Interpreter
             { "IsNull", FunctionHandlers.IsNull },
             { "IsEqual", FunctionHandlers.IsEqual },
             { "Value", FunctionHandlers.GetValue },
-            { "Text", FunctionHandlers.GetText },
             { "RecordUrl", FunctionHandlers.GetRecordUrl },
             { "Fetch", FunctionHandlers.Fetch },
             { "RecordTable", FunctionHandlers.RenderRecordTable },
@@ -108,9 +107,9 @@ namespace Xrm.Oss.XTL.Interpreter
             return name;
         }
 
-        private List<object> Expression()
+        private List<ValueExpression> Expression()
         {
-            var returnValue = new List<object>();
+            var returnValue = new List<ValueExpression>();
 
             do
             {
@@ -133,7 +132,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     // Skip closing quote
                     GetChar();
-                    returnValue.Add(stringConstant);
+                    returnValue.Add(new ValueExpression(stringConstant, stringConstant));
                 }
                 else if (char.IsDigit(_current))
                 {
@@ -145,7 +144,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         GetChar();
                     } while (char.IsDigit(_current) && !_eof);
 
-                    returnValue.Add(digit);
+                    returnValue.Add(new ValueExpression(digit.ToString(), digit));
                 }
                 else if (_current == ')')
                 {
@@ -154,7 +153,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 // The first char of a function must not be a digit
                 else
                 {
-                    returnValue.AddRange(Formula());
+                    returnValue.Add(Formula());
                 }
 
                 SkipWhiteSpace();
@@ -163,31 +162,36 @@ namespace Xrm.Oss.XTL.Interpreter
             return returnValue;
         }
 
-        private List<object> ApplyExpression (string name, List<object> parameters) 
+        private ValueExpression ApplyExpression (string name, List<ValueExpression> parameters) 
         {
             if (!_handlers.ContainsKey(name)) {
                 throw new InvalidPluginExecutionException($"Function {name} is not known!");
             }
 
-            _tracing.Trace($"Processing handler {name}");
-            var result = _handlers[name](_primary, _service, _tracing, _organizationConfig, parameters);
-            _tracing.Trace($"Successfully processed handler {name}");
+            var lazyExecution = new Lazy<ValueExpression>(() =>
+            {
+                _tracing.Trace($"Processing handler {name}");
+                var result = _handlers[name](_primary, _service, _tracing, _organizationConfig, parameters);
+                _tracing.Trace($"Successfully processed handler {name}");
 
-            return result;
+                return result;
+            });
+
+            return new ValueExpression(lazyExecution);
         }
 
-        private List<object> Formula()
+        private ValueExpression Formula()
         {
             var name = GetName();
 
             switch(name)
             {
                 case "true":
-                    return new List<object>() { true };
+                    return new ValueExpression(bool.TrueString, true);
                 case "false":
-                    return new List<object>() { false };
+                    return new ValueExpression(bool.FalseString, false);
                 case "null":
-                    return new List<object>() { null };
+                    return new ValueExpression( null );
                 default:
                     Match('(');
                     var parameters = Expression();
@@ -195,26 +199,15 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     return ApplyExpression(name, parameters);
             }
-
-            
         }
 
         public string Produce() 
         {
-            _tracing.Trace($"Initiating interpreter");
+            _tracing.Trace($"Initiating interpreter: Lazy version");
             var output = Formula();
             _tracing.Trace("All done");
 
-            if (output.Any(item => !(item is string)))
-            {
-                return string.Empty;
-            }
-
-            if (output != null && output.Count > 0) {
-                return string.Join(Environment.NewLine, output.Select(item => item as string));
-            }
-
-            return string.Empty;
+            return output?.Text;
         }
     }
 }

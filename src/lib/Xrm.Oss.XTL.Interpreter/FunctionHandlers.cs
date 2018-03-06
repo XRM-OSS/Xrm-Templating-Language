@@ -18,12 +18,14 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             var target = parameters.FirstOrDefault();
 
-            if (!(target is bool))
+            if (!(target.Value is bool))
             {
                 throw new InvalidPluginExecutionException("Not expects a boolean input, consider using one of the Is methods");
             }
 
-            return new List<object> { !((bool)target) };
+            var result = !((bool)target.Value);
+
+            return new ValueExpression(result.ToString(), result);
         };
 
         public static FunctionHandler First = (primary, service, tracing, organizationConfig, parameters) =>
@@ -33,7 +35,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First expects a list as only parameter!");
             }
 
-            return new List<object> { ((List<object>) parameters.FirstOrDefault()).FirstOrDefault() };
+            var firstParam = parameters.FirstOrDefault().Value;
+
+            return new ValueExpression(string.Empty, ((List<object>)firstParam).FirstOrDefault());
         };
 
         public static FunctionHandler Last = (primary, service, tracing, organizationConfig, parameters) =>
@@ -43,7 +47,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list as only parameter!");
             }
 
-            return new List<object> { ((List<object>)parameters.FirstOrDefault()).LastOrDefault() };
+            var firstParam = parameters.FirstOrDefault().Value;
+
+            return new ValueExpression(string.Empty, ((List<object>)firstParam).LastOrDefault());
         };
 
         public static FunctionHandler IsEqual = (primary, service, tracing, organizationConfig, parameters) =>
@@ -56,54 +62,57 @@ namespace Xrm.Oss.XTL.Interpreter
             var expected = parameters[0];
             var actual = parameters[1];
 
-            var falseReturn = new List<object> { false };
-            var trueReturn = new List<object> { true };
+            var falseReturn = new ValueExpression (bool.FalseString, false);
+            var trueReturn = new ValueExpression (bool.TrueString, true);
 
-            if (expected == null && actual == null)
+            if (expected.Value == null && actual.Value == null)
             {
                 return trueReturn;
             }
 
-            if (expected == null && actual != null)
+            if (expected.Value == null && actual.Value != null)
             {
                 return falseReturn;
             }
 
-            if (expected != null && actual == null)
+            if (expected.Value != null && actual.Value == null)
             {
                 return falseReturn;
             }
 
-            if (expected is string && actual is string)
+            var result = expected.Value.Equals(actual.Value);
+
+            if (expected.Value is string && actual.Value is string)
             {
-                return new List<object> { expected.Equals(actual) };
+                return new ValueExpression(result.ToString(), result);
             }
 
-            if (expected is bool && actual is bool)
+            if (expected.Value is bool && actual.Value is bool)
             {
-                return new List<object> { expected.Equals(actual) };
+                return new ValueExpression(result.ToString(), result);
             }
 
-            if (expected is int && actual is int)
+            if (expected.Value is int && actual.Value is int)
             {
-                return new List<object> { expected.Equals(actual) };
+                return new ValueExpression(result.ToString(), result);
             }
 
-            if (expected is EntityReference && actual is EntityReference)
+            if (expected.Value is EntityReference && actual.Value is EntityReference)
             {
-                return new List<object> { expected.Equals(actual) };
+                return new ValueExpression(result.ToString(), result);
             }
 
-            if (new[] { expected, actual }.All(v => v is int || v is OptionSetValue))
+            if (new[] { expected.Value, actual.Value }.All(v => v is int || v is OptionSetValue))
             {
-                var values = new[] { expected, actual }
+                var values = new[] { expected.Value, actual.Value }
                     .Select(v => v is OptionSetValue ? ((OptionSetValue)v).Value : (int)v)
                     .ToList();
 
-                return new List<object> { values[0].Equals(values[1]) };
+                var optionSetResult = values[0].Equals(values[1]);
+                return new ValueExpression(optionSetResult.ToString(), optionSetResult);
             }
 
-            throw new InvalidPluginExecutionException($"Incompatible comparison types: {expected.GetType().Name} and {actual.GetType().Name}");
+            throw new InvalidPluginExecutionException($"Incompatible comparison types: {expected.Value.GetType().Name} and {actual.Value.GetType().Name}");
         };
 
         public static FunctionHandler And = (primary, service, tracing, organizationConfig, parameters) =>
@@ -113,17 +122,17 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("And expects at least 2 conditions!");
             }
 
-            if (parameters.Any(p => !(p is bool)))
+            if (parameters.Any(p => !(p.Value is bool)))
             {
                 throw new InvalidPluginExecutionException("And: All conditions must be booleans!");
             }
 
-            if (parameters.All(p => (bool)p))
+            if (parameters.All(p => (bool)p.Value))
             {
-                return new List<object> { true };
+                return new ValueExpression(bool.TrueString, true);
             }
 
-            return new List<object> { false };
+            return new ValueExpression(bool.FalseString, false);
         };
 
         public static FunctionHandler Or = (primary, service, tracing, organizationConfig, parameters) =>
@@ -133,29 +142,29 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Or expects at least 2 conditions!");
             }
 
-            if (parameters.Any(p => !(p is bool)))
+            if (parameters.Any(p => !(p.Value is bool)))
             {
                 throw new InvalidPluginExecutionException("Or: All conditions must be booleans!");
             }
 
-            if (parameters.Any(p => (bool)p))
+            if (parameters.Any(p => (bool)p.Value))
             {
-                return new List<object> { true };
+                return new ValueExpression(bool.TrueString, true);
             }
 
-            return new List<object> { false };
+            return new ValueExpression(bool.FalseString, false);
         };
 
         public static FunctionHandler IsNull = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var target = parameters.FirstOrDefault();
 
-            if (target == null)
+            if (target.Value == null)
             {
-                return new List<object> { true };
+                return new ValueExpression(bool.TrueString, true);
             }
 
-            return new List<object> { false };
+            return new ValueExpression(bool.FalseString, false);
         };
 
         public static FunctionHandler If = (primary, service, tracing, organizationConfig, parameters) =>
@@ -169,27 +178,29 @@ namespace Xrm.Oss.XTL.Interpreter
             var trueAction = parameters[1];
             var falseAction = parameters[2];
 
-            if (!(condition is bool))
+            if (!(condition.Value is bool))
             {
                 throw new InvalidPluginExecutionException("If condition must be a boolean!");
             }
 
-            if ((bool)condition)
+            if ((bool)condition.Value)
             {
-                return new List<object> { trueAction };
+                tracing.Trace("Executing true condition");
+                return new ValueExpression(new Lazy<ValueExpression>(() => trueAction));
             }
 
-            return new List<object> { falseAction };
+            tracing.Trace("Executing false condition");
+            return new ValueExpression(new Lazy<ValueExpression>(() => falseAction));
         };
 
         public static FunctionHandler GetPrimaryRecord = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (primary == null)
             {
-                return null;
+                return new ValueExpression(null);
             }
 
-            return new List<object> { primary };
+            return new ValueExpression(string.Empty, primary);
         };
 
         public static FunctionHandler GetRecordUrl = (primary, service, tracing, organizationConfig, parameters) =>
@@ -199,14 +210,14 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("GetRecordUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
             }
 
-            if (!parameters.All(p => p is EntityReference || p is Entity || p == null))
+            if (!parameters.All(p => p .Value is EntityReference || p.Value is Entity || p.Value == null))
             {
-                throw new InvalidPluginExecutionException("Only Entity Reference Objects are supported in GetRecordUrl");
+                throw new InvalidPluginExecutionException("Only Entity Reference ValueExpressions are supported in GetRecordUrl");
             }
 
             var refs = parameters.Where(p => p != null).Select(e =>
             {
-                var entityReference = e as EntityReference;
+                var entityReference = e.Value as EntityReference;
 
                 if (entityReference != null) {
                     return new
@@ -216,7 +227,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     };
                 }
 
-                var entity = e as Entity;
+                var entity = e.Value as Entity;
                 
                 return new
                 {
@@ -225,14 +236,13 @@ namespace Xrm.Oss.XTL.Interpreter
                 };
             });
             var organizationUrl = organizationConfig.OrganizationUrl.EndsWith("/") ? organizationConfig.OrganizationUrl : organizationConfig.OrganizationUrl + "/";
+            var urls = string.Join(Environment.NewLine, refs.Select(e =>
+            {
+                var url = $"{organizationUrl}main.aspx?etn={e.LogicalName}&id={e.Id}&newWindow=true&pagetype=entityrecord";
+                return $"<a href=\"{url}\">{url}</a>";
+            }));
 
-            return new List<object>{
-                string.Join(Environment.NewLine, refs.Select(e => 
-                {
-                    var url = $"{organizationUrl}main.aspx?etn={e.LogicalName}&id={e.Id}&newWindow=true&pagetype=entityrecord";
-                    return $"<a href=\"{url}\">{url}</a>";
-                }))
-            };
+            return new ValueExpression(urls, urls);
         };
 
         private static Func<string, IOrganizationService, Dictionary<string, string>> RetrieveColumnNames = (entityName, service) =>
@@ -257,15 +267,15 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("RecordTable needs at least 3 parameters: Entities, entity name, add url boolean, display columns as separate string constants");
             }
 
-            var records = ((List<object>)parameters[0]).Cast<Entity>().ToList();
+            var records = ((List<object>)parameters[0].Value).Cast<Entity>().ToList();
             tracing.Trace($"Records: {records.Count}");
 
             // We need the entity name although it should be set in the record. If no records are passed, we would fail to display the grid with proper columns otherwise
-            var entityName = parameters[1] as string;
-            var addRecordUrl = parameters[2] as bool?;
+            var entityName = parameters[1].Value as string;
+            var addRecordUrl = parameters[2].Value as bool?;
 
-            // We need the column names explicitly, since CRM does not return null-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
-            var displayColumns = parameters.Skip(3)?.Cast<string>() ?? new List<string>();
+            // We need the column names explicitly, since CRM does not return new ValueExpression(null)-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
+            var displayColumns = parameters.Skip(3)?.Select(p => p.Value).Cast<string>() ?? new List<string>();
 
             tracing.Trace("Retrieving column names");
             var columnNames = RetrieveColumnNames(entityName, service);
@@ -304,7 +314,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     if (addRecordUrl.HasValue && addRecordUrl.Value)
                     {
-                        stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, tracing, organizationConfig, new List<object> { record }).FirstOrDefault()}</td>");
+                        stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record)}).Value}</td>");
                     }
 
                     stringBuilder.AppendLine("<tr />");
@@ -312,8 +322,9 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             stringBuilder.AppendLine("</table>");
-            
-            return new List<object> { stringBuilder.ToString() };
+            var table = stringBuilder.ToString();
+
+            return new ValueExpression(table, table);
         };
 
         public static FunctionHandler Fetch = (primary, service, tracing, organizationConfig, parameters) =>
@@ -323,7 +334,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Fetch needs at least one parameter: Fetch XML.");
             }
 
-            var fetch = parameters[0] as string;
+            var fetch = parameters[0].Value as string;
             var @params = parameters.Skip(1).ToList();
             
             List<object> references = new List<object> { primary.Id };
@@ -332,19 +343,19 @@ namespace Xrm.Oss.XTL.Interpreter
             {
                 foreach (var item in @params)
                 {
-                    var reference = item as EntityReference;
+                    var reference = item.Value as EntityReference;
                     if (reference != null)
                     {
                         references.Add(reference.Id);
                     }
 
-                    var entity = item as Entity;
+                    var entity = item.Value as Entity;
                     if (entity != null)
                     {
                         references.Add(entity.Id);
                     }
 
-                    var optionSet = item as OptionSetValue;
+                    var optionSet = item.Value as OptionSetValue;
                     if (optionSet != null)
                     {
                         references.Add(optionSet.Value);
@@ -381,45 +392,22 @@ namespace Xrm.Oss.XTL.Interpreter
             tracing.Trace($"Executing fetch: {query}");
             records.AddRange(service.RetrieveMultiple(new FetchExpression(query)).Entities);
 
-            return new List<object> { records };
-        };
-
-        public static FunctionHandler GetText = (primary, service, tracing, organizationConfig, parameters) =>
-        {
-            if (primary == null)
-            {
-                return null;
-            }
-
-            var field = parameters.FirstOrDefault() as string;
-            var target = primary;
-
-            if (parameters.Count > 1)
-            {
-                target = parameters[1] as Entity;
-            }
-
-            if (field == null)
-            {
-                throw new InvalidPluginExecutionException("Text requires a field target string as input");
-            }
-
-            return new List<object> { DataRetriever.ResolveTokenText(field, target, service) };
+            return new ValueExpression(string.Empty, records);
         };
 
         public static FunctionHandler GetValue = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (primary == null)
             {
-                return null;
+                return new ValueExpression(null);
             }
 
-            var field = parameters.FirstOrDefault() as string;
+            var field = parameters.FirstOrDefault()?.Value as string;
             var target = primary;
 
             if (parameters.Count > 1)
             {
-                target = parameters[1] as Entity;
+                target = parameters[1].Value as Entity;
             }
 
             if (field == null)
@@ -427,7 +415,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Value requires a field target string as input");
             }
 
-            return new List<object> { DataRetriever.ResolveTokenValue(field, target, service) };
+            return DataRetriever.ResolveTokenValue(field, target, service);
         };
     }
 }

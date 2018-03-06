@@ -24,7 +24,7 @@ namespace Xrm.Oss.XTL.Templating.Tests
                 Attributes =
                 {
                     { "subject", "Demo" },
-                    { "description", "Hello ${{Text(\"subject\")}}" }
+                    { "description", "Hello ${{Value(\"subject\")}}" }
                 }
             };
 
@@ -52,7 +52,7 @@ namespace Xrm.Oss.XTL.Templating.Tests
                 Attributes =
                 {
                     { "subject", "Demo" },
-                    { "description", "Hello ${{If( IsNull ( \"{0}\" ), \"\", \"\")}}${{Text(\"subject\")}} ${{Text(\"subject\")}}" }
+                    { "description", "Hello ${{If( IsNull ( \"{0}\" ), \"\", \"\")}}${{Value(\"subject\")}} ${{Value(\"subject\")}}" }
                 }
             };
 
@@ -80,7 +80,7 @@ namespace Xrm.Oss.XTL.Templating.Tests
                 Attributes =
                 {
                     { "subject", "Demo" },
-                    { "description", "Hello ${{Text(\"subject)}}" }
+                    { "description", "Hello ${{Value(\"subject)}}" }
                 }
             };
 
@@ -108,7 +108,7 @@ namespace Xrm.Oss.XTL.Templating.Tests
                 Attributes =
                 {
                     { "subject", "Demo" },
-                    { "description", "Hello ${{Text \"subject\"}} ${{Text(\"subject\")}}" }
+                    { "description", "Hello ${{Text \"subject\"}} ${{Value(\"subject\")}}" }
                 }
             };
 

@@ -70,7 +70,7 @@ If the condition resolves to true, the true action is executed, otherwise the fa
 
 Example:
 ```
-If( IsNull ( Text("subject") ), "No subject passed", Text("subject") )
+If( IsNull ( Value("subject") ), "No subject passed", Value("subject") )
 ```
 
 ### Or
@@ -118,25 +118,14 @@ IsEqual ( Value ( "gendercode" ), 1 )
 ```
 
 ### Value
-Returns the object value of the given property.
+Returns the object value of the given property. If it is used as top level function, the matching string representation is returned.
+The text function which was present in early releases was replaced by this, as the Value function hosts both the string representation and the actual value now.
 You can jump to entities that are connected by a lookup by concatenating field names with a '.' as separator.
 Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as second parameter.
 
 Example:
 ```
 Value ("regardingobjectid.firstname")
-```
-
-### Text
-Returns the textual representation of the given property.
-You can jump to entities that are connected by a lookup by concatenating field names with a '.' as separator.
-Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as second parameter.
-
-Lookups and OptionSetValues use their formatted values, all other properties are just stringified using .ToString.
-
-Example:
-```
-Text ("regardingobjectid.firstname")
 ```
 
 ### RecordUrl
@@ -186,7 +175,7 @@ It will then print the task subject and description, including an url, into the 
  
 Example:
 ```
-RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, "subject", "description")}}
+RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, "subject", "description")
 ```
 
 ### PrimaryRecord
@@ -201,9 +190,9 @@ PrimaryRecord ()
 ## Sample
 Consider the following e-mail template content:
 ```
-Hello ${{Text("regardingobjectid.customerid.ownerid.firstname")}},
+Hello ${{Value("regardingobjectid.parentcustomerid.ownerid.firstname")}},
 
-a new case was associated with your account ${{Text("regardingobjectid.customerid.name)}}, you can open it using the following URL:
+a new case was associated with your account ${{Value("regardingobjectid.parentcustomerid.name")}}, you can open it using the following URL:
 ${{RecordUrl(Value("regardingobjectid"))}} 
 ```
 

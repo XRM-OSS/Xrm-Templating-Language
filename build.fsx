@@ -35,7 +35,6 @@ let sha = Git.Information.getCurrentHash()
 // version info
 let major           = "1"
 let minor           = "0"
-let patch           = "0"
 let mutable build           = buildVersion
 let mutable asmVersion      = ""
 let mutable asmFileVersion  = ""
@@ -51,8 +50,8 @@ Target "BuildVersions" (fun _ ->
         build <- "0"
 
     // Follow SemVer scheme: http://semver.org/
-    asmVersion  <- major + "." + minor + "." + patch 
-    asmFileVersion      <- major + "." + minor + "." + patch + "+" + sha
+    asmVersion  <- major + "." + minor + "." + build 
+    asmFileVersion      <- major + "." + minor + "." + build + "+" + sha
 
     SetBuildNumber asmFileVersion
 )
