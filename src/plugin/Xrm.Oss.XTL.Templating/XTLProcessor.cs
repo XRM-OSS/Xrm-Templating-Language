@@ -34,65 +34,20 @@ namespace Xrm.Oss.XTL.Templating
 
             var target = context.InputParameters["Target"] as Entity;
 
-            string templateText;
-
             if (target == null)
             {
                 return;
             }
 
-            // "Merge" pre entity images with targets for having all attribute values
-            var dataSource = new Entity();
+            var dataSource = GenerateDataSource(context, target);
 
-            foreach(var image in context.PreEntityImages.Values)
+            if (!CheckExecutionCriteria(dataSource, service, tracing))
             {
-                foreach (var property in image.Attributes)
-                {
-                    dataSource[property.Key] = property.Value;
-                }
+                return;
             }
 
-            foreach (var property in target.Attributes)
-            {
-                dataSource[property.Key] = property.Value;
-            }
-
-            if (!string.IsNullOrEmpty(_config.ExecutionCriteria))
-            {
-                var criteriaInterpreter = new XTLInterpreter(_config.ExecutionCriteria, dataSource, _organizationConfig, service, tracing);
-                var result = criteriaInterpreter.Produce();
-
-                var criteriaMatched = false;
-                bool.TryParse(result, out criteriaMatched);
-
-                if (!criteriaMatched)
-                {
-                    tracing.Trace($"Execution criteria {_config.ExecutionCriteria} did not match, aborting.");
-                    return;
-                }
-            }
-
-            if (string.IsNullOrEmpty(targetField))
-            {
-                throw new InvalidPluginExecutionException("Target field was null, please adapt the unsecure config!");
-            }
-
-            if (string.IsNullOrEmpty(template) && string.IsNullOrEmpty(templateField))
-            {
-                throw new InvalidPluginExecutionException("Both template and template field were null, please set one of them in the unsecure config!");
-            }
-
-            if (!string.IsNullOrEmpty(template))
-            {
-                templateText = template;
-            }
-            else
-            {
-                templateText = dataSource.GetAttributeValue<string>(templateField);
-            }
-
-            // Templates inside e-mails will be HTML encoded
-            templateText = WebUtility.HtmlDecode(templateText);
+            ValidateConfig(targetField, template, templateField);
+            var templateText = RetrieveTemplate(template, templateField, dataSource);
 
             var tokenRegex = new Regex(@"\${{(.*?(?=}}))}}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
@@ -111,7 +66,7 @@ namespace Xrm.Oss.XTL.Templating
                 {
                     processed = processor.Produce();
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     tracing.Trace($"Exception while processing token {token}, replacing by empty string. Message: {ex.Message}");
                 }
@@ -120,6 +75,79 @@ namespace Xrm.Oss.XTL.Templating
             });
 
             target[targetField] = templateText;
+        }
+
+        private static string RetrieveTemplate(string template, string templateField, Entity dataSource)
+        {
+            string templateText;
+            if (!string.IsNullOrEmpty(template))
+            {
+                templateText = template;
+            }
+            else
+            {
+                templateText = dataSource.GetAttributeValue<string>(templateField);
+            }
+
+            // Templates inside e-mails will be HTML encoded
+            templateText = WebUtility.HtmlDecode(templateText);
+            return templateText;
+        }
+
+        private void ValidateConfig(string targetField, string template, string templateField)
+        {
+            if (string.IsNullOrEmpty(targetField))
+            {
+                throw new InvalidPluginExecutionException("Target field was null, please adapt the unsecure config!");
+            }
+
+            if (string.IsNullOrEmpty(template) && string.IsNullOrEmpty(templateField))
+            {
+                throw new InvalidPluginExecutionException("Both template and template field were null, please set one of them in the unsecure config!");
+            }
+        }
+
+        private bool CheckExecutionCriteria(Entity dataSource, IOrganizationService service, ITracingService tracing)
+        {
+            if (!string.IsNullOrEmpty(_config.ExecutionCriteria))
+            {
+                var criteriaInterpreter = new XTLInterpreter(_config.ExecutionCriteria, dataSource, _organizationConfig, service, tracing);
+                var result = criteriaInterpreter.Produce();
+
+                var criteriaMatched = false;
+                bool.TryParse(result, out criteriaMatched);
+
+                if (!criteriaMatched)
+                {
+                    tracing.Trace($"Execution criteria {_config.ExecutionCriteria} did not match, aborting.");
+                    return false;
+                }
+
+                return true;
+            }
+
+            return true;
+        }
+
+        private Entity GenerateDataSource(IPluginExecutionContext context, Entity target)
+        {
+            // "Merge" pre entity images with targets for having all attribute values
+            var dataSource = new Entity();
+
+            foreach (var image in context.PreEntityImages.Values)
+            {
+                foreach (var property in image.Attributes)
+                {
+                    dataSource[property.Key] = property.Value;
+                }
+            }
+
+            foreach (var property in target.Attributes)
+            {
+                dataSource[property.Key] = property.Value;
+            }
+
+            return dataSource;
         }
     }
 }
