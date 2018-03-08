@@ -178,5 +178,43 @@ namespace Xrm.Oss.XTL.Templating.Tests
 
             Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello Demo"));
         }
+
+        [Test]
+        public void It_Should_Parse_Organization_Config()
+        {
+            var context = new XrmFakedContext();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid()
+            };
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello ${{RecordUrl(Value(\"regardingobjectid\"))}}" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            context.Initialize(new[] { contact, email });
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"" }";
+            var orgConfig = @"{ ""organizationUrl"": ""https://someUrl/"" }";
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, orgConfig);
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo($"Hello <a href=\"https://someUrl/main.aspx?etn={contact.LogicalName}&id={contact.Id}&newWindow=true&pagetype=entityrecord\">https://someUrl/main.aspx?etn={contact.LogicalName}&id={contact.Id}&newWindow=true&pagetype=entityrecord</a>"));
+        }
     }
 }
