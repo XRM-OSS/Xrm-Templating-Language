@@ -23,6 +23,8 @@ namespace Xrm.Oss.XTL.Templating
         [DataMember(Name = "template")] 
         public string Template { get; set; }
         
+        [DataMember(Name = "executionCriteria")]
+        public string ExecutionCriteria { get; set; }
 
         public static ProcessorConfig Parse (string json)
         {

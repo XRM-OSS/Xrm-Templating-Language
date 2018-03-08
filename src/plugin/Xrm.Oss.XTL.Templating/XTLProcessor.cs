@@ -57,6 +57,21 @@ namespace Xrm.Oss.XTL.Templating
                 dataSource[property.Key] = property.Value;
             }
 
+            if (!string.IsNullOrEmpty(_config.ExecutionCriteria))
+            {
+                var criteriaInterpreter = new XTLInterpreter(_config.ExecutionCriteria, dataSource, _organizationConfig, service, tracing);
+                var result = criteriaInterpreter.Produce();
+
+                var criteriaMatched = false;
+                bool.TryParse(result, out criteriaMatched);
+
+                if (!criteriaMatched)
+                {
+                    tracing.Trace($"Execution criteria {_config.ExecutionCriteria} did not match, aborting.");
+                    return;
+                }
+            }
+
             if (string.IsNullOrEmpty(targetField))
             {
                 throw new InvalidPluginExecutionException("Target field was null, please adapt the unsecure config!");

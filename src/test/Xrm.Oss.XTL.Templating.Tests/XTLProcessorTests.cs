@@ -122,5 +122,61 @@ namespace Xrm.Oss.XTL.Templating.Tests
             Assert.That(() => context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty), Throws.Nothing);
             Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello  Demo"));
         }
+
+        [Test]
+        public void It_Should_Abort_If_Execution_Criteria_Set_And_No_Match()
+        {
+            var context = new XrmFakedContext();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello ${{Value(\"subject\")}}" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+            
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"", ""executionCriteria"": ""IsNull(Value(\""subject\""))"" }";
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello ${{Value(\"subject\")}}"));
+        }
+
+        [Test]
+        public void It_Should_Proceed_If_Execution_Criteria_Set_And_Matches()
+        {
+            var context = new XrmFakedContext();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello ${{Value(\"subject\")}}" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"", ""executionCriteria"": ""Not(IsNull(Value(\""subject\"")))"" }";
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello Demo"));
+        }
     }
 }
