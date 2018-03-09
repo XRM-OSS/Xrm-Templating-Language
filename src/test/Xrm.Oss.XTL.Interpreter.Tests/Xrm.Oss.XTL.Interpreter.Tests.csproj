@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="IsEqualTests.cs" />
+    <Compile Include="PropertyStringifierTests.cs" />
     <Compile Include="RecordTableTests.cs" />
     <Compile Include="XTLInterpreterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -31,12 +31,6 @@ namespace Xrm.Oss.XTL.Interpreter
             _value = new Lazy<object>(() => value);
         }
 
-        public ValueExpression(Lazy<string> text, Lazy<object> value)
-        {
-            _text = text;
-            _value = value;
-        }
-
         public ValueExpression(Lazy<ValueExpression> expression)
         {
             _text = new Lazy<string>(() => expression?.Value?.Text);

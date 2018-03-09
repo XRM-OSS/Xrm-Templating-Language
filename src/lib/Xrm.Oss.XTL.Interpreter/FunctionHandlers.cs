@@ -37,6 +37,11 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var firstParam = parameters.FirstOrDefault().Value;
 
+            if (!(firstParam is List<object>))
+            {
+                throw new InvalidPluginExecutionException("First expects a list as input");
+            }
+
             return new ValueExpression(string.Empty, ((List<object>)firstParam).FirstOrDefault());
         };
 
@@ -48,6 +53,11 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var firstParam = parameters.FirstOrDefault().Value;
+
+            if (!(firstParam is List<object>))
+            {
+                throw new InvalidPluginExecutionException("Last expects a list as input");
+            }
 
             return new ValueExpression(string.Empty, ((List<object>)firstParam).LastOrDefault());
         };
@@ -267,11 +277,22 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("RecordTable needs at least 3 parameters: Entities, entity name, add url boolean, display columns as separate string constants");
             }
 
+            if (!(parameters[0].Value is List<object>))
+            {
+                throw new InvalidPluginExecutionException("RecordTable requires the first parameter to be a list of entities");
+            }
+
             var records = ((List<object>)parameters[0].Value).Cast<Entity>().ToList();
             tracing.Trace($"Records: {records.Count}");
 
             // We need the entity name although it should be set in the record. If no records are passed, we would fail to display the grid with proper columns otherwise
             var entityName = parameters[1].Value as string;
+
+            if (string.IsNullOrEmpty(entityName))
+            {
+                throw new InvalidPluginExecutionException("Second parameter of the RecordTable function needs to be the entity name as string");
+            }
+
             var addRecordUrl = parameters[2].Value as bool?;
 
             // We need the column names explicitly, since CRM does not return new ValueExpression(null)-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
@@ -335,6 +356,12 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var fetch = parameters[0].Value as string;
+
+            if (string.IsNullOrEmpty(fetch))
+            {
+                throw new InvalidPluginExecutionException("First parameter of Fetch function needs to be a fetchXml string");
+            }
+
             var @params = parameters.Skip(1).ToList();
             
             List<object> references = new List<object> { primary.Id };
@@ -347,19 +374,24 @@ namespace Xrm.Oss.XTL.Interpreter
                     if (reference != null)
                     {
                         references.Add(reference.Id);
+                        continue;
                     }
 
                     var entity = item.Value as Entity;
                     if (entity != null)
                     {
                         references.Add(entity.Id);
+                        continue;
                     }
 
                     var optionSet = item.Value as OptionSetValue;
                     if (optionSet != null)
                     {
                         references.Add(optionSet.Value);
+                        continue;
                     }
+
+                    references.Add(item.Value);
                 }
             }
 
@@ -403,10 +435,21 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var field = parameters.FirstOrDefault()?.Value as string;
+
+            if (string.IsNullOrEmpty(field))
+            {
+                throw new InvalidPluginExecutionException("First parameter of Value function needs to be the field name as string");
+            }
+
             var target = primary;
 
             if (parameters.Count > 1)
             {
+                if (!(parameters[1].Value is Entity))
+                {
+                    throw new InvalidPluginExecutionException("When passing a second parameter as primary entity to Value function, it has to be of type entity.");
+                }
+
                 target = parameters[1].Value as Entity;
             }
 
