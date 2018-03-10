@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,8 +27,19 @@ namespace Xrm.Oss.XTL.Templating
         [DataMember(Name = "executionCriteria")]
         public string ExecutionCriteria { get; set; }
 
+        [DataMember(Name = "target")]
+        public EntityReference Target { get; set; }
+
+        [DataMember(Name = "targetColumns")]
+        public string[] TargetColumns { get; set; }
+
         public static ProcessorConfig Parse (string json)
         {
+            if (string.IsNullOrEmpty(json))
+            {
+                return null;
+            }
+
             using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
             {
                 var serializer = new DataContractJsonSerializer(typeof(ProcessorConfig));

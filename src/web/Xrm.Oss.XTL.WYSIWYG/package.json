@@ -1,0 +1,33 @@
+{
+  "name": "xrm.oss.xtl.wysiwyg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "prebuild": "npm run tslint && cpx src/views/index.ejs dist/views && cpx \"src/lib/*.{css,js}\" dist/lib",
+    "build": "tsc -t ES6 -m commonjs --jsx react src/server.ts --outDir ./dist && webpack",
+    "zip": "bestzip dist.zip dist",
+    "publish": "npm run build && npm run zip"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-markdown": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^15.0.36",
+    "@types/react-bootstrap": "^0.31.8",
+    "@types/react-dom": "^15.5.1",
+    "awesome-typescript-loader": "^3.2.1",
+    "bestzip": "^1.1.4",
+    "cpx": "^1.5.0",
+    "react-bootstrap": "^0.31.5",
+    "source-map-loader": "^0.2.1",
+    "tslint": "^5.8.0",
+    "typescript": "^2.4.1",
+    "webpack": "^3.8.1"
+  }
+}

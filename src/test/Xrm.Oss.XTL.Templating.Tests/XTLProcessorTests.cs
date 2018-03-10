@@ -216,5 +216,40 @@ namespace Xrm.Oss.XTL.Templating.Tests
 
             Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo($"Hello <a href=\"https://someUrl/main.aspx?etn={contact.LogicalName}&id={contact.Id}&newWindow=true&pagetype=entityrecord\">https://someUrl/main.aspx?etn={contact.LogicalName}&id={contact.Id}&newWindow=true&pagetype=entityrecord</a>"));
         }
+
+        [Test]
+        public void It_Should_Execute_On_Custom_Action()
+        {
+            var context = new XrmFakedContext();
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            context.ExecutePluginWith<XTLProcessor>(pluginContext);
+            
+            Assert.That(pluginContext.OutputParameters["jsonOutput"], Is.EqualTo("Hello Demo"));
+        }
     }
 }

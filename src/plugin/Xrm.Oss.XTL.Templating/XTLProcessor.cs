@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using Xrm.Oss.XTL.Interpreter;
 
 namespace Xrm.Oss.XTL.Templating
@@ -14,6 +15,8 @@ namespace Xrm.Oss.XTL.Templating
     {
         private ProcessorConfig _config;
         private OrganizationConfig _organizationConfig;
+
+        public XTLProcessor(): this("", "") { }
 
         public XTLProcessor (string unsecure, string secure)
         {
@@ -28,16 +31,54 @@ namespace Xrm.Oss.XTL.Templating
             var serviceFactory = serviceProvider.GetService(typeof(IOrganizationServiceFactory)) as IOrganizationServiceFactory;
             var service = serviceFactory.CreateOrganizationService(null);
 
-            var targetField = _config.TargetField;
-            var template = _config.Template;
-            var templateField = _config.TemplateField;
+            if (context.InputParameters.ContainsKey("jsonInput"))
+            {
+                HandleCustomAction(context, tracing, service);
+            }
+            else
+            {
+                HandleNonCustomAction(context, tracing, service);
+            }
+        }
 
-            var target = context.InputParameters["Target"] as Entity;
+        private void HandleCustomAction(IPluginExecutionContext context, ITracingService tracing, IOrganizationService service)
+        {
+            var config = ProcessorConfig.Parse(context.InputParameters["jsonInput"] as string);
+            
+            if (config.Target == null)
+            {
+                throw new InvalidPluginExecutionException("Target property inside JSON parameters is needed for custom actions");
+            }
+
+            ColumnSet columnSet;
+
+            if (config.TargetColumns != null)
+            {
+                columnSet = new ColumnSet(config.TargetColumns);
+            }
+            else
+            {
+                columnSet = new ColumnSet(true);
+            }
+
+            var dataSource = service.Retrieve(config.Target.LogicalName, config.Target.Id, columnSet);
+            var output = ProcessTemplate(tracing, service, dataSource, config.Template);
+
+            context.OutputParameters.Add("jsonOutput", output);
+        }
+
+        private void HandleNonCustomAction(IPluginExecutionContext context, ITracingService tracing, IOrganizationService service)
+        {
+            var target = context.InputParameters.ContainsKey("Target") ? context.InputParameters["Target"] as Entity : null;
 
             if (target == null)
             {
                 return;
             }
+
+            var targetField = _config.TargetField;
+            var template = _config.Template;
+            var templateField = _config.TemplateField;
 
             var dataSource = GenerateDataSource(context, target);
 
@@ -49,6 +90,13 @@ namespace Xrm.Oss.XTL.Templating
             ValidateConfig(targetField, template, templateField);
             var templateText = RetrieveTemplate(template, templateField, dataSource);
 
+            templateText = ProcessTemplate(tracing, service, dataSource, templateText);
+
+            target[targetField] = templateText;
+        }
+
+        private string ProcessTemplate(ITracingService tracing, IOrganizationService service, Entity dataSource, string templateText)
+        {
             var tokenRegex = new Regex(@"\${{(.*?(?=}}))}}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
             var tokens = tokenRegex.Matches(templateText)
@@ -73,8 +121,7 @@ namespace Xrm.Oss.XTL.Templating
 
                 templateText = templateText.Replace($"${{{{{token}}}}}", processed);
             });
-
-            target[targetField] = templateText;
+            return templateText;
         }
 
         private static string RetrieveTemplate(string template, string templateField, Entity dataSource)
