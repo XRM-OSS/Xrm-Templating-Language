@@ -1,5 +1,5 @@
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: "./components/index.tsx",
     output: {
         filename: "bundle.js",
         path: __dirname + "/dist/js",
@@ -30,6 +30,7 @@ module.exports = {
     // dependencies, which allows browsers to cache those libraries between builds.
     externals: {
         "react": "React",
-        "react-dom": "ReactDOM"
+        "react-dom": "ReactDOM",
+        "xrm-webapi-client": "WebApiClient"
     },
 };

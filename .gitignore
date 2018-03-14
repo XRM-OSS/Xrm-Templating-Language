@@ -38,3 +38,5 @@ test/*
 .fake/*
 paket-files/*
 .vs/*
+**/node_modules/*
+**/dist/*
