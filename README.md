@@ -26,6 +26,7 @@ Properties in there:
 - target: The target field for the generated text
 - templateField: The source field for the template (for "per record" templates, for example if replacing place holders inside emails)
 - template: A constant template that will be used for all records (for example when formatting addresses)
+- executionCriteria: An XTL expression that should return true if the template should be applied, or false otherwise. If not set, default is to apply the logic. Comparison Operators such as IsEqual automatically return booleans.
 
 Target always has to be set, in addition to either template or templateField.
 
@@ -33,7 +34,8 @@ Sample (For formatting emails):
 ```JSON
 {
     "target": "description",
-    "templateField": "description"
+    "templateField": "description",
+    "executionCriteria": "IsEqual(Value(\"directioncode\": true))"
 }
 ```
 
