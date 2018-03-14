@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OrganizationConfig.cs" />
+    <Compile Include="PersistentTracingService.cs" />
+    <Compile Include="ProcessingResult.cs" />
     <Compile Include="ProcessorConfig.cs" />
     <Compile Include="IConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

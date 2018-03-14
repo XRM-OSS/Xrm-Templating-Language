@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -27,7 +29,8 @@ namespace Xrm.Oss.XTL.Templating
         public void Execute(IServiceProvider serviceProvider)
         {
             var context = serviceProvider.GetService(typeof(IPluginExecutionContext)) as IPluginExecutionContext;
-            var tracing = serviceProvider.GetService(typeof(ITracingService)) as ITracingService;
+            var crmTracing = serviceProvider.GetService(typeof(ITracingService)) as ITracingService;
+            var tracing = new PersistentTracingService(crmTracing);
             var serviceFactory = serviceProvider.GetService(typeof(IOrganizationServiceFactory)) as IOrganizationServiceFactory;
             var service = serviceFactory.CreateOrganizationService(null);
 
@@ -41,7 +44,7 @@ namespace Xrm.Oss.XTL.Templating
             }
         }
 
-        private void HandleCustomAction(IPluginExecutionContext context, ITracingService tracing, IOrganizationService service)
+        private void HandleCustomAction(IPluginExecutionContext context, PersistentTracingService tracing, IOrganizationService service)
         {
             var config = ProcessorConfig.Parse(context.InputParameters["jsonInput"] as string);
             
@@ -61,10 +64,46 @@ namespace Xrm.Oss.XTL.Templating
                 columnSet = new ColumnSet(true);
             }
 
-            var dataSource = service.Retrieve(config.Target.LogicalName, config.Target.Id, columnSet);
-            var output = ProcessTemplate(tracing, service, dataSource, config.Template);
+            try
+            {
+                var dataSource = service.Retrieve(config.Target.LogicalName, config.Target.Id, columnSet);
+                var output = ProcessTemplate(tracing, service, dataSource, config.Template);
 
-            context.OutputParameters.Add("jsonOutput", output);
+                var result = new ProcessingResult
+                {
+                    Success = true,
+                    Result = output,
+                    TraceLog = tracing.TraceLog
+                };
+                context.OutputParameters.Add("jsonOutput", SerializeResult(result));
+            }
+            catch (Exception ex)
+            {
+                var result = new ProcessingResult
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    TraceLog = tracing.TraceLog
+                };
+                context.OutputParameters.Add("jsonOutput", SerializeResult(result));
+            }
+        }
+
+        private string SerializeResult(ProcessingResult result)
+        {
+            var serializer = new DataContractJsonSerializer(typeof(ProcessingResult));
+
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.WriteObject(memoryStream, result);
+
+                memoryStream.Position = 0;
+
+                using (var streamReader = new StreamReader(memoryStream))
+                {
+                    return streamReader.ReadToEnd();
+                }
+            }
         }
 
         private void HandleNonCustomAction(IPluginExecutionContext context, ITracingService tracing, IOrganizationService service)
