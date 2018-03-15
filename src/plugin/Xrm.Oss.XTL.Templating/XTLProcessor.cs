@@ -136,7 +136,6 @@ namespace Xrm.Oss.XTL.Templating
 
         private string ProcessTemplate(ITracingService tracing, IOrganizationService service, Entity dataSource, string templateText)
         {
-            tracing.Trace($"Processing template {templateText}");
             var tokenRegex = new Regex(@"\${{(.*?(?=}}))}}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
             var tokens = tokenRegex.Matches(templateText)
