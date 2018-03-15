@@ -75,7 +75,7 @@ namespace Xrm.Oss.XTL.Templating
                     Result = output,
                     TraceLog = tracing.TraceLog
                 };
-                context.OutputParameters["jsonOutput"] = SerializeResult(result));
+                context.OutputParameters["jsonOutput"] = SerializeResult(result);
             }
             catch (Exception ex)
             {
@@ -85,7 +85,7 @@ namespace Xrm.Oss.XTL.Templating
                     Error = ex.Message,
                     TraceLog = tracing.TraceLog
                 };
-                context.OutputParameters["jsonOutput"] = SerializeResult(result));
+                context.OutputParameters["jsonOutput"] = SerializeResult(result);
             }
         }
 
