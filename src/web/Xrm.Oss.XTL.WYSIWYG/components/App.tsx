@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Well, ButtonToolbar, ButtonGroup, Button } from "react-bootstrap";
-import  { WebApiClient } from "xrm-webapi-client";
+import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem } from "react-bootstrap";
 
 interface WYSIWYGEditorState {
   inputTemplate: string;
@@ -14,6 +13,8 @@ interface WYSIWYGEditorState {
 }
 
 export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEditorState> {
+    private WebApiClient: any;
+
     constructor(props: any) {
         super(props);
 
@@ -28,19 +29,21 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
           success: true
         };
 
+        this.WebApiClient = (window as any).WebApiClient;
+
         this.inputChanged = this.inputChanged.bind(this);
         this.preview = this.preview.bind(this);
         this.selectTarget = this.selectTarget.bind(this);
     }
 
     preview(e: any) {
-        const request = WebApiClient.Requests.Request.prototype.with({
+        const request = this.WebApiClient.Requests.Request.prototype.with({
             method: "POST",
-            name: "oss_ProcessXtlTemplate",
+            name: "oss_XTLProcessTemplate",
             bound: false
         });
 
-        WebApiClient.Execute(request.with({
+        this.WebApiClient.Execute(request.with({
             payload: {
                 jsonInput: JSON.stringify({
                     target: {
@@ -52,11 +55,17 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
             }
         }))
         .then((result: any) => {
+            const json = JSON.parse(result.jsonOutput);
+
+            this.setState({
+                resultText: (json.result || "").replace(/\\n/g, "\r\n"),
+                traceLog: json.traceLog
+            });
         });
     }
 
     selectTarget(e: any) {
-        const url = (WebApiClient as any).GetApiUrl().replace("/api/data/v8.0/", "") + "/_controls/lookup/lookupinfo.aspx?AllowFilterOff=1&DefaultType=1&DisableQuickFind=0&DisableViewPicker=0&LookupStyle=single&ShowNewButton=0&ShowPropButton=0&browse=false&objecttypes=1";
+        const url = this.WebApiClient.GetApiUrl().replace("/api/data/v8.0/", "") + "/_controls/lookup/lookupinfo.aspx?AllowFilterOff=1&DefaultType=1&DisableQuickFind=0&DisableViewPicker=0&LookupStyle=single&ShowNewButton=0&ShowPropButton=0&browse=false&objecttypes=1";
         const Xrm: any = (window as any).Xrm;
         Xrm.Internal.openDialog(url , {width: 300, height: 500}, undefined, undefined, (result: any) => {
             const reference = result.items[0];
@@ -83,6 +92,13 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
           <div>
             <ButtonToolbar>
               <ButtonGroup>
+                <DropdownButton
+                    bsStyle="default"
+                    title="Entity"
+                    id="EntitySelect"
+                >
+                      { [1, 2, 3, 4].map( value => <MenuItem eventKey={value}>{value}</MenuItem> ) }
+                </DropdownButton>
                 <Button bsStyle="default" onClick={ this.selectTarget }>Select Target</Button>
                 <Button bsStyle="default" onClick={ this.preview }>Preview</Button>
               </ButtonGroup>

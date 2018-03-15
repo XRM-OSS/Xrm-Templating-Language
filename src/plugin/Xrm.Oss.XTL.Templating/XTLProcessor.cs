@@ -75,7 +75,7 @@ namespace Xrm.Oss.XTL.Templating
                     Result = output,
                     TraceLog = tracing.TraceLog
                 };
-                context.OutputParameters.Add("jsonOutput", SerializeResult(result));
+                context.OutputParameters["jsonOutput"] = SerializeResult(result));
             }
             catch (Exception ex)
             {
@@ -85,7 +85,7 @@ namespace Xrm.Oss.XTL.Templating
                     Error = ex.Message,
                     TraceLog = tracing.TraceLog
                 };
-                context.OutputParameters.Add("jsonOutput", SerializeResult(result));
+                context.OutputParameters["jsonOutput"] = SerializeResult(result));
             }
         }
 
@@ -136,6 +136,7 @@ namespace Xrm.Oss.XTL.Templating
 
         private string ProcessTemplate(ITracingService tracing, IOrganizationService service, Entity dataSource, string templateText)
         {
+            tracing.Trace($"Processing template {templateText}");
             var tokenRegex = new Regex(@"\${{(.*?(?=}}))}}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
             var tokens = tokenRegex.Matches(templateText)
