@@ -28,14 +28,8 @@ namespace Xrm.Oss.XTL.Templating
 
         public void Trace(string format, params object[] args)
         {
-            var trace = format;
-            
-            if (args.Length > 0) {
-                trace = string.Format(format, args);
-            }
-
-            _traceBuilder.AppendLine(trace);
-            _innerTracing.Trace(trace);
+            _traceBuilder.AppendLine(format);
+            _innerTracing.Trace(format);
         }
     }
 }
