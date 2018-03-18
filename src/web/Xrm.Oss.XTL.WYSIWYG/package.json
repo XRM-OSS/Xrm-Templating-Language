@@ -14,7 +14,7 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-markdown": "^3.1.0",
-    "xrm-webapi-client": "^3.6.6"
+    "xrm-webapi-client": "^3.6.7"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.20",
