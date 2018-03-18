@@ -203,9 +203,8 @@ namespace Xrm.Oss.XTL.Interpreter
 
         public string Produce() 
         {
-            _tracing.Trace($"Initiating interpreter: Lazy version");
+            _tracing.Trace($"Initiating interpreter");
             var output = Formula();
-            _tracing.Trace("All done");
 
             return output?.Text;
         }
