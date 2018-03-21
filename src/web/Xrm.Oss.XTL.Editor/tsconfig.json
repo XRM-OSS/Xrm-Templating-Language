@@ -5,6 +5,7 @@
         "noImplicitAny": true,
         "module": "ES6",
         "moduleResolution": "node",
+        "allowJs": true,
         "baseUrl": ".",
         "module": "es6",
         "target": "es6",
