@@ -1,6 +1,7 @@
 import * as React from "react";
-import { WebApiClient } from "xrm-webapi-client";
+import WebApiClient from "xrm-webapi-client";
 import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Modal } from "react-bootstrap";
+import * as Parser from "html-react-parser";
 
 interface WYSIWYGEditorState {
   inputTemplate: string;
@@ -140,7 +141,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
               </ButtonGroup>
             </ButtonToolbar>
               <textarea className="col-xs-6" style={ { "height": "100vh" } } onChange={ this.inputChanged } />
-              <textarea className="col-xs-6" style={ { "height": "50vh" } } value={ this.state.resultText } disabled />
+              <div className="col-xs-6" style={ { "height": "50vh" } }>{Parser(this.state.resultText)}</div>
               <textarea className="col-xs-6" style={ { "height": "50vh" } } value={ this.state.traceLog } disabled />
           </div>
         </div>
