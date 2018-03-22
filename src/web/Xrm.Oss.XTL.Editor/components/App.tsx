@@ -190,7 +190,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
               </FormGroup>
               <div className="col-xs-6">
                 <ControlLabel>Result</ControlLabel>
-                <div style={ { "height": "50vh", "border": "1px solid lightgray" } }>{Parser(this.state.resultText)}</div>
+                <div style={ { "height": "50vh", "border": "1px solid lightgray" } }>{Parser(this.state.resultText.replace("\n", "<br />"))}</div>
                 <FormGroup controlId="output">
                   <ControlLabel style={{"padding-top": "10px"}}>Interpreter Trace</ControlLabel>
                   <FormControl style={ { "height": "50vh" } } onChange={ this.criteriaChanged } componentClass="textarea" value={ this.state.traceLog } disabled />
