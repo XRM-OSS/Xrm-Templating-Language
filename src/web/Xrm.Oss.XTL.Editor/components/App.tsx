@@ -79,7 +79,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                         Id: this.state.selectedEntityId,
                         LogicalName: this.state.selectedEntityLogicalName
                     },
-                    template: this.state.inputTemplate,
+                    template: this.state.inputTemplate.replace(/\n/g, "<br />"),
                     executionCriteria: this.state.executionCriteria
                 })
             }
@@ -89,7 +89,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
 
             this.setState({
                 requestPending: false,
-                resultText: (json.result || "").replace(/\\n/g, "\r\n"),
+                resultText: (json.result || ""),
                 traceLog: json.traceLog
             });
         });
@@ -184,16 +184,16 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
             </ButtonToolbar>
               <FormGroup className="col-xs-6" controlId="input">
                 <ControlLabel>Execution Criteria</ControlLabel>
-                <FormControl style={ { "height": "25vh" } } onChange={ this.criteriaChanged } componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
+                <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
                 <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
-                <FormControl style={ { "height": "75vh" } } onChange={ this.inputChanged } componentClass="textarea" placeholder="Enter template" />
+                <FormControl style={ { "height": "75vh", "overflow": "auto" } } onChange={ this.inputChanged } componentClass="textarea" placeholder="Enter template" />
               </FormGroup>
               <div className="col-xs-6">
                 <ControlLabel>Result</ControlLabel>
-                <div style={ { "height": "50vh", "border": "1px solid lightgray" } }>{Parser(this.state.resultText)}</div>
+                <div style={ { "height": "50vh", "border": "1px solid lightgray", "overflow": "auto" } }>{Parser(this.state.resultText)}</div>
                 <FormGroup controlId="output">
                   <ControlLabel style={{"padding-top": "10px"}}>Interpreter Trace</ControlLabel>
-                  <FormControl style={ { "height": "50vh" } } onChange={ this.criteriaChanged } componentClass="textarea" value={ this.state.traceLog } disabled />
+                  <FormControl style={ { "height": "50vh", "overflow": "auto" } } componentClass="textarea" value={ this.state.traceLog } disabled />
                 </FormGroup>
               </div>
           </div>
