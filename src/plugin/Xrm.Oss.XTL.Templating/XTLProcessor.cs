@@ -67,6 +67,22 @@ namespace Xrm.Oss.XTL.Templating
             try
             {
                 var dataSource = service.Retrieve(config.Target.LogicalName, config.Target.Id, columnSet);
+
+                if (!CheckExecutionCriteria(config, dataSource, service, tracing))
+                {
+                    tracing.Trace("Execution criteria not met, aborting");
+
+                    var abortResult = new ProcessingResult
+                    {
+                        Success = true,
+                        Result = config.Template,
+                        TraceLog = tracing.TraceLog
+                    };
+                    context.OutputParameters["jsonOutput"] = SerializeResult(abortResult);
+
+                    return;
+                }
+
                 var output = ProcessTemplate(tracing, service, dataSource, config.Template);
 
                 var result = new ProcessingResult
@@ -121,8 +137,9 @@ namespace Xrm.Oss.XTL.Templating
 
             var dataSource = GenerateDataSource(context, target);
 
-            if (!CheckExecutionCriteria(dataSource, service, tracing))
+            if (!CheckExecutionCriteria(_config, dataSource, service, tracing))
             {
+                tracing.Trace("Execution criteria not met, aborting");
                 return;
             }
 
@@ -146,6 +163,8 @@ namespace Xrm.Oss.XTL.Templating
 
             tokens.ForEach(token =>
             {
+                tracing.Trace($"Processing token '{token}'");
+
                 var processor = new XTLInterpreter(token, dataSource, _organizationConfig, service, tracing);
                 var processed = string.Empty;
 
@@ -159,6 +178,7 @@ namespace Xrm.Oss.XTL.Templating
                 }
 
                 templateText = templateText.Replace($"${{{{{token}}}}}", processed);
+                tracing.Trace($"Replacing token with '{processed}'");
             });
             return templateText;
         }
@@ -193,11 +213,11 @@ namespace Xrm.Oss.XTL.Templating
             }
         }
 
-        private bool CheckExecutionCriteria(Entity dataSource, IOrganizationService service, ITracingService tracing)
+        private bool CheckExecutionCriteria(ProcessorConfig config, Entity dataSource, IOrganizationService service, ITracingService tracing)
         {
-            if (!string.IsNullOrEmpty(_config.ExecutionCriteria))
+            if (!string.IsNullOrEmpty(config.ExecutionCriteria))
             {
-                var criteriaInterpreter = new XTLInterpreter(_config.ExecutionCriteria, dataSource, _organizationConfig, service, tracing);
+                var criteriaInterpreter = new XTLInterpreter(config.ExecutionCriteria, dataSource, _organizationConfig, service, tracing);
                 var result = criteriaInterpreter.Produce();
 
                 var criteriaMatched = false;
@@ -205,7 +225,6 @@ namespace Xrm.Oss.XTL.Templating
 
                 if (!criteriaMatched)
                 {
-                    tracing.Trace($"Execution criteria {_config.ExecutionCriteria} did not match, aborting.");
                     return false;
                 }
 

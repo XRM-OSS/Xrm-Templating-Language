@@ -52,7 +52,7 @@ namespace Xrm.Oss.XTL.Templating.Tests
                 Attributes =
                 {
                     { "subject", "Demo" },
-                    { "description", "Hello ${{If( IsNull ( \"{0}\" ), \"\", \"\")}}${{Value(\"subject\")}} ${{Value(\"subject\")}}" }
+                    { "description", "Hello ${{Value(\"subject\")}} ${{Value(\"subject\")}}" }
                 }
             };
 
@@ -249,7 +249,7 @@ namespace Xrm.Oss.XTL.Templating.Tests
 
             context.ExecutePluginWith<XTLProcessor>(pluginContext);
 
-            var expected = @"{""error"":null,""result"":""Hello Demo"",""success"":true,""traceLog"":""Initiating interpreter\u000d\u000aProcessing handler Value\u000d\u000aSuccessfully processed handler Value\u000d\u000a""}";
+            var expected = @"{""error"":null,""result"":""Hello Demo"",""success"":true,""traceLog"":""Processing token 'Value(\""subject\"")'\u000d\u000aInitiating interpreter\u000d\u000aProcessing handler Value\u000d\u000aSuccessfully processed handler Value\u000d\u000aReplacing token with 'Demo'\u000d\u000a""}";
             Assert.That(pluginContext.OutputParameters["jsonOutput"], Is.EqualTo(expected));
         }
     }

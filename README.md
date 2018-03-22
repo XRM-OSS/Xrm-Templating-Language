@@ -35,7 +35,7 @@ Sample (For formatting emails):
 {
     "target": "description",
     "templateField": "description",
-    "executionCriteria": "IsEqual(Value(\"directioncode\": true))"
+    "executionCriteria": "IsEqual(Value(\"directioncode\"), true)"
 }
 ```
 
