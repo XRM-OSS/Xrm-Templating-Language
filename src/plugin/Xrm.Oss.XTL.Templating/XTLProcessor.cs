@@ -71,6 +71,15 @@ namespace Xrm.Oss.XTL.Templating
                 if (!CheckExecutionCriteria(config, dataSource, service, tracing))
                 {
                     tracing.Trace("Execution criteria not met, aborting");
+
+                    var abortResult = new ProcessingResult
+                    {
+                        Success = true,
+                        Result = "Execution criteria not met, aborting",
+                        TraceLog = tracing.TraceLog
+                    };
+                    context.OutputParameters["jsonOutput"] = SerializeResult(abortResult);
+
                     return;
                 }
 
