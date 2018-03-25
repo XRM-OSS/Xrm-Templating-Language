@@ -75,7 +75,7 @@ namespace Xrm.Oss.XTL.Templating
                     var abortResult = new ProcessingResult
                     {
                         Success = true,
-                        Result = "Execution criteria not met, aborting",
+                        Result = config.Template,
                         TraceLog = tracing.TraceLog
                     };
                     context.OutputParameters["jsonOutput"] = SerializeResult(abortResult);
