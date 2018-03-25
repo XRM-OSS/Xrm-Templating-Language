@@ -16,6 +16,14 @@ It is embedded inside a plugin and does not need any external references, so tha
 ## Where to get it
 Build it yourself by running `build.cmd`, or simply download from [AppVeyor](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language/build/artifacts).
 
+## Requirements
+XTL itself does not use any specific CRM features and is compatible with Dynamics CRM 2011 and higher.
+Currently the Plugin is built against Dynamics 365 SDK however. Future releases may target specific CRM versions.
+The template editor is only available in CRM 2016 and later, as it uses the Web Api.
+The solution which can be downloaded from the releases site currently targets Dynamics 365 aka 9.0.
+This is due to the fact that I don't have access to other CRM versions for developing right now.
+For XTL itself you only need the DLL which you can download on AppVeyor. The solution just adds the template editor.
+
 ## How To Register
 Register the assemblies using the Plugin Registration Tool.
 You can then create steps in the pre operation stage. If you're on update message, be sure to register a preimg with all attributes needed for generating your texts.
