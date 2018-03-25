@@ -151,6 +151,43 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
         }
 
         [Test]
+        public void It_Should_Not_Fail_If_Value_Target_Is_Null()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+            
+            var emailWithSubject = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            context.Initialize(new Entity[] { contact, emailWithSubject });
+
+            var formula = "Value(\"subject\", First(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>\", Value(\"regardingobjectid\"))))";
+
+            var result1 = new XTLInterpreter(formula, emailWithSubject, null, service, tracing).Produce();
+
+            Assert.That(result1, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
         public void It_Should_Only_Execute_Relevant_SubTree()
         {
             var context = new XrmFakedContext();
