@@ -69,6 +69,34 @@ namespace Xrm.Oss.XTL.Templating.Tests
         }
 
         [Test]
+        public void It_Should_Preserve_Whitespace()
+        {
+            var context = new XrmFakedContext();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "name", "Demo" },
+                    { "description", "Hi Tester,\n\n${{\nValue(\"name\")}}" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"" }";
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hi Tester,\n\nDemo"));
+        }
+
+        [Test]
         public void It_Should_Replace_Invalid_Placeholder_By_Empty_String()
         {
             var context = new XrmFakedContext();

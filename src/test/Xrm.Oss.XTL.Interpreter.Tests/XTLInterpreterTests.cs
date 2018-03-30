@@ -40,6 +40,29 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
         }
 
         [Test]
+        public void It_Should_Ignore_Whitespace()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "account",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "TestSubject" }
+                }
+            };
+
+            var formula = "\nValue\n(\n\"name\"\n)\n";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("TestSubject"));
+        }
+
+        [Test]
         public void It_Should_Execute_Parameterless_Function()
         {
             var context = new XrmFakedContext();

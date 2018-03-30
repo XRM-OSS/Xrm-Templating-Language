@@ -92,6 +92,8 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private string GetName() 
         {
+            SkipWhiteSpace();
+
             if (!char.IsLetter(_current)) {
                 Expected("Name");
             }
