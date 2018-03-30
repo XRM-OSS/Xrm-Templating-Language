@@ -247,5 +247,28 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
             Assert.That(result1, Is.EqualTo("Frodo"));
             A.CallTo(() => service.Retrieve(A<string>._, A<Guid>._, A<ColumnSet>._)).MustHaveHappened(Repeated.Exactly.Once);
         }
+
+        [Test]
+        public void It_Should_Concatenate_Strings()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Concat(Value (\"subject\"), \" \", Value (\"subject\"))";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("TestSubject TestSubject"));
+        }
     }
 }

@@ -469,5 +469,17 @@ namespace Xrm.Oss.XTL.Interpreter
 
             return DataRetriever.ResolveTokenValue(field, target, service);
         };
+
+        public static FunctionHandler Concat = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var text = "";
+
+            foreach (var parameter in parameters)
+            {
+                text += parameter.Text;
+            }
+
+            return new ValueExpression(text, text);
+        };
     }
 }

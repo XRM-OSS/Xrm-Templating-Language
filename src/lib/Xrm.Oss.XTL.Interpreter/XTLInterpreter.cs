@@ -36,7 +36,8 @@ namespace Xrm.Oss.XTL.Interpreter
             { "RecordTable", FunctionHandlers.RenderRecordTable },
             { "PrimaryRecord", FunctionHandlers.GetPrimaryRecord },
             { "First", FunctionHandlers.First },
-            { "Last", FunctionHandlers.Last}
+            { "Last", FunctionHandlers.Last},
+            { "Concat", FunctionHandlers.Concat }
         };
 
         public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
