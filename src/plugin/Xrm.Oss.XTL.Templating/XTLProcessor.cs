@@ -44,6 +44,32 @@ namespace Xrm.Oss.XTL.Templating
             }
         }
 
+        private void TriggerUpdateConditionally(string newValue, Entity target, ProcessorConfig config, IOrganizationService service)
+        {
+            if (!config.TriggerUpdate)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(config.TargetField))
+            {
+                throw new InvalidPluginExecutionException("Target field is required when setting the 'triggerUpdate' flag");
+            }
+
+            if (config.ForceUpdate || !string.Equals(target.GetAttributeValue<string>(config.TargetField), newValue))
+            {
+                var updateObject = new Entity
+                {
+                    LogicalName = target.LogicalName,
+                    Id = target.Id
+                };
+
+                updateObject[config.TargetField] = newValue;
+
+                service.Update(updateObject);
+            }
+        }
+
         private void HandleCustomAction(IPluginExecutionContext context, PersistentTracingService tracing, IOrganizationService service)
         {
             var config = ProcessorConfig.Parse(context.InputParameters["jsonInput"] as string);
@@ -92,6 +118,8 @@ namespace Xrm.Oss.XTL.Templating
                     TraceLog = tracing.TraceLog
                 };
                 context.OutputParameters["jsonOutput"] = SerializeResult(result);
+
+                TriggerUpdateConditionally(output, dataSource, config, service);
             }
             catch (Exception ex)
             {
@@ -102,6 +130,11 @@ namespace Xrm.Oss.XTL.Templating
                     TraceLog = tracing.TraceLog
                 };
                 context.OutputParameters["jsonOutput"] = SerializeResult(result);
+
+                if (config.ThrowOnCustomActionError)
+                {
+                    throw;
+                }
             }
         }
 
@@ -146,9 +179,10 @@ namespace Xrm.Oss.XTL.Templating
             ValidateConfig(targetField, template, templateField);
             var templateText = RetrieveTemplate(template, templateField, dataSource);
 
-            templateText = ProcessTemplate(tracing, service, dataSource, templateText);
+            var output = ProcessTemplate(tracing, service, dataSource, templateText);
 
-            target[targetField] = templateText;
+            target[targetField] = output;
+            TriggerUpdateConditionally(output, dataSource, _config, service);
         }
 
         private string ProcessTemplate(ITracingService tracing, IOrganizationService service, Entity dataSource, string templateText)
@@ -237,7 +271,11 @@ namespace Xrm.Oss.XTL.Templating
         private Entity GenerateDataSource(IPluginExecutionContext context, Entity target)
         {
             // "Merge" pre entity images with targets for having all attribute values
-            var dataSource = new Entity();
+            var dataSource = new Entity
+            {
+                LogicalName = target.LogicalName,
+                Id = target.Id
+            };
 
             foreach (var image in context.PreEntityImages.Values)
             {

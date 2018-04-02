@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FakeItEasy;
 using FakeXrmEasy;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using NUnit.Framework;
 
 namespace Xrm.Oss.XTL.Templating.Tests
@@ -38,6 +40,44 @@ namespace Xrm.Oss.XTL.Templating.Tests
             context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
 
             Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello Demo"));
+        }
+
+        [Test]
+        public void It_Should_Retrieve_Values_From_Preimages()
+        {
+            var context = new XrmFakedContext();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "description", "Hello ${{Value(\"subject\")}}" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+            pluginContext.PreEntityImages = new EntityImageCollection
+            {
+                { "preimg", new Entity
+                    {
+                        Attributes =
+                        {
+                            { "subject", "Demo Pre" }
+                        }
+                    }
+                }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"" }";
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello Demo Pre"));
         }
 
         [Test]
@@ -172,7 +212,7 @@ namespace Xrm.Oss.XTL.Templating.Tests
             {
                 { "Target", email }
             };
-            
+
             var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"", ""executionCriteria"": ""IsNull(Value(\""subject\""))"" }";
             context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
 
@@ -279,6 +319,447 @@ namespace Xrm.Oss.XTL.Templating.Tests
 
             var expected = @"{""error"":null,""result"":""Hello Demo"",""success"":true,""traceLog"":""Processing token 'Value(\""subject\"")'\u000d\u000aInitiating interpreter\u000d\u000aProcessing handler Value\u000d\u000aSuccessfully processed handler Value\u000d\u000aReplacing token with 'Demo'\u000d\u000a""}";
             Assert.That(pluginContext.OutputParameters["jsonOutput"], Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void It_Should_Send_Organization_Service_Update_With_Trigger_Update_Flag()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello ${{Value(\"subject\")}}" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"", ""triggerUpdate"": true }";
+            context.Initialize(email);
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            email = service.Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello Demo"));
+        }
+
+        [Test]
+        public void It_Should_Not_Send_Organization_Service_Update_Without_Trigger_Update_Flag()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello ${{Value(\"subject\")}}" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"" }";
+            context.Initialize(email);
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            email = service.Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello ${{Value(\"subject\")}}"));
+            A.CallTo(() => service.Update(A<Entity>._)).MustHaveHappened(Repeated.Never);
+        }
+
+        [Test]
+        public void It_Should_Not_Send_Organization_Service_Update_If_Value_Identical_And_No_Force_Flag_Set()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello Demo" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"", ""triggerUpdate"": true }";
+            context.Initialize(email);
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            email = service.Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello Demo"));
+            A.CallTo(() => service.Update(A<Entity>._)).MustHaveHappened(Repeated.Never);
+        }
+
+        [Test]
+        public void It_Should_Send_Organization_Service_Update_If_Value_Identical_And_Force_Flag_Set()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello Demo" }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"", ""triggerUpdate"": true, ""forceUpdate"": true }";
+            context.Initialize(email);
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            email = service.Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo("Hello Demo"));
+            A.CallTo(() => service.Update(A<Entity>._)).MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Test]
+        public void It_Should_Trigger_Update_On_Custom_Action_If_Flag_Set()
+        {
+            var context = new XrmFakedContext();
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                "\"targetField\": \"description\"," +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            context.ExecutePluginWith<XTLProcessor>(pluginContext);
+
+            email = context.GetFakedOrganizationService().Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email["description"], Is.EqualTo("Hello Demo"));
+        }
+
+        [Test]
+        public void It_Should_Use_ColumnSet_If_Set_On_Custom_Action()
+        {
+            var context = new XrmFakedContext();
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                "\"targetField\": \"description\"," +
+                "\"targetColumns\": [\"description\"]," +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            context.ExecutePluginWith<XTLProcessor>(pluginContext);
+
+            email = context.GetFakedOrganizationService().Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email["description"], Is.EqualTo("Hello "));
+        }
+
+        [Test]
+        public void It_Should_Not_Send_Update_On_Custom_Action_If_Value_Identical_And_No_Flag_Set()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                "\"targetField\": \"description\"," +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            context.ExecutePluginWith<XTLProcessor>(pluginContext);
+
+            email = service.Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email["description"], Is.EqualTo("Hello Demo"));
+            A.CallTo(() => service.Update(A<Entity>._)).MustHaveHappened(Repeated.Never);
+        }
+
+        [Test]
+        public void It_Should_Send_Update_On_Custom_Action_If_Value_Identical_And_Flag_Set()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", "Hello Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                "\"forceUpdate\": true," +
+                "\"targetField\": \"description\"," +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            context.ExecutePluginWith<XTLProcessor>(pluginContext);
+
+            email = service.Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+
+            Assert.That(email["description"], Is.EqualTo("Hello Demo"));
+            A.CallTo(() => service.Update(A<Entity>._)).MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Test]
+        public void It_Should_Check_Execution_Criteria_On_Custom_Action()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                "\"executionCriteria\": \"IsNull(Value(\\\"subject\\\"))\"," +
+                "\"targetField\": \"description\"," +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            context.ExecutePluginWith<XTLProcessor>(pluginContext);
+
+            email = service.Retrieve(email.LogicalName, email.Id, new ColumnSet(true));
+            A.CallTo(() => service.Update(A<Entity>._)).MustHaveHappened(Repeated.Never);
+        }
+
+        [Test]
+        public void It_Should_Throw_If_Trigger_Update_Flag_Set_But_No_Target_Field()
+        {
+            var context = new XrmFakedContext();
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                "\"throwOnCustomActionError\": true," +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            Assert.That(() => context.ExecutePluginWith<XTLProcessor>(pluginContext), Throws.TypeOf<InvalidPluginExecutionException>().With.Message.EqualTo("Target field is required when setting the 'triggerUpdate' flag"));
+        }
+
+        [Test]
+        public void It_Should_Throw_On_Custom_Action_If_No_Target_Passed()
+        {
+            var context = new XrmFakedContext();
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                "\"throwOnCustomActionError\": true," +
+                $"\"template\": \"{template}\"" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            Assert.That(() => context.ExecutePluginWith<XTLProcessor>(pluginContext), Throws.TypeOf<InvalidPluginExecutionException>().With.Message.EqualTo("Target property inside JSON parameters is needed for custom actions"));
+        }
+
+        [Test]
+        public void It_Should_Not_Throw_On_Custom_Action_If_Throw_Flag_Not_Set()
+        {
+            var context = new XrmFakedContext();
+            var template = "Hello ${{Value(\\\"subject\\\")}}";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                "\"triggerUpdate\": true," +
+                $"\"template\": \"{template}\"," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            Assert.That(() => context.ExecutePluginWith<XTLProcessor>(pluginContext), Throws.Nothing);
         }
     }
 }
