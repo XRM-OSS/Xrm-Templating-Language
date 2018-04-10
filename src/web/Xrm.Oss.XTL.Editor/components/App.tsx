@@ -17,6 +17,9 @@ interface WYSIWYGEditorState {
   selectedTypeCode: number;
   requestPending: boolean;
   copyTemplate: boolean;
+  pluginType: any;
+  showSdkSteps: boolean;
+  selectedSdkStep: any;
 }
 
 export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEditorState> {
@@ -38,7 +41,10 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
           entities: [],
           selectedTypeCode: 0,
           requestPending: false,
-          copyTemplate: false
+          copyTemplate: false,
+          pluginType: undefined,
+          showSdkSteps: false,
+          selectedSdkStep: undefined
         };
 
         // Webpack should import WebApiClient from global itself, but somehow it doesn't
@@ -51,6 +57,10 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
         this.setTypeCode = this.setTypeCode.bind(this);
         this.copy = this.copy.bind(this);
         this.closeCopyDialog = this.closeCopyDialog.bind(this);
+        this.showSdkSteps = this.showSdkSteps.bind(this);
+        this.setSelectedSdkStep = this.setSelectedSdkStep.bind(this);
+        this.saveSelectedSdkStep = this.saveSelectedSdkStep.bind(this);
+        this.reportError = this.reportError.bind(this);
     }
 
     componentDidMount() {
@@ -59,7 +69,8 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 this.setState({
                     entities: (result.value as Array<any>).filter(e => e.SchemaName).sort((e1, e2) => e1.SchemaName >= e2.SchemaName ? 1 : -1)
                 });
-            });
+            })
+            .catch(this.reportError);
     }
 
     preview(e: any) {
@@ -92,7 +103,8 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 resultText: (json.result || ""),
                 traceLog: json.traceLog
             });
-        });
+        })
+        .catch(this.reportError);
     }
 
     selectTarget(e: any) {
@@ -143,6 +155,61 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
         });
     }
 
+    showSdkSteps() {
+        this.WebApiClient.Retrieve({entityName: "plugintype", queryParams: "?$filter=assemblyname eq 'Xrm.Oss.XTL.Templating'&$expand=plugintype_sdkmessageprocessingstep"})
+        .then((result: any) => this.WebApiClient.Expand({records: result.value}))
+        .then((result: any) => {
+            if (!result.length) {
+                return;
+            }
+
+            const pluginType = result[0];
+
+            this.setState({pluginType: pluginType, showSdkSteps: true});
+        })
+        .catch(this.reportError);
+    }
+
+    setSelectedSdkStep(eventKey: any) {
+        const selectedSdkStep = this.state.pluginType.plugintype_sdkmessageprocessingstep.value.find((step: any) => step.sdkmessageprocessingstepid === eventKey);
+        const config = JSON.parse(selectedSdkStep.configuration);
+
+        this.setState({
+            executionCriteria: config.executionCriteria || "",
+            inputTemplate: config.template || "",
+            showSdkSteps: false,
+            selectedSdkStep: selectedSdkStep
+        });
+    }
+
+    saveSelectedSdkStep() {
+        this.setState({requestPending: true});
+
+        const config = JSON.parse(this.state.selectedSdkStep.configuration);
+
+        config.executionCriteria = this.state.executionCriteria;
+        config.template = this.state.inputTemplate;
+
+        this.WebApiClient.Update({
+            entityName: "sdkmessageprocessingstep",
+            entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
+            entity: {
+                configuration: JSON.stringify(config)
+            }
+        })
+        .then((result: any) => {
+            this.setState({requestPending: false});
+        })
+        .catch(this.reportError);
+    }
+
+    reportError (e: any) {
+        this.setState({
+            success: false,
+            error: e.message ? e.message : e
+        });
+    }
+
     render() {
         return (
         <div>
@@ -152,7 +219,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
               <Modal.Title>Processing Request</Modal.Title>
             </Modal.Header>
 
-            <Modal.Body>Your template is being processed on the server...</Modal.Body>
+            <Modal.Body>Please Wait...</Modal.Body>
           </Modal.Dialog>}
           {this.state.copyTemplate &&
             <Modal.Dialog>
@@ -165,6 +232,22 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 <Button bsStyle="default" onClick={ this.closeCopyDialog }>Close</Button>
             </Modal.Footer>
           </Modal.Dialog>}
+          {this.state.showSdkSteps &&
+            <Modal.Dialog>
+            <Modal.Header>
+              <Modal.Title>Select SDK Step</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <DropdownButton
+                    bsStyle="default"
+                    title={this.state.selectedSdkStep ? this.state.selectedSdkStep.name : "Select SDK Step" }
+                    id="SdkStepSelect"
+                >
+                      { this.state.pluginType.plugintype_sdkmessageprocessingstep.value.map( (value: any) => <MenuItem onSelect={this.setSelectedSdkStep} eventKey={value.sdkmessageprocessingstepid}>{value.name}</MenuItem> ) }
+                </DropdownButton>
+            </Modal.Body>
+          </Modal.Dialog>}
+          {this.state.selectedSdkStep && <a>SDK Step: {this.state.selectedSdkStep.name}</a>}
           {this.state.selectedEntityId && <a>Entity: {this.state.selectedEntityLogicalName}, Id: {this.state.selectedEntityId}, Name: {this.state.selectedEntityName}</a>}
           {!this.state.success && <a>"Error: {this.state.error}</a>}
           <div>
@@ -180,13 +263,15 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 <Button bsStyle="default" disabled={this.state.selectedTypeCode === 0} onClick={ this.selectTarget }>Select Target</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedEntityId || !this.state.selectedTypeCode} onClick={ this.preview }>Preview</Button>
                 <Button bsStyle="default" onClick={ this.copy }>Copy Current Template</Button>
+                <Button bsStyle="default" onClick={this.showSdkSteps}>Load From SDK Steps</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Update Selected SDK Step</Button>
               </ButtonGroup>
             </ButtonToolbar>
               <FormGroup className="col-xs-6" controlId="input">
                 <ControlLabel>Execution Criteria</ControlLabel>
-                <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
+                <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } value={this.state.executionCriteria} componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
                 <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
-                <FormControl style={ { "height": "75vh", "overflow": "auto" } } onChange={ this.inputChanged } componentClass="textarea" placeholder="Enter template" />
+                <FormControl style={ { "height": "75vh", "overflow": "auto" } } onChange={ this.inputChanged } value={this.state.inputTemplate} componentClass="textarea" placeholder="Enter template" />
               </FormGroup>
               <div className="col-xs-6">
                 <ControlLabel>Result</ControlLabel>
