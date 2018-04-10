@@ -33,6 +33,15 @@ namespace Xrm.Oss.XTL.Templating
         [DataMember(Name = "targetColumns")]
         public string[] TargetColumns { get; set; }
 
+        [DataMember(Name = "triggerUpdate")]
+        public bool TriggerUpdate { get; set; }
+
+        [DataMember(Name = "forceUpdate")]
+        public bool ForceUpdate { get; set; }
+
+        [DataMember(Name = "throwOnCustomActionError")]
+        public bool ThrowOnCustomActionError { get; set; }
+
         public static ProcessorConfig Parse (string json)
         {
             if (string.IsNullOrEmpty(json))

@@ -445,12 +445,21 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (parameters.Count > 1)
             {
-                if (!(parameters[1].Value is Entity))
-                {
-                    throw new InvalidPluginExecutionException("When passing a second parameter as primary entity to Value function, it has to be of type entity.");
-                }
+                var explicitTarget = parameters[1].Value;
 
-                target = parameters[1].Value as Entity;
+                if (explicitTarget != null)
+                {
+                    if (!(explicitTarget is Entity))
+                    {
+                        throw new InvalidPluginExecutionException("When passing a second parameter as primary entity to Value function, it has to be of type entity.");
+                    }
+
+                    target = parameters[1].Value as Entity; 
+                }
+                else
+                {
+                    return new ValueExpression(string.Empty, string.Empty);
+                }
             }
 
             if (field == null)
@@ -459,6 +468,18 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             return DataRetriever.ResolveTokenValue(field, target, service);
+        };
+
+        public static FunctionHandler Concat = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var text = "";
+
+            foreach (var parameter in parameters)
+            {
+                text += parameter.Text;
+            }
+
+            return new ValueExpression(text, text);
         };
     }
 }

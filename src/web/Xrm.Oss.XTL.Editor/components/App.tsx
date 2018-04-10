@@ -90,7 +90,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                         Id: this.state.selectedEntityId,
                         LogicalName: this.state.selectedEntityLogicalName
                     },
-                    template: this.state.inputTemplate.replace(/\n/g, "<br />"),
+                    template: this.state.inputTemplate,
                     executionCriteria: this.state.executionCriteria
                 })
             }
@@ -100,7 +100,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
 
             this.setState({
                 requestPending: false,
-                resultText: (json.result || ""),
+                resultText: (json.result || "").replace(/\n/g, "<br />"),
                 traceLog: json.traceLog
             });
         })
