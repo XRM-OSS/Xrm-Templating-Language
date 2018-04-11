@@ -172,7 +172,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
 
     setSelectedSdkStep(eventKey: any) {
         const selectedSdkStep = this.state.pluginType.plugintype_sdkmessageprocessingstep.value.find((step: any) => step.sdkmessageprocessingstepid === eventKey);
-        const config = JSON.parse(selectedSdkStep.configuration);
+        const config = JSON.parse(selectedSdkStep.configuration) || {};
 
         this.setState({
             executionCriteria: config.executionCriteria || "",
@@ -185,7 +185,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
     saveSelectedSdkStep() {
         this.setState({requestPending: true});
 
-        const config = JSON.parse(this.state.selectedSdkStep.configuration);
+        const config = JSON.parse(this.state.selectedSdkStep.configuration) || {};
 
         config.executionCriteria = this.state.executionCriteria;
         config.template = this.state.inputTemplate;
