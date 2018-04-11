@@ -270,5 +270,27 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
 
             Assert.That(result, Is.EqualTo("TestSubject TestSubject"));
         }
+
+        [Test]
+        public void It_Should_Not_Fail_On_Null_Valued_Formula()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            string result = null;
+            Assert.That(() => result = new XTLInterpreter(null, email, null, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(result, Is.EqualTo(string.Empty));
+        }
     }
 }

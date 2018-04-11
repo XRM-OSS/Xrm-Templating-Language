@@ -11,6 +11,7 @@ namespace Xrm.Oss.XTL.Interpreter
     public class XTLInterpreter
     {
         private StringReader _reader = null;
+        private string _input;
         private char _previous;
         private char _current;
         private bool _eof;
@@ -46,8 +47,9 @@ namespace Xrm.Oss.XTL.Interpreter
             _service = service;
             _tracing = tracing;
             _organizationConfig = organizationConfig;
+            _input = input;
 
-            _reader = new StringReader(input);
+            _reader = new StringReader(input ?? string.Empty);
             GetChar();
             SkipWhiteSpace();
         }
@@ -207,6 +209,12 @@ namespace Xrm.Oss.XTL.Interpreter
         public string Produce() 
         {
             _tracing.Trace($"Initiating interpreter");
+
+            if (string.IsNullOrWhiteSpace(_input)) {
+                _tracing.Trace("No formula passed, exiting");
+                return string.Empty;
+            }
+
             var output = Formula();
 
             return output?.Text;
