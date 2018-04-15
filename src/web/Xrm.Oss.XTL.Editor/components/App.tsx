@@ -1,5 +1,8 @@
 import * as React from "react";
+import { EntityDefinition } from "../domain/EntityDefinition";
 import WebApiClient from "xrm-webapi-client";
+import { StepCreationDialog } from "./StepCreationDialog";
+import { SdkStep } from "../domain/SdkStep";
 import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Modal, FormGroup, ControlLabel, FormControl } from "react-bootstrap";
 import * as Parser from "html-react-parser";
 
@@ -13,14 +16,17 @@ interface WYSIWYGEditorState {
   traceLog: string;
   error: string;
   success: boolean;
-  entities: Array<any>;
+  entities: Array<EntityDefinition>;
   selectedTypeCode: number;
   requestPending: boolean;
   copyTemplate: boolean;
   pluginType: any;
   showSdkSteps: boolean;
-  selectedSdkStep: any;
+  selectedSdkStep: SdkStep;
+  showSdkStepCreationDialog: boolean;
 }
+
+
 
 export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEditorState> {
     private WebApiClient: typeof WebApiClient;
@@ -44,7 +50,8 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
           copyTemplate: false,
           pluginType: undefined,
           showSdkSteps: false,
-          selectedSdkStep: undefined
+          selectedSdkStep: undefined,
+          showSdkStepCreationDialog: false
         };
 
         // Webpack should import WebApiClient from global itself, but somehow it doesn't
@@ -60,17 +67,32 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
         this.showSdkSteps = this.showSdkSteps.bind(this);
         this.setSelectedSdkStep = this.setSelectedSdkStep.bind(this);
         this.saveSelectedSdkStep = this.saveSelectedSdkStep.bind(this);
+        this.createNewSdkStep = this.createNewSdkStep.bind(this);
+        this.sdkStepCreationHandler = this.sdkStepCreationHandler.bind(this);
         this.reportError = this.reportError.bind(this);
     }
 
     componentDidMount() {
-        this.WebApiClient.Retrieve({entityName: "EntityDefinition", queryParams: "?$select=ObjectTypeCode,SchemaName&$filter=IsValidForAdvancedFind eq true"})
+        this.WebApiClient.Retrieve({entityName: "EntityDefinition", queryParams: "?$select=ObjectTypeCode,SchemaName,LogicalName&$filter=IsValidForAdvancedFind eq true"})
             .then((result: any) => {
                 this.setState({
                     entities: (result.value as Array<any>).filter(e => e.SchemaName).sort((e1, e2) => e1.SchemaName >= e2.SchemaName ? 1 : -1)
                 });
             })
             .catch(this.reportError);
+
+        this.WebApiClient.Retrieve({entityName: "plugintype", queryParams: "?$filter=assemblyname eq 'Xrm.Oss.XTL.Templating'&$expand=plugintype_sdkmessageprocessingstep"})
+        .then((result: any) => this.WebApiClient.Expand({records: result.value}))
+        .then((result: any) => {
+            if (!result.length) {
+                return;
+            }
+
+            const pluginType = result[0];
+
+            this.setState({pluginType: pluginType});
+        })
+        .catch(this.reportError);
     }
 
     preview(e: any) {
@@ -156,18 +178,9 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
     }
 
     showSdkSteps() {
-        this.WebApiClient.Retrieve({entityName: "plugintype", queryParams: "?$filter=assemblyname eq 'Xrm.Oss.XTL.Templating'&$expand=plugintype_sdkmessageprocessingstep"})
-        .then((result: any) => this.WebApiClient.Expand({records: result.value}))
-        .then((result: any) => {
-            if (!result.length) {
-                return;
-            }
-
-            const pluginType = result[0];
-
-            this.setState({pluginType: pluginType, showSdkSteps: true});
-        })
-        .catch(this.reportError);
+        this.setState({
+            showSdkSteps: true
+        });
     }
 
     setSelectedSdkStep(eventKey: any) {
@@ -185,27 +198,89 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
     saveSelectedSdkStep() {
         this.setState({requestPending: true});
 
-        const config = JSON.parse(this.state.selectedSdkStep.configuration) || {};
+        // TODO: Set/Implement FilteringAttributes
 
-        config.executionCriteria = this.state.executionCriteria;
-        config.template = this.state.inputTemplate;
+        if (this.state.selectedSdkStep.sdkmessageprocessingstepid) {
+            const config = JSON.parse(this.state.selectedSdkStep.configuration) || {};
 
-        this.WebApiClient.Update({
-            entityName: "sdkmessageprocessingstep",
-            entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
-            entity: {
-                configuration: JSON.stringify(config)
-            }
-        })
-        .then((result: any) => {
-            this.setState({requestPending: false});
-        })
-        .catch(this.reportError);
+            config.executionCriteria = this.state.executionCriteria;
+            config.template = this.state.inputTemplate;
+
+            this.WebApiClient.Update({
+                entityName: "sdkmessageprocessingstep",
+                entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
+                entity: {
+                    configuration: JSON.stringify(config)
+                }
+            })
+            .then((result: any) => {
+                this.setState({requestPending: false});
+            })
+            .catch(this.reportError);
+        }
+        else {
+            const config = {
+                executionCriteria: this.state.executionCriteria,
+                template: this.state.inputTemplate
+            };
+
+            const messageName = (this.state.selectedSdkStep as any).messageName;
+            delete (this.state.selectedSdkStep as any).messageName;
+
+            this.WebApiClient.Create({
+                entityName: "sdkmessageprocessingstep",
+                entity: {
+                    ...this.state.selectedSdkStep,
+                    configuration: JSON.stringify(config)
+                }
+            })
+            .then((result: any) => {
+                this.setState({requestPending: false});
+
+                // Return in format of https://host/api/data/v8.0/sdkmessageprocessingstep(e74471fd-fa40-e811-a836-000d3ab4d04c)
+                const stepId = result.substr(result.indexOf("(") + 1, 36);
+                if (messageName !== "Create") {
+                    const image = {
+                        entityalias: "preimg",
+                        name: "preimg",
+                        imagetype: 0,
+                        messagepropertyname: "Target"
+                    } as any;
+
+                    image["sdkmessageprocessingstepid@odata.bind"] = `/sdkmessageprocessingsteps(${stepId})`;
+
+                    return this.WebApiClient.Create({
+                        entityName: "sdkmessageprocessingstepimage",
+                        entity: image
+                    });
+                }
+            })
+            .catch(this.reportError);
+        }
+    }
+
+    createNewSdkStep () {
+        this.setState({
+            showSdkStepCreationDialog: true
+        });
+    }
+
+    sdkStepCreationHandler (step: SdkStep) {
+        const update = {
+            showSdkStepCreationDialog: false
+        } as WYSIWYGEditorState;
+
+        if (step) {
+            update.selectedSdkStep = step;
+        }
+
+        this.setState(update);
     }
 
     reportError (e: any) {
         this.setState({
             success: false,
+            requestPending: false,
             error: e.message ? e.message : e
         });
     }
@@ -247,6 +322,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 </DropdownButton>
             </Modal.Body>
           </Modal.Dialog>}
+          <StepCreationDialog isVisible={this.state.showSdkStepCreationDialog} entities={this.state.entities} stepCallBack={this.sdkStepCreationHandler} errorCallBack={this.reportError} pluginTypeId={this.state.pluginType ? this.state.pluginType.plugintypeid : ""} />
           {this.state.selectedSdkStep && <a>SDK Step: {this.state.selectedSdkStep.name}</a>}
           {this.state.selectedEntityId && <a>Entity: {this.state.selectedEntityLogicalName}, Id: {this.state.selectedEntityId}, Name: {this.state.selectedEntityName}</a>}
           {!this.state.success && <a>"Error: {this.state.error}</a>}
@@ -265,6 +341,7 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 <Button bsStyle="default" onClick={ this.copy }>Copy Current Template</Button>
                 <Button bsStyle="default" onClick={this.showSdkSteps}>Load From SDK Steps</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Update Selected SDK Step</Button>
+                <Button bsStyle="default" onClick={this.createNewSdkStep}>Create New SDK Step</Button>
               </ButtonGroup>
             </ButtonToolbar>
               <FormGroup className="col-xs-6" controlId="input">
