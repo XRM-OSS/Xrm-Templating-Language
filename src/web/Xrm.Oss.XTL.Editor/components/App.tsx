@@ -1,7 +1,7 @@
 import * as React from "react";
 import { EntityDefinition } from "../domain/EntityDefinition";
 import WebApiClient from "xrm-webapi-client";
-import { StepCreationDialog } from "./StepCreationDialog";
+import { SdkStepManager } from "./SdkStepManager";
 import { SdkStep } from "../domain/SdkStep";
 import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Modal, FormGroup, ControlLabel, FormControl } from "react-bootstrap";
 import * as Parser from "html-react-parser";
@@ -21,14 +21,11 @@ interface WYSIWYGEditorState {
   requestPending: boolean;
   copyTemplate: boolean;
   pluginType: any;
-  showSdkSteps: boolean;
   selectedSdkStep: SdkStep;
-  showSdkStepCreationDialog: boolean;
+  showSdkStepManager: boolean;
 }
 
-
-
-export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEditorState> {
+export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorState> {
     private WebApiClient: typeof WebApiClient;
 
     constructor(props: any) {
@@ -49,9 +46,8 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
           requestPending: false,
           copyTemplate: false,
           pluginType: undefined,
-          showSdkSteps: false,
           selectedSdkStep: undefined,
-          showSdkStepCreationDialog: false
+          showSdkStepManager: false
         };
 
         // Webpack should import WebApiClient from global itself, but somehow it doesn't
@@ -64,12 +60,11 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
         this.setTypeCode = this.setTypeCode.bind(this);
         this.copy = this.copy.bind(this);
         this.closeCopyDialog = this.closeCopyDialog.bind(this);
-        this.showSdkSteps = this.showSdkSteps.bind(this);
-        this.setSelectedSdkStep = this.setSelectedSdkStep.bind(this);
+        this.setSdkStep = this.setSdkStep.bind(this);
         this.saveSelectedSdkStep = this.saveSelectedSdkStep.bind(this);
-        this.createNewSdkStep = this.createNewSdkStep.bind(this);
-        this.sdkStepCreationHandler = this.sdkStepCreationHandler.bind(this);
         this.reportError = this.reportError.bind(this);
+        this.clearError = this.clearError.bind(this);
+        this.openSdkStepManager = this.openSdkStepManager.bind(this);
     }
 
     componentDidMount() {
@@ -177,21 +172,24 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
         });
     }
 
-    showSdkSteps() {
-        this.setState({
-            showSdkSteps: true
-        });
-    }
+    setSdkStep(step: SdkStep) {
+        let config: any = {};
 
-    setSelectedSdkStep(eventKey: any) {
-        const selectedSdkStep = this.state.pluginType.plugintype_sdkmessageprocessingstep.value.find((step: any) => step.sdkmessageprocessingstepid === eventKey);
-        const config = JSON.parse(selectedSdkStep.configuration) || {};
+        if (!step) {
+            return this.setState({
+                showSdkStepManager: false
+            });
+        }
+
+        if (step.configuration) {
+            config = JSON.parse(step.configuration) || {};
+        }
 
         this.setState({
             executionCriteria: config.executionCriteria || "",
             inputTemplate: config.template || "",
-            showSdkSteps: false,
-            selectedSdkStep: selectedSdkStep
+            showSdkStepManager: false,
+            selectedSdkStep: step
         });
     }
 
@@ -259,29 +257,24 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
         }
     }
 
-    createNewSdkStep () {
-        this.setState({
-            showSdkStepCreationDialog: true
-        });
-    }
-
-    sdkStepCreationHandler (step: SdkStep) {
-        const update = {
-            showSdkStepCreationDialog: false
-        } as WYSIWYGEditorState;
-
-        if (step) {
-            update.selectedSdkStep = step;
-        }
-
-        this.setState(update);
-    }
-
     reportError (e: any) {
         this.setState({
             success: false,
             requestPending: false,
             error: e.message ? e.message : e
+        });
+    }
+
+    clearError() {
+        this.setState({
+            success: true,
+            error: undefined
+        });
+    }
+
+    openSdkStepManager() {
+        this.setState({
+            showSdkStepManager: true
         });
     }
 
@@ -307,25 +300,21 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 <Button bsStyle="default" onClick={ this.closeCopyDialog }>Close</Button>
             </Modal.Footer>
           </Modal.Dialog>}
-          {this.state.showSdkSteps &&
-            <Modal.Dialog>
-            <Modal.Header>
-              <Modal.Title>Select SDK Step</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <DropdownButton
-                    bsStyle="default"
-                    title={this.state.selectedSdkStep ? this.state.selectedSdkStep.name : "Select SDK Step" }
-                    id="SdkStepSelect"
-                >
-                      { this.state.pluginType.plugintype_sdkmessageprocessingstep.value.map( (value: any) => <MenuItem onSelect={this.setSelectedSdkStep} eventKey={value.sdkmessageprocessingstepid}>{value.name}</MenuItem> ) }
-                </DropdownButton>
-            </Modal.Body>
-          </Modal.Dialog>}
-          <StepCreationDialog isVisible={this.state.showSdkStepCreationDialog} entities={this.state.entities} stepCallBack={this.sdkStepCreationHandler} errorCallBack={this.reportError} pluginTypeId={this.state.pluginType ? this.state.pluginType.plugintypeid : ""} />
+          <SdkStepManager isVisible={this.state.showSdkStepManager} pluginType={this.state.pluginType} entities={this.state.entities} stepCallBack={this.setSdkStep} errorCallBack={this.reportError} pluginTypeId={this.state.pluginType ? this.state.pluginType.plugintypeid : ""} />
           {this.state.selectedSdkStep && <a>SDK Step: {this.state.selectedSdkStep.name}</a>}
+          {this.state.selectedSdkStep && this.state.selectedEntityId && <br />}
           {this.state.selectedEntityId && <a>Entity: {this.state.selectedEntityLogicalName}, Id: {this.state.selectedEntityId}, Name: {this.state.selectedEntityName}</a>}
-          {!this.state.success && <a>"Error: {this.state.error}</a>}
+          {!this.state.success &&
+                <Modal.Dialog>
+                <Modal.Header>
+                  <Modal.Title>An Error occured</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>Message: {this.state.error}</Modal.Body>
+                <Modal.Footer>
+                    <Button bsStyle="default" onClick={ this.clearError }>Close</Button>
+                </Modal.Footer>
+              </Modal.Dialog>}
           <div>
             <ButtonToolbar style={{"padding-bottom": "10px"}}>
               <ButtonGroup>
@@ -339,9 +328,8 @@ export default class WYSIWYGEditor extends React.PureComponent<any, WYSIWYGEdito
                 <Button bsStyle="default" disabled={this.state.selectedTypeCode === 0} onClick={ this.selectTarget }>Select Target</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedEntityId || !this.state.selectedTypeCode} onClick={ this.preview }>Preview</Button>
                 <Button bsStyle="default" onClick={ this.copy }>Copy Current Template</Button>
-                <Button bsStyle="default" onClick={this.showSdkSteps}>Load From SDK Steps</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Update Selected SDK Step</Button>
-                <Button bsStyle="default" onClick={this.createNewSdkStep}>Create New SDK Step</Button>
+                <Button bsStyle="default" onClick={this.openSdkStepManager}>Manage SDK Steps</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Update SDK Step</Button>
               </ButtonGroup>
             </ButtonToolbar>
               <FormGroup className="col-xs-6" controlId="input">
