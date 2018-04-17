@@ -3,10 +3,10 @@ import { EntityDefinition } from "../domain/EntityDefinition";
 import WebApiClient from "xrm-webapi-client";
 import { SdkStepManager } from "./SdkStepManager";
 import { SdkStep } from "../domain/SdkStep";
-import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Modal, FormGroup, ControlLabel, FormControl } from "react-bootstrap";
+import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl } from "react-bootstrap";
 import * as Parser from "html-react-parser";
 
-interface WYSIWYGEditorState {
+interface XtlEditorState {
   inputTemplate: string;
   executionCriteria: string;
   selectedEntityLogicalName: string;
@@ -23,9 +23,12 @@ interface WYSIWYGEditorState {
   pluginType: any;
   selectedSdkStep: SdkStep;
   showSdkStepManager: boolean;
+  templateField: string;
+  targetField: string;
+  sdkStepName: string;
 }
 
-export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorState> {
+export default class XtlEditor extends React.PureComponent<any, XtlEditorState> {
     private WebApiClient: typeof WebApiClient;
 
     constructor(props: any) {
@@ -47,7 +50,10 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
           copyTemplate: false,
           pluginType: undefined,
           selectedSdkStep: undefined,
-          showSdkStepManager: false
+          showSdkStepManager: false,
+          templateField: "",
+          targetField: "",
+          sdkStepName: ""
         };
 
         // Webpack should import WebApiClient from global itself, but somehow it doesn't
@@ -65,6 +71,12 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
         this.reportError = this.reportError.bind(this);
         this.clearError = this.clearError.bind(this);
         this.openSdkStepManager = this.openSdkStepManager.bind(this);
+        this.targetFieldChanged = this.targetFieldChanged.bind(this);
+        this.templateFieldChanged = this.templateFieldChanged.bind(this);
+        this.activateSelectedSdkStep = this.activateSelectedSdkStep.bind(this);
+        this.deactivateSelectedSdkStep = this.deactivateSelectedSdkStep.bind(this);
+        this.deleteSelectedSdkStep = this.deleteSelectedSdkStep.bind(this);
+        this.stepNameChanged = this.stepNameChanged.bind(this);
     }
 
     componentDidMount() {
@@ -188,8 +200,11 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
         this.setState({
             executionCriteria: config.executionCriteria || "",
             inputTemplate: config.template || "",
+            templateField: config.templateField || "",
+            targetField: config.targetField || "",
             showSdkStepManager: false,
-            selectedSdkStep: step
+            selectedSdkStep: step,
+            sdkStepName: step.name
         });
     }
 
@@ -203,11 +218,14 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
 
             config.executionCriteria = this.state.executionCriteria;
             config.template = this.state.inputTemplate;
+            config.templateField = this.state.templateField;
+            config.targetField = this.state.targetField;
 
             this.WebApiClient.Update({
                 entityName: "sdkmessageprocessingstep",
                 entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
                 entity: {
+                    name: this.state.sdkStepName,
                     configuration: JSON.stringify(config)
                 }
             })
@@ -219,7 +237,9 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
         else {
             const config = {
                 executionCriteria: this.state.executionCriteria,
-                template: this.state.inputTemplate
+                template: this.state.inputTemplate,
+                templateField: this.state.templateField,
+                targetField: this.state.targetField
             };
 
             const messageName = (this.state.selectedSdkStep as any).messageName;
@@ -229,6 +249,7 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
                 entityName: "sdkmessageprocessingstep",
                 entity: {
                     ...this.state.selectedSdkStep,
+                    name: this.state.sdkStepName,
                     configuration: JSON.stringify(config)
                 }
             })
@@ -257,6 +278,58 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
         }
     }
 
+    activateSelectedSdkStep () {
+        this.setState({requestPending: true});
+
+        this.WebApiClient.Update({
+            entityName: "sdkmessageprocessingstep",
+            entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
+            entity: {
+                statecode: 0
+            }
+        })
+        .then((result: any) => {
+            this.setState({
+                requestPending: false
+            });
+        })
+        .catch(this.reportError);
+    }
+
+    deactivateSelectedSdkStep () {
+        this.setState({requestPending: true});
+
+        this.WebApiClient.Update({
+            entityName: "sdkmessageprocessingstep",
+            entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
+            entity: {
+                statecode: 1
+            }
+        })
+        .then((result: any) => {
+            this.setState({
+                requestPending: false
+            });
+        })
+        .catch(this.reportError);
+    }
+
+    deleteSelectedSdkStep () {
+        this.setState({requestPending: true});
+
+        (this.WebApiClient.Delete({
+            entityName: "sdkmessageprocessingstep",
+            entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid
+        }) as Promise<string>)
+        .then((result: any) => {
+            this.setState({
+                selectedSdkStep: undefined,
+                requestPending: false
+            });
+        })
+        .catch(this.reportError);
+    }
+
     reportError (e: any) {
         this.setState({
             success: false,
@@ -276,6 +349,24 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
         this.setState({
             showSdkStepManager: true
         });
+    }
+
+    templateFieldChanged(e: any) {
+      this.setState({
+        templateField: e.target.value
+      });
+    }
+
+    targetFieldChanged(e: any) {
+      this.setState({
+        targetField: e.target.value
+      });
+    }
+
+    stepNameChanged(e: any) {
+      this.setState({
+        sdkStepName: e.target.value
+      });
     }
 
     render() {
@@ -330,22 +421,60 @@ export default class XtlEditor extends React.PureComponent<any, WYSIWYGEditorSta
                 <Button bsStyle="default" onClick={ this.copy }>Copy Current Template</Button>
                 <Button bsStyle="default" onClick={this.openSdkStepManager}>Manage SDK Steps</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Update SDK Step</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.activateSelectedSdkStep}>Activate SDK Step</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.deactivateSelectedSdkStep}>Deactivate SDK Step</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.deleteSelectedSdkStep}>Delete SDK Step</Button>
               </ButtonGroup>
             </ButtonToolbar>
-              <FormGroup className="col-xs-6" controlId="input">
-                <ControlLabel>Execution Criteria</ControlLabel>
-                <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } value={this.state.executionCriteria} componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
-                <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
-                <FormControl style={ { "height": "75vh", "overflow": "auto" } } onChange={ this.inputChanged } value={this.state.inputTemplate} componentClass="textarea" placeholder="Enter template" />
-              </FormGroup>
-              <div className="col-xs-6">
-                <ControlLabel>Result</ControlLabel>
-                <div style={ { "height": "50vh", "border": "1px solid lightgray", "overflow": "auto" } }>{Parser(this.state.resultText)}</div>
-                <FormGroup controlId="output">
-                  <ControlLabel style={{"padding-top": "10px"}}>Interpreter Trace</ControlLabel>
-                  <FormControl style={ { "height": "50vh", "overflow": "auto" } } componentClass="textarea" value={ this.state.traceLog } disabled />
-                </FormGroup>
-              </div>
+              <Panel hidden={!this.state.selectedSdkStep} id="pluginConfiguration">
+                  <h3>Plugin Configuration</h3>
+                  <FormGroup className="col-xs-6" controlId="input">
+                    <ControlLabel>Step Name</ControlLabel>
+                    <FormControl onChange={ this.stepNameChanged } value={this.state.sdkStepName} componentClass="textarea" placeholder="Enter name of SDK step" />
+                    <ControlLabel style={{"padding-top": "10px"}}>Target Field</ControlLabel>
+                    <FormControl onChange={ this.targetFieldChanged } value={this.state.targetField} componentClass="textarea" placeholder="Enter name of target field for result" />
+                    <ControlLabel style={{"padding-top": "10px"}}>Template Field</ControlLabel>
+                    <FormControl onChange={ this.templateFieldChanged } value={this.state.templateField} componentClass="textarea" placeholder="Enter name of template field (per-record templating)" />
+                  </FormGroup>
+                  <ControlLabel>Execute plugin on update of</ControlLabel>
+                  <div style={ { "height": "20vh", "overflow": "auto", "border": "1px solid lightgray" } } className="col-xs-6">
+                      <span>Coming soon...</span>
+                      {
+                          /*
+                          <InputGroup>
+                              <InputGroup.Addon>
+                                <input type="checkbox" key={ attribute } checked={ false } onChange={ () => {} } />
+                              </InputGroup.Addon>
+                              <FormControl key={ attribute + "_aT" } disabled type="text" value={ attribute } />
+                          */
+                          /*Array(100).fill("asdf").map(attribute => {
+                              return <InputGroup>
+                                  <InputGroup.Addon>
+                                    <input type="checkbox" key={ attribute } checked={ false } onChange={ () => {} } />
+                                  </InputGroup.Addon>
+                                  <FormControl key={ attribute + "_aT" } disabled type="text" value={ attribute } />
+                              </InputGroup>;
+                          })*/
+                      }
+                  </div>
+              </Panel>
+              <Panel id="templateConfiguration">
+                  <h3>Template Configuration</h3>
+                  <FormGroup className="col-xs-6" controlId="input">
+                    <ControlLabel>Execution Criteria</ControlLabel>
+                    <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } value={this.state.executionCriteria} componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
+                    <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
+                    <FormControl style={ { "height": "75vh", "overflow": "auto" } } onChange={ this.inputChanged } value={this.state.inputTemplate} componentClass="textarea" placeholder="Enter template" />
+                  </FormGroup>
+                  <div className="col-xs-6">
+                    <ControlLabel>Result</ControlLabel>
+                    <div style={ { "height": "50vh", "border": "1px solid lightgray", "overflow": "auto" } }>{Parser(this.state.resultText)}</div>
+                    <FormGroup controlId="output">
+                      <ControlLabel style={{"padding-top": "10px"}}>Interpreter Trace</ControlLabel>
+                      <FormControl style={ { "height": "50vh", "overflow": "auto" } } componentClass="textarea" value={ this.state.traceLog } disabled />
+                    </FormGroup>
+                  </div>
+              </Panel>
           </div>
         </div>
         );
