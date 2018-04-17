@@ -25,6 +25,16 @@ This is due to the fact that I don't have access to other CRM versions for devel
 For XTL itself you only need the DLL which you can download on AppVeyor. The solution just adds the template editor.
 
 ## How To Register
+### Using XTL Editor
+Inside the solution you imported, you'll find that there is a configuration page.
+You can use this configuration page for testing templates as well as managing existing ones.
+So creating of new template handlers inside your organization can be done completely using the editor.
+It creates SDK message processing steps in the background, applying your custom settings combined with the needed default configs.
+
+Impression:
+![xtleditor](https://user-images.githubusercontent.com/4287938/38904112-b887b490-42a8-11e8-8b0b-1ccce115728e.png)
+
+### Manual Way
 Register the assemblies using the Plugin Registration Tool.
 You can then create steps in the pre operation stage. If you're on update message, be sure to register a preimg with all attributes needed for generating your texts.
 
