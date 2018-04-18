@@ -8,4 +8,6 @@ export class SdkStep {
     sdkmessageid?: string;
     sdkmessagefilterid?: string;
     sdkmessageprocessingstepid?: string;
+    _sdkmessagefilterid_value?: string;
+    filteringattributes?: string;
 }

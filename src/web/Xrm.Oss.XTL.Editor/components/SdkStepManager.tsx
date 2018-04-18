@@ -7,7 +7,7 @@ import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Mod
 
 export interface SdkStepManagerProps {
     entities: Array<EntityDefinition>;
-    stepCallBack: (step: SdkStep) => void;
+    stepCallBack: (step: SdkStep, stepEntityLogicalName: string, stepMessageName: string) => void;
     errorCallBack: (e: any) => void;
     isVisible: boolean;
     pluginTypeId: string;
@@ -96,13 +96,22 @@ export class SdkStepManager extends React.PureComponent<SdkStepManagerProps, Sdk
 
     fireCallBack () {
         if (!this.state.selectedSdkStep.sdkmessageprocessingstepid) {
-            return this.props.stepCallBack(this.newStep());
+            return this.props.stepCallBack(this.newStep(), this.state.selectedFilter.primaryobjecttypecode, this.state.selectedFilter.sdkmessageid.name);
         }
-        this.props.stepCallBack(this.state.selectedSdkStep);
+
+        return this.WebApiClient.Retrieve({
+            entityName: "sdkmessagefilter",
+            entityId: this.state.selectedSdkStep._sdkmessagefilterid_value,
+            queryParams: `?$expand=sdkmessageid`})
+        .then((result: any) => {
+            const filter = result as SdkFilter;
+            return this.props.stepCallBack(this.state.selectedSdkStep, filter.primaryobjecttypecode, filter.sdkmessageid.name);
+        })
+        .catch(this.props.errorCallBack);
     }
 
     cancel() {
-        this.props.stepCallBack(undefined);
+        this.props.stepCallBack(undefined, undefined, undefined);
     }
 
     render() {

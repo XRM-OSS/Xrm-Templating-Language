@@ -1,9 +1,10 @@
 import * as React from "react";
 import { EntityDefinition } from "../domain/EntityDefinition";
+import { Attribute } from "../domain/Attribute";
 import WebApiClient from "xrm-webapi-client";
 import { SdkStepManager } from "./SdkStepManager";
 import { SdkStep } from "../domain/SdkStep";
-import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl } from "react-bootstrap";
+import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl, ListGroup, ListGroupItem } from "react-bootstrap";
 import * as Parser from "html-react-parser";
 
 interface XtlEditorState {
@@ -26,6 +27,10 @@ interface XtlEditorState {
   templateField: string;
   targetField: string;
   sdkStepName: string;
+  sdkStepEntityLogicalName?: string;
+  sdkStepMessageName?: string;
+  sdkEntityAttributes?: Array<Attribute>;
+  selectedEntityAttributes: Array<string>;
 }
 
 export default class XtlEditor extends React.PureComponent<any, XtlEditorState> {
@@ -53,7 +58,8 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
           showSdkStepManager: false,
           templateField: "",
           targetField: "",
-          sdkStepName: ""
+          sdkStepName: "",
+          selectedEntityAttributes: []
         };
 
         // Webpack should import WebApiClient from global itself, but somehow it doesn't
@@ -77,18 +83,37 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         this.deactivateSelectedSdkStep = this.deactivateSelectedSdkStep.bind(this);
         this.deleteSelectedSdkStep = this.deleteSelectedSdkStep.bind(this);
         this.stepNameChanged = this.stepNameChanged.bind(this);
+        this.onSelectEntityAttribute = this.onSelectEntityAttribute.bind(this);
     }
 
     componentDidMount() {
-        this.WebApiClient.Retrieve({entityName: "EntityDefinition", queryParams: "?$select=ObjectTypeCode,SchemaName,LogicalName&$filter=IsValidForAdvancedFind eq true"})
+        this.setState({
+            requestPending: true
+        });
+
+        this.WebApiClient.Promise.all([
+            this.retrieveEntities(),
+            this.retrievePluginType()
+        ])
+        .then(_ => {
+            this.setState({
+                requestPending: false
+            });
+        });
+    }
+
+    retrieveEntities (): Promise<any> {
+        return this.WebApiClient.Retrieve({entityName: "EntityDefinition", queryParams: "?$select=ObjectTypeCode,SchemaName,LogicalName&$filter=IsValidForAdvancedFind eq true"})
             .then((result: any) => {
                 this.setState({
                     entities: (result.value as Array<any>).filter(e => e.SchemaName).sort((e1, e2) => e1.SchemaName >= e2.SchemaName ? 1 : -1)
                 });
             })
             .catch(this.reportError);
+    }
 
-        this.WebApiClient.Retrieve({entityName: "plugintype", queryParams: "?$filter=assemblyname eq 'Xrm.Oss.XTL.Templating'&$expand=plugintype_sdkmessageprocessingstep"})
+    retrievePluginType (): Promise<any> {
+        return this.WebApiClient.Retrieve({entityName: "plugintype", queryParams: "?$filter=assemblyname eq 'Xrm.Oss.XTL.Templating'&$expand=plugintype_sdkmessageprocessingstep"})
         .then((result: any) => this.WebApiClient.Expand({records: result.value}))
         .then((result: any) => {
             if (!result.length) {
@@ -184,7 +209,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         });
     }
 
-    setSdkStep(step: SdkStep) {
+    setSdkStep(step: SdkStep, sdkStepEntityLogicalName: string, sdkStepMessageName: string) {
         let config: any = {};
 
         if (!step) {
@@ -204,17 +229,52 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             targetField: config.targetField || "",
             showSdkStepManager: false,
             selectedSdkStep: step,
-            sdkStepName: step.name
+            sdkStepName: step.name,
+            sdkStepEntityLogicalName: sdkStepEntityLogicalName,
+            sdkStepMessageName: sdkStepMessageName,
+            selectedEntityAttributes: step.filteringattributes ? step.filteringattributes.split(",") : [],
+            selectedTypeCode: this.state.entities.find(e => e.LogicalName === sdkStepEntityLogicalName).ObjectTypeCode
         });
+
+        const entity = this.state.entities.find(e => e.LogicalName === sdkStepEntityLogicalName);
+
+        if (entity) {
+            const request = {
+               entityName: "EntityDefinition",
+               entityId: entity.MetadataId,
+               queryParams: "/Attributes?$select=LogicalName,DisplayName"
+            };
+
+            return this.WebApiClient.Retrieve(request)
+               .then((response: any) => {
+                   const attributes = (response.value as Array<Attribute>);
+
+                   attributes.sort(function(e1, e2) {
+                        if (e1.LogicalName < e2.LogicalName) {
+                            return -1;
+                        }
+
+                        if (e1.LogicalName > e2.LogicalName) {
+                            return 1;
+                        }
+
+                        return 0;
+                    });
+
+                   this.setState({
+                       sdkEntityAttributes: attributes
+                   });
+               });
+        }
+
+        return undefined;
     }
 
     saveSelectedSdkStep() {
         this.setState({requestPending: true});
 
-        // TODO: Set/Implement FilteringAttributes
-
         if (this.state.selectedSdkStep.sdkmessageprocessingstepid) {
-            const config = JSON.parse(this.state.selectedSdkStep.configuration) || {};
+            const config = this.state.selectedSdkStep.configuration ? JSON.parse(this.state.selectedSdkStep.configuration) || {} : {};
 
             config.executionCriteria = this.state.executionCriteria;
             config.template = this.state.inputTemplate;
@@ -226,7 +286,8 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
                 entity: {
                     name: this.state.sdkStepName,
-                    configuration: JSON.stringify(config)
+                    configuration: JSON.stringify(config),
+                    filteringattributes: this.state.selectedEntityAttributes.join(",")
                 }
             })
             .then((result: any) => {
@@ -250,14 +311,22 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 entity: {
                     ...this.state.selectedSdkStep,
                     name: this.state.sdkStepName,
-                    configuration: JSON.stringify(config)
+                    configuration: JSON.stringify(config),
+                    filteringattributes: this.state.selectedEntityAttributes.join(",")
                 }
             })
             .then((result: any) => {
-                this.setState({requestPending: false});
-
                 // Return in format of https://host/api/data/v8.0/sdkmessageprocessingstep(e74471fd-fa40-e811-a836-000d3ab4d04c)
                 const stepId = result.substr(result.indexOf("(") + 1, 36);
+
+                this.setState({
+                    requestPending: false,
+                    selectedSdkStep: {
+                        ...this.state.selectedSdkStep,
+                        sdkmessageprocessingstepid: stepId
+                    }
+                });
+
                 if (messageName !== "Create") {
                     const image = {
                         entityalias: "preimg",
@@ -346,8 +415,11 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     }
 
     openSdkStepManager() {
-        this.setState({
-            showSdkStepManager: true
+        this.retrievePluginType()
+        .then(_ => {
+            this.setState({
+                showSdkStepManager: true
+            });
         });
     }
 
@@ -367,6 +439,26 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
       this.setState({
         sdkStepName: e.target.value
       });
+    }
+
+    onSelectEntityAttribute (e: any) {
+        const attributeId = e.currentTarget.id;
+        const attributeIndex = this.state.selectedEntityAttributes.indexOf(attributeId);
+
+        if (this.state.sdkStepMessageName !== "Update") {
+            return;
+        }
+
+        if (attributeIndex !== -1) {
+            this.setState({
+                selectedEntityAttributes: this.state.selectedEntityAttributes.filter((attr, index) => index !== attributeIndex)
+            });
+        }
+        else {
+            this.setState({
+                selectedEntityAttributes: this.state.selectedEntityAttributes.concat([attributeId])
+            });
+        }
     }
 
     render() {
@@ -419,11 +511,11 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 <Button bsStyle="default" disabled={this.state.selectedTypeCode === 0} onClick={ this.selectTarget }>Select Target</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedEntityId || !this.state.selectedTypeCode} onClick={ this.preview }>Preview</Button>
                 <Button bsStyle="default" onClick={ this.copy }>Copy Current Template</Button>
-                <Button bsStyle="default" onClick={this.openSdkStepManager}>Manage SDK Steps</Button>
+                <Button bsStyle="default" disabled={!this.state.pluginType} onClick={this.openSdkStepManager}>Manage SDK Steps</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Update SDK Step</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.activateSelectedSdkStep}>Activate SDK Step</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.deactivateSelectedSdkStep}>Deactivate SDK Step</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.deleteSelectedSdkStep}>Delete SDK Step</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.activateSelectedSdkStep}>Activate SDK Step</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deactivateSelectedSdkStep}>Deactivate SDK Step</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deleteSelectedSdkStep}>Delete SDK Step</Button>
               </ButtonGroup>
             </ButtonToolbar>
               <Panel hidden={!this.state.selectedSdkStep} id="pluginConfiguration">
@@ -436,26 +528,13 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                     <ControlLabel style={{"padding-top": "10px"}}>Template Field</ControlLabel>
                     <FormControl onChange={ this.templateFieldChanged } value={this.state.templateField} componentClass="textarea" placeholder="Enter name of template field (per-record templating)" />
                   </FormGroup>
-                  <ControlLabel>Execute plugin on update of</ControlLabel>
-                  <div style={ { "height": "20vh", "overflow": "auto", "border": "1px solid lightgray" } } className="col-xs-6">
-                      <span>Coming soon...</span>
+                  <ControlLabel>Execute plugin on update of (Only for Update Steps)</ControlLabel>
+                  <div style={ { "height": "25vh", "overflow": "auto", "border": "1px solid lightgray" } } className="col-xs-6">
+                    <ListGroup>
                       {
-                          /*
-                          <InputGroup>
-                              <InputGroup.Addon>
-                                <input type="checkbox" key={ attribute } checked={ false } onChange={ () => {} } />
-                              </InputGroup.Addon>
-                              <FormControl key={ attribute + "_aT" } disabled type="text" value={ attribute } />
-                          */
-                          /*Array(100).fill("asdf").map(attribute => {
-                              return <InputGroup>
-                                  <InputGroup.Addon>
-                                    <input type="checkbox" key={ attribute } checked={ false } onChange={ () => {} } />
-                                  </InputGroup.Addon>
-                                  <FormControl key={ attribute + "_aT" } disabled type="text" value={ attribute } />
-                              </InputGroup>;
-                          })*/
+                          this.state.sdkEntityAttributes && this.state.sdkEntityAttributes.filter(attr => attr.DisplayName && attr.DisplayName.UserLocalizedLabel).map(attr => (<ListGroupItem id={attr.LogicalName} header={attr.LogicalName} onClick={this.onSelectEntityAttribute} disabled={this.state.sdkStepMessageName !== "Update"} active={this.state.selectedEntityAttributes.indexOf(attr.LogicalName) !== -1}>{attr.DisplayName.UserLocalizedLabel.Label}</ListGroupItem>))
                       }
+                    </ListGroup>
                   </div>
               </Panel>
               <Panel id="templateConfiguration">
