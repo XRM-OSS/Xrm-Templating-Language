@@ -14,6 +14,12 @@ The parsing and interpreting is done using a custom recursive descent parser imp
 It is embedded inside a plugin and does not need any external references, so that execution works in CRM online and on-premises environments.
 
 ## Where to get it
+You can always download the latest release from the [releases page](https://github.com/DigitalFlow/Xrm-Templating-Language/releases).
+Beware that the release solutions only target CRM > v9.0 currently.
+The code supports CRM v8.0 as well, I just don't have a development organization for creating the solutions there.
+This will be done shortly.
+
+As alternative:
 Build it yourself by running `build.cmd`, or simply download from [AppVeyor](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language/build/artifacts).
 
 ## Requirements
