@@ -15,7 +15,7 @@ It is embedded inside a plugin and does not need any external references, so tha
 
 ## Where to get it
 You can always download the latest release from the [releases page](https://github.com/DigitalFlow/Xrm-Templating-Language/releases).
-Beware that the release solutions only target CRM > v9.0 currently.
+Beware that the release solutions only target CRM >= v9.0 currently.
 The code supports CRM v8.0 as well, I just don't have a development organization for creating the solutions there.
 This will be done shortly.
 
