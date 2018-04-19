@@ -24,6 +24,9 @@ The solution which can be downloaded from the releases site currently targets Dy
 This is due to the fact that I don't have access to other CRM versions for developing right now.
 For XTL itself you only need the DLL which you can download on AppVeyor. The solution just adds the template editor.
 
+## Examples
+Examples of how to use XTL can be found in our [Wiki](https://github.com/DigitalFlow/Xrm-Templating-Language/wiki).
+
 ## How To Register
 ### Using XTL Editor
 Inside the solution you imported, you'll find that there is a configuration page.
