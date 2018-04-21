@@ -38,7 +38,9 @@ namespace Xrm.Oss.XTL.Interpreter
             { "PrimaryRecord", FunctionHandlers.GetPrimaryRecord },
             { "First", FunctionHandlers.First },
             { "Last", FunctionHandlers.Last},
-            { "Concat", FunctionHandlers.Concat }
+            { "Concat", FunctionHandlers.Concat },
+            { "Substring", FunctionHandlers.Substring },
+            { "Replace", FunctionHandlers.Replace }
         };
 
         public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)

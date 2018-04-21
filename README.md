@@ -233,6 +233,25 @@ Concat(Value("lastname"), ", ", Value("firstname"))
 ```
 Above example could return something like 'Baggins, Frodo'.
 
+### Substring
+Takes the substring of your input starting from a given index. Length of substring can be passed optionally as well.
+
+Example:
+```
+Substring(Value("firstname"), 1, 2 )
+```
+Above example returns 'ro' when input is 'Frodo'.
+
+### Replace
+Replaces text in an input string using your pattern and replacement regexes.
+You can use the whole .NET regex syntax for your pattern and replacement regex.
+
+Example:
+```
+Replace(Value("firstname"), "o", "a" )
+```
+Above example returns 'Frada' when input is 'Frodo'.
+
 ## Sample
 Consider the following e-mail template content:
 ```
