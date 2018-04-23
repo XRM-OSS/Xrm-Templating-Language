@@ -72,8 +72,8 @@ namespace Xrm.Oss.XTL.Interpreter
             var expected = parameters[0];
             var actual = parameters[1];
 
-            var falseReturn = new ValueExpression (bool.FalseString, false);
-            var trueReturn = new ValueExpression (bool.TrueString, true);
+            var falseReturn = new ValueExpression(bool.FalseString, false);
+            var trueReturn = new ValueExpression(bool.TrueString, true);
 
             if (expected.Value == null && actual.Value == null)
             {
@@ -220,7 +220,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("GetRecordUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
             }
 
-            if (!parameters.All(p => p .Value is EntityReference || p.Value is Entity || p.Value == null))
+            if (!parameters.All(p => p.Value is EntityReference || p.Value is Entity || p.Value == null))
             {
                 throw new InvalidPluginExecutionException("Only Entity Reference ValueExpressions are supported in GetRecordUrl");
             }
@@ -238,7 +238,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 }
 
                 var entity = e.Value as Entity;
-                
+
                 return new
                 {
                     Id = entity.Id,
@@ -257,7 +257,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private static Func<string, IOrganizationService, Dictionary<string, string>> RetrieveColumnNames = (entityName, service) =>
         {
-            return ((RetrieveEntityResponse) service.Execute(new RetrieveEntityRequest
+            return ((RetrieveEntityResponse)service.Execute(new RetrieveEntityRequest
             {
                 EntityFilters = EntityFilters.Attributes,
                 LogicalName = entityName,
@@ -335,7 +335,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     if (addRecordUrl.HasValue && addRecordUrl.Value)
                     {
-                        stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record)}).Value}</td>");
+                        stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record) }).Value}</td>");
                     }
 
                     stringBuilder.AppendLine("<tr />");
@@ -363,7 +363,7 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var @params = parameters.Skip(1).ToList();
-            
+
             List<object> references = new List<object> { primary.Id };
 
             if (@params is IEnumerable)
@@ -454,7 +454,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         throw new InvalidPluginExecutionException("When passing a second parameter as primary entity to Value function, it has to be of type entity.");
                     }
 
-                    target = parameters[1].Value as Entity; 
+                    target = parameters[1].Value as Entity;
                 }
                 else
                 {
@@ -480,6 +480,52 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             return new ValueExpression(text, text);
+        };
+
+        private static T CheckedCast<T>(object input, string errorMessage)
+        {
+            if (!(input is T))
+            {
+                throw new InvalidPluginExecutionException(errorMessage);
+            }
+
+            return (T)input;
+        }
+
+        public static FunctionHandler Substring = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Substring expects at least two parameters: text, start index and optionally a length");
+            }
+
+            var text = parameters[0].Text;
+            var startIndex = CheckedCast<int>(parameters[1].Value, "Start index parameter must be an int!");
+            var length = -1;
+
+            if (parameters.Count > 2)
+            {
+                length = CheckedCast<int>(parameters[2].Value, "Length parameter must be an int!");
+            }
+
+            var subString = length > -1 ? text.Substring(startIndex, length) : text.Substring(startIndex);
+            return new ValueExpression(subString, subString);
+        };
+
+        public static FunctionHandler Replace = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 3)
+            {
+                throw new InvalidPluginExecutionException("Replace expects three parameters: text input, regex pattern, regex replacement");
+            }
+
+            var input = parameters[0].Text;
+            var pattern = parameters[1].Text;
+            var replacement = parameters[2].Text;
+
+            var replaced = Regex.Replace(input, pattern, replacement);
+
+            return new ValueExpression(replaced, replaced);
         };
     }
 }

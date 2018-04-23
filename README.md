@@ -14,6 +14,12 @@ The parsing and interpreting is done using a custom recursive descent parser imp
 It is embedded inside a plugin and does not need any external references, so that execution works in CRM online and on-premises environments.
 
 ## Where to get it
+You can always download the latest release from the [releases page](https://github.com/DigitalFlow/Xrm-Templating-Language/releases).
+Beware that the release solutions only target CRM >= v9.0 currently.
+The code supports CRM v8.0 as well, I just don't have a development organization for creating the solutions there.
+This will be done shortly.
+
+As alternative:
 Build it yourself by running `build.cmd`, or simply download from [AppVeyor](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language/build/artifacts).
 
 ## Requirements
@@ -23,6 +29,9 @@ The template editor is only available in CRM 2016 and later, as it uses the Web 
 The solution which can be downloaded from the releases site currently targets Dynamics 365 aka 9.0.
 This is due to the fact that I don't have access to other CRM versions for developing right now.
 For XTL itself you only need the DLL which you can download on AppVeyor. The solution just adds the template editor.
+
+## Examples
+Examples of how to use XTL can be found in our [Wiki](https://github.com/DigitalFlow/Xrm-Templating-Language/wiki).
 
 ## How To Register
 ### Using XTL Editor
@@ -223,6 +232,25 @@ Example:
 Concat(Value("lastname"), ", ", Value("firstname"))
 ```
 Above example could return something like 'Baggins, Frodo'.
+
+### Substring
+Takes the substring of your input starting from a given index. Length of substring can be passed optionally as well.
+
+Example:
+```
+Substring(Value("firstname"), 1, 2 )
+```
+Above example returns 'ro' when input is 'Frodo'.
+
+### Replace
+Replaces text in an input string using your pattern and replacement regexes.
+You can use the whole .NET regex syntax for your pattern and replacement regex.
+
+Example:
+```
+Replace(Value("firstname"), "o", "a" )
+```
+Above example returns 'Frada' when input is 'Frodo'.
 
 ## Sample
 Consider the following e-mail template content:
