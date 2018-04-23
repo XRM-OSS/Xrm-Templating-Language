@@ -507,7 +507,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
               <Modal.Title>Copy Json below</Modal.Title>
             </Modal.Header>
 
-            <Modal.Body>{JSON.stringify({template: this.state.inputTemplate, executionCriteria: this.state.executionCriteria})}</Modal.Body>
+            <Modal.Body>{JSON.stringify({template: this.state.isHtmlTemplate ? this.state.inputTemplate.replace(/\n/g, "<br />") : this.state.inputTemplate, executionCriteria: this.state.executionCriteria})}</Modal.Body>
             <Modal.Footer>
                 <Button bsStyle="default" onClick={ this.closeCopyDialog }>Close</Button>
             </Modal.Footer>
