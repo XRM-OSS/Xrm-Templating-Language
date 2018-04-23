@@ -74,6 +74,11 @@ export class SdkStepManager extends React.PureComponent<SdkStepManagerProps, Sdk
         step["sdkmessageid@odata.bind"] = `/sdkmessages(${this.state.selectedFilter.sdkmessageid.sdkmessageid})`;
         step["plugintypeid@odata.bind"] = `/plugintypes(${this.props.pluginTypeId})`;
         step["messageName"] = this.state.selectedFilter.sdkmessageid.name;
+        step["sdkmessageprocessingstepsecureconfigid"] = {
+            secureconfig: JSON.stringify({
+                organizationUrl: this.WebApiClient.GetApiUrl().substring(0, this.WebApiClient.GetApiUrl().indexOf("/api/data/v"))
+            })
+        };
 
         return step;
     }
