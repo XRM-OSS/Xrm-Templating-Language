@@ -4,7 +4,7 @@ import { Attribute } from "../domain/Attribute";
 import WebApiClient from "xrm-webapi-client";
 import { SdkStepManager } from "./SdkStepManager";
 import { SdkStep } from "../domain/SdkStep";
-import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl, ListGroup, ListGroupItem } from "react-bootstrap";
+import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl, ListGroup, ListGroupItem, Checkbox } from "react-bootstrap";
 import * as Parser from "html-react-parser";
 
 interface XtlEditorState {
@@ -31,6 +31,7 @@ interface XtlEditorState {
   sdkStepMessageName?: string;
   sdkEntityAttributes?: Array<Attribute>;
   selectedEntityAttributes: Array<string>;
+  isHtmlTemplate?: boolean;
 }
 
 export default class XtlEditor extends React.PureComponent<any, XtlEditorState> {
@@ -84,6 +85,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         this.deleteSelectedSdkStep = this.deleteSelectedSdkStep.bind(this);
         this.stepNameChanged = this.stepNameChanged.bind(this);
         this.onSelectEntityAttribute = this.onSelectEntityAttribute.bind(this);
+        this.isHtmlTemplateChanged = this.isHtmlTemplateChanged.bind(this);
     }
 
     componentDidMount() {
@@ -137,6 +139,15 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             name: "oss_XTLProcessTemplate",
             bound: false
         });
+
+        let template = this.state.inputTemplate;
+
+        // This needs to be done before interpreting if it's an HTML template
+        // RecordTables will mess up otherwise, as they create linebreaks inside
+        if (this.state.isHtmlTemplate) {
+            template = template.replace(/\n/g, "<br />");
+        }
+
         this.WebApiClient.Execute(request.with({
             payload: {
                 jsonInput: JSON.stringify({
@@ -144,17 +155,22 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                         Id: this.state.selectedEntityId,
                         LogicalName: this.state.selectedEntityLogicalName
                     },
-                    template: this.state.inputTemplate,
+                    template: template,
                     executionCriteria: this.state.executionCriteria
                 })
             }
         }))
         .then((result: any) => {
             const json = JSON.parse(result.jsonOutput);
+            let resultText = (json.result || "");
+
+            if (!this.state.isHtmlTemplate) {
+                resultText = resultText.replace(/\n/g, "<br />");
+            }
 
             this.setState({
                 requestPending: false,
-                resultText: (json.result || "").replace(/\n/g, "<br />"),
+                resultText: resultText,
                 traceLog: json.traceLog
             });
         })
@@ -182,6 +198,12 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     inputChanged(e: any) {
       this.setState({
         inputTemplate: e.target.value
+      });
+    }
+
+    isHtmlTemplateChanged(e: any) {
+      this.setState({
+        isHtmlTemplate: e.target.checked
       });
     }
 
@@ -222,11 +244,18 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             config = JSON.parse(step.configuration) || {};
         }
 
+        let template = config.template || "";
+
+        if (config.isHtmlTemplate) {
+            template = template.replace(/<br \/>/g, "\n");
+        }
+
         this.setState({
             executionCriteria: config.executionCriteria || "",
-            inputTemplate: config.template || "",
+            inputTemplate: template,
             templateField: config.templateField || "",
             targetField: config.targetField || "",
+            isHtmlTemplate: config.isHtmlTemplate,
             showSdkStepManager: false,
             selectedSdkStep: step,
             sdkStepName: step.name,
@@ -273,14 +302,21 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     saveSelectedSdkStep() {
         this.setState({requestPending: true});
 
+        const config = this.state.selectedSdkStep.configuration ? JSON.parse(this.state.selectedSdkStep.configuration) || {} : {};
+
+        let template = this.state.inputTemplate;
+
+        if (this.state.isHtmlTemplate) {
+            template = template.replace(/\n/g, "<br />");
+        }
+
+        config.executionCriteria = this.state.executionCriteria;
+        config.template = template;
+        config.templateField = this.state.templateField;
+        config.targetField = this.state.targetField;
+        config.isHtmlTemplate = this.state.isHtmlTemplate;
+
         if (this.state.selectedSdkStep.sdkmessageprocessingstepid) {
-            const config = this.state.selectedSdkStep.configuration ? JSON.parse(this.state.selectedSdkStep.configuration) || {} : {};
-
-            config.executionCriteria = this.state.executionCriteria;
-            config.template = this.state.inputTemplate;
-            config.templateField = this.state.templateField;
-            config.targetField = this.state.targetField;
-
             this.WebApiClient.Update({
                 entityName: "sdkmessageprocessingstep",
                 entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
@@ -296,13 +332,6 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             .catch(this.reportError);
         }
         else {
-            const config = {
-                executionCriteria: this.state.executionCriteria,
-                template: this.state.inputTemplate,
-                templateField: this.state.templateField,
-                targetField: this.state.targetField
-            };
-
             const messageName = (this.state.selectedSdkStep as any).messageName;
             delete (this.state.selectedSdkStep as any).messageName;
 
@@ -543,6 +572,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                     <ControlLabel>Execution Criteria</ControlLabel>
                     <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } value={this.state.executionCriteria} componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
                     <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
+                    <Checkbox checked={this.state.isHtmlTemplate} onChange={this.isHtmlTemplateChanged}>Is HTML template</Checkbox>
                     <FormControl style={ { "height": "75vh", "overflow": "auto" } } onChange={ this.inputChanged } value={this.state.inputTemplate} componentClass="textarea" placeholder="Enter template" />
                   </FormGroup>
                   <div className="col-xs-6">
