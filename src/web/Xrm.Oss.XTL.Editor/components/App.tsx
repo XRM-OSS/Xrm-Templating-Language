@@ -27,6 +27,7 @@ interface XtlEditorState {
   templateField: string;
   targetField: string;
   sdkStepName: string;
+  rank: number;
   sdkStepEntityLogicalName?: string;
   sdkStepMessageName?: string;
   sdkEntityAttributes?: Array<Attribute>;
@@ -60,6 +61,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
           templateField: "",
           targetField: "",
           sdkStepName: "",
+          rank: 1,
           selectedEntityAttributes: []
         };
 
@@ -86,6 +88,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         this.stepNameChanged = this.stepNameChanged.bind(this);
         this.onSelectEntityAttribute = this.onSelectEntityAttribute.bind(this);
         this.isHtmlTemplateChanged = this.isHtmlTemplateChanged.bind(this);
+        this.rankChanged = this.rankChanged.bind(this);
     }
 
     componentDidMount() {
@@ -259,6 +262,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             showSdkStepManager: false,
             selectedSdkStep: step,
             sdkStepName: step.name,
+            rank: step.rank,
             sdkStepEntityLogicalName: sdkStepEntityLogicalName,
             sdkStepMessageName: sdkStepMessageName,
             selectedEntityAttributes: step.filteringattributes ? step.filteringattributes.split(",") : [],
@@ -322,6 +326,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
                 entity: {
                     name: this.state.sdkStepName,
+                    rank: this.state.rank,
                     configuration: JSON.stringify(config),
                     filteringattributes: this.state.selectedEntityAttributes.join(",")
                 }
@@ -340,6 +345,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 entity: {
                     ...this.state.selectedSdkStep,
                     name: this.state.sdkStepName,
+                    rank: this.state.rank,
                     configuration: JSON.stringify(config),
                     filteringattributes: this.state.selectedEntityAttributes.join(",")
                 }
@@ -470,6 +476,12 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
       });
     }
 
+    rankChanged(e: any) {
+      this.setState({
+        rank: e.target.value
+      });
+    }
+
     onSelectEntityAttribute (e: any) {
         const attributeId = e.currentTarget.id;
         const attributeIndex = this.state.selectedEntityAttributes.indexOf(attributeId);
@@ -541,10 +553,10 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 <Button bsStyle="default" disabled={!this.state.selectedEntityId || !this.state.selectedTypeCode} onClick={ this.preview }>Preview</Button>
                 <Button bsStyle="default" onClick={ this.copy }>Copy Current Template</Button>
                 <Button bsStyle="default" disabled={!this.state.pluginType} onClick={this.openSdkStepManager}>Manage SDK Steps</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Update SDK Step</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.activateSelectedSdkStep}>Activate SDK Step</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deactivateSelectedSdkStep}>Deactivate SDK Step</Button>
-                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deleteSelectedSdkStep}>Delete SDK Step</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Save</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.activateSelectedSdkStep}>Activate</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deactivateSelectedSdkStep}>Deactivate</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deleteSelectedSdkStep}>Delete</Button>
               </ButtonGroup>
             </ButtonToolbar>
               <Panel hidden={!this.state.selectedSdkStep} id="pluginConfiguration">
@@ -552,6 +564,8 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                   <FormGroup className="col-xs-6" controlId="input">
                     <ControlLabel>Step Name</ControlLabel>
                     <FormControl onChange={ this.stepNameChanged } value={this.state.sdkStepName} componentClass="textarea" placeholder="Enter name of SDK step" />
+                    <ControlLabel style={{"padding-top": "10px"}}>Rank</ControlLabel>
+                    <FormControl onChange={ this.rankChanged } value={this.state.rank} componentClass="textarea" placeholder="Execution Pipeline Rank" />
                     <ControlLabel style={{"padding-top": "10px"}}>Target Field</ControlLabel>
                     <FormControl onChange={ this.targetFieldChanged } value={this.state.targetField} componentClass="textarea" placeholder="Enter name of target field for result" />
                     <ControlLabel style={{"padding-top": "10px"}}>Template Field</ControlLabel>
