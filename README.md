@@ -173,7 +173,7 @@ The primary entity is always {0}, so additional references start at {1}.
  
 Example:
 ```
-Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) )
+Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Array( Value ( "regardingobjectid" ) ) )
 ```
 
 If there is the possibility of one of the references being null, you'll have to wrap the fetch inside an if-clause that only executes the fetch, if your reference is not null. Otherwise the function will fail and replace the whole placeholder with an empty string.
@@ -205,14 +205,15 @@ Last ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='descr
 Returns a table of records with specified columns and record url if wanted.
 First parameter is a list of records, for displaying inside the table. Consider retrieving them using the Fetch function.
 Second is the name of the sub entity, third whether to include URL or not.
-All subsequent parameters are treated as columns to retrieve and will be added in the same order.
+Third is an array expression containing the columns to retrieve, which will be added in the same order.
+By default the columns are named like the display names of their respective CRM columns. If you want to override that, append a colon and the text you want to use, such as "subject:Overridden Subject Label".
 
 Below you can find an example, which executes on e-mail creation and searches for tasks associated to the mails regarding contact.
 It will then print the task subject and description, including an url, into the mail.
  
 Example:
 ```
-RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, "subject", "description")
+RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, Array( "subject:Overridden Subject Label", "description" ))
 ```
 
 ### PrimaryRecord
@@ -251,6 +252,16 @@ Example:
 Replace(Value("firstname"), "o", "a" )
 ```
 Above example returns 'Frada' when input is 'Frodo'.
+
+### Array
+Creates an array from the parameters that you passed. Some functions do need arrays as input parameters, use this function for generating them.
+You can enter static values such as string values, or even use XTL functions for passing in values.
+Static strings are for example used for column names inside the RecordTable function, XTL functions as array values are used as fetch parameters in the Fetch function.
+
+Example:
+```
+Array("those", "are", "test", "parameters")
+```
 
 ## Sample
 Consider the following e-mail template content:

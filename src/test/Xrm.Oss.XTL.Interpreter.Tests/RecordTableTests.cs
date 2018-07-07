@@ -84,7 +84,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, \"subject\", \"description\")";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, Array(\"subject\", \"description\"))";
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Subject Label</th>
@@ -101,6 +101,71 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 </table>".Replace("\r", "").Replace("\n", "");
 
             Assert.That(() => new XTLInterpreter(formula, contact, null, service, tracing).Produce(), Throws.Nothing);
+        }
+
+        [Test]
+        public void It_Should_Add_Custom_Column_Labels()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            var task = new Entity
+            {
+                LogicalName = "task",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "subject", "Task 1" },
+                    { "description", "Description 1" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            var task2 = new Entity
+            {
+                LogicalName = "task",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "subject", "Task 2" },
+                    { "description", "Description 2" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            SetupContext(context);
+            context.Initialize(new Entity[] { contact, task, task2 });
+
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, Array(\"subject:Overridden Subject Label\", \"description\"))";
+
+            var expected = @"<table>
+<tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Overridden Subject Label</th>
+<th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Description Label</th>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Task 1</td>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Description 1</td>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Task 2</td>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Description 2</td>
+<tr />
+</table>".Replace("\r", "").Replace("\n", "");
+
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
         }
 
         [Test]
@@ -147,7 +212,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact, task, task2 });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, \"subject\", \"description\")";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, Array(\"subject\", \"description\"))";
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Subject Label</th>
@@ -212,7 +277,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact, task, task2 });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", true, \"subject\", \"description\")";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", true, Array(\"subject\", \"description\"))";
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Subject Label</th>

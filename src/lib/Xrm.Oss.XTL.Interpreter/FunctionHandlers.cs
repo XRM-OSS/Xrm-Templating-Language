@@ -295,8 +295,13 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var addRecordUrl = parameters[2].Value as bool?;
 
+            if (!(parameters[3].Value is List<ValueExpression>))
+            {
+                throw new InvalidPluginExecutionException("List of column names for record table must be an array expression");
+            }
+
             // We need the column names explicitly, since CRM does not return new ValueExpression(null)-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
-            var displayColumns = parameters.Skip(3)?.Select(p => p.Value).Cast<string>() ?? new List<string>();
+            var displayColumns = (parameters[3].Value as List<ValueExpression>).Select(p => p.Value).Cast<string>() ?? new List<string>();
 
             tracing.Trace("Retrieving column names");
             var columnNames = RetrieveColumnNames(entityName, service);
@@ -311,7 +316,17 @@ namespace Xrm.Oss.XTL.Interpreter
             var stringBuilder = new StringBuilder("<table>\n<tr>");
             foreach (var column in displayColumns)
             {
-                var name = columnNames.ContainsKey(column) ? columnNames[column] : column;
+                var name = string.Empty;
+
+                if (column.Contains(":"))
+                {
+                    name = column.Substring(column.IndexOf(':') + 1);
+                }
+                else
+                {
+                    name = columnNames.ContainsKey(column) ? columnNames[column] : column;
+                }
+
                 stringBuilder.AppendLine($"<th {tableHeadStyle}>{name}</th>");
             }
 
@@ -330,7 +345,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     foreach (var column in displayColumns)
                     {
-                        stringBuilder.AppendLine($"<td {tableDataStyle}>{PropertyStringifier.Stringify(record, column)}</td>");
+                        stringBuilder.AppendLine($"<td {tableDataStyle}>{PropertyStringifier.Stringify(record, column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column)}</td>");
                     }
 
                     if (addRecordUrl.HasValue && addRecordUrl.Value)
@@ -362,36 +377,44 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First parameter of Fetch function needs to be a fetchXml string");
             }
 
-            var @params = parameters.Skip(1).ToList();
+            var references = new List<object> { primary.Id };
 
-            List<object> references = new List<object> { primary.Id };
-
-            if (@params is IEnumerable)
+            if (parameters.Count > 1)
             {
-                foreach (var item in @params)
+                if (!(parameters[1].Value is List<ValueExpression>))
                 {
-                    var reference = item.Value as EntityReference;
-                    if (reference != null)
-                    {
-                        references.Add(reference.Id);
-                        continue;
-                    }
+                    throw new InvalidPluginExecutionException("Fetch parameters must be an array expression");
+                }
 
-                    var entity = item.Value as Entity;
-                    if (entity != null)
+                var @params = parameters[1].Value as List<ValueExpression>;
+                
+                if (@params is IEnumerable)
+                {
+                    foreach (var item in @params)
                     {
-                        references.Add(entity.Id);
-                        continue;
-                    }
+                        var reference = item.Value as EntityReference;
+                        if (reference != null)
+                        {
+                            references.Add(reference.Id);
+                            continue;
+                        }
 
-                    var optionSet = item.Value as OptionSetValue;
-                    if (optionSet != null)
-                    {
-                        references.Add(optionSet.Value);
-                        continue;
-                    }
+                        var entity = item.Value as Entity;
+                        if (entity != null)
+                        {
+                            references.Add(entity.Id);
+                            continue;
+                        }
 
-                    references.Add(item.Value);
+                        var optionSet = item.Value as OptionSetValue;
+                        if (optionSet != null)
+                        {
+                            references.Add(optionSet.Value);
+                            continue;
+                        }
+
+                        references.Add(item.Value);
+                    }
                 }
             }
 
@@ -526,6 +549,11 @@ namespace Xrm.Oss.XTL.Interpreter
             var replaced = Regex.Replace(input, pattern, replacement);
 
             return new ValueExpression(replaced, replaced);
+        };
+
+        public static FunctionHandler Array = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            return new ValueExpression(string.Join(", ", parameters), parameters);
         };
     }
 }

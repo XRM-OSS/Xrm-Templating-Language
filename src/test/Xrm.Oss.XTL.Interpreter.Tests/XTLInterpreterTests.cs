@@ -166,7 +166,7 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
 
             context.Initialize(new Entity[] { contact, task, emailWithSubject });
 
-            var formula = "Value(\"subject\", First(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>\", Value(\"regardingobjectid\"))))";
+            var formula = "Value(\"subject\", First(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>\", Array(Value(\"regardingobjectid\")))))";
 
             var result1 = new XTLInterpreter(formula, emailWithSubject, null, service, tracing).Produce();
 
@@ -203,7 +203,7 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
 
             context.Initialize(new Entity[] { contact, emailWithSubject });
 
-            var formula = "Value(\"subject\", First(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>\", Value(\"regardingobjectid\"))))";
+            var formula = "Value(\"subject\", First(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>\", Array (Value(\"regardingobjectid\")))))";
 
             var result1 = new XTLInterpreter(formula, emailWithSubject, null, service, tracing).Produce();
 

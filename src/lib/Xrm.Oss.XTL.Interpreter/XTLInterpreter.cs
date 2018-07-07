@@ -40,7 +40,8 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Last", FunctionHandlers.Last},
             { "Concat", FunctionHandlers.Concat },
             { "Substring", FunctionHandlers.Substring },
-            { "Replace", FunctionHandlers.Replace }
+            { "Replace", FunctionHandlers.Replace },
+            { "Array", FunctionHandlers.Array }
         };
 
         public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
