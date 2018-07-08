@@ -292,5 +292,27 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
             Assert.That(() => result = new XTLInterpreter(null, email, null, service, tracing).Produce(), Throws.Nothing);
             Assert.That(result, Is.EqualTo(string.Empty));
         }
+
+        [Test]
+        public void It_Should_Concatenate_Array_Values_For_String_Representation()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            string result = null;
+            Assert.That(() => result = new XTLInterpreter("Array(\"This\", null, \"is\", \"a\", \"test\")", email, null, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(result, Is.EqualTo("This, , is, a, test"));
+        }
     }
 }

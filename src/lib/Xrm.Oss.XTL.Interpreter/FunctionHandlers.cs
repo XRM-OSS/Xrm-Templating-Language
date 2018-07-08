@@ -553,7 +553,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         public static FunctionHandler Array = (primary, service, tracing, organizationConfig, parameters) =>
         {
-            return new ValueExpression(string.Join(", ", parameters), parameters);
+            return new ValueExpression(string.Join(", ", parameters.Select(p => p.Text)), parameters);
         };
     }
 }

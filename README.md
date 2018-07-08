@@ -262,6 +262,7 @@ Example:
 ```
 Array("those", "are", "test", "parameters")
 ```
+Info: Arrays have a default textual representation, which is all of the array value text representations delimited by ", ". Above examples textual representation would therefore be "those, are, test, parameters". Null values are not removed, but show up as empty string.
 
 ## Sample
 Consider the following e-mail template content:
