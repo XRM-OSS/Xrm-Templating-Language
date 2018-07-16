@@ -176,14 +176,21 @@ Example:
 Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Array( Value ( "regardingobjectid" ) ) )
 ```
 
-If there is the possibility of one of the references being null, you'll have to wrap the fetch inside an if-clause that only executes the fetch, if your reference is not null. Otherwise the function will fail and replace the whole placeholder with an empty string.
+If there is the possibility of one of the references for the fetch being null, you need to handle those cases.
+Passing a null value inside a fetch equal constraint for example, such as ```operator="eq" value="null"``` will lead to CRM exceptions.
+You could now create your FetchXML expression using the Concat function or you'll have to wrap the fetch inside an if-clause that only executes the fetch, if your reference is not null. Otherwise the function will fail and replace the whole placeholder with an empty string.
 
-Example(Please note that in recent releases (>= v1.0.31) the Text function is removed. You can replace it by the value function):
-![email_table](https://user-images.githubusercontent.com/4287938/36945291-e5173fa0-1fab-11e8-86e6-3007eac254c9.gif)
-Source Text:
+Example for Concat:
+```Fetch ( Concat("<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter>", If( Not ( IsNull ( Value ("regardingobjectid") ) ), "<condition attribute='regardingobjectid' operator='eq' value='{1}' />", "<condition attribute='regardingobjectid' operator='eq-null' />"), "</filter></entity></fetch>"), Array ( Value ("regardingobjectid") ))```
+
+Example for conditional fetch:
 ```
 ${{If(IsNull(Value("regardingobjectid" ) ), "No tasks", RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, "subject", "description"))}}
 ```
+
+Example(Please note that in recent releases (>= v1.0.31) the Text function is removed. You can replace it by the value function):
+![email_table](https://user-images.githubusercontent.com/4287938/36945291-e5173fa0-1fab-11e8-86e6-3007eac254c9.gif)
+
 
 ### First
 Receives a list and returns the first object found in it.
