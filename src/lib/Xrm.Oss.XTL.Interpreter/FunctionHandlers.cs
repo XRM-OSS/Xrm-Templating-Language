@@ -457,7 +457,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 return new ValueExpression(null);
             }
 
-            var field = parameters.FirstOrDefault()?.Value as string;
+            var field = parameters.FirstOrDefault()?.Text;
 
             if (string.IsNullOrEmpty(field))
             {
@@ -500,7 +500,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Join function needs at lease two parameters: Separator and an array of values to concatenate");
             }
 
-            var separator = parameters.FirstOrDefault()?.Value as string;
+            var separator = parameters.FirstOrDefault()?.Text;
 
             if (string.IsNullOrEmpty(separator))
             {
