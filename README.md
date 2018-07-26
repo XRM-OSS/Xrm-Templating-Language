@@ -271,6 +271,24 @@ Array("those", "are", "test", "parameters")
 ```
 Info: Arrays have a default textual representation, which is all of the array value text representations delimited by ", ". Above examples textual representation would therefore be "those, are, test, parameters". Null values are not removed, but show up as empty string.
 
+### Join
+Joins multiple strings together using the separator that you passed. You can pass dynamic expressions whose text representations will be used. The first parameter is the separator, the second one is the array of values to concatenate.
+You can pass a boolean as third parameter, stating whether empty parameters should be left out when concatenating (defaults to false).
+
+Example:
+```
+Join(NewLine(), Array ( Value("address1_line1"), Value("address1_line2")), true)
+```
+
+### NewLine
+Inserts a new line. 
+
+Example:
+```
+NewLine()
+```
+Info: This is needed when wanting to concatenate multiple texts using concat or join, since passing "\n" as .NET line break string is interpreted as plain string.
+
 ## Sample
 Consider the following e-mail template content:
 ```
