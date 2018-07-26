@@ -493,6 +493,48 @@ namespace Xrm.Oss.XTL.Interpreter
             return DataRetriever.ResolveTokenValue(field, target, service);
         };
 
+        public static FunctionHandler Join = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Join function needs at lease two parameters: Separator and an array of values to concatenate");
+            }
+
+            var separator = parameters.FirstOrDefault()?.Value as string;
+
+            if (string.IsNullOrEmpty(separator))
+            {
+                throw new InvalidPluginExecutionException("First parameter of Join function needs to be the separator string");
+            }
+
+            var values = parameters[1].Value as List<ValueExpression>;
+
+            if (!(values is IEnumerable))
+            {
+                throw new InvalidPluginExecutionException("The values parameter needs to be an enumerable, please wrap them using an Array expression.");
+            }
+
+            var removeEmptyEntries = false;
+
+            if (parameters.Count > 2 && parameters[2].Value is bool)
+            {
+                removeEmptyEntries = (bool) parameters[2].Value;
+            }
+
+            var valuesToConcatenate = values
+                .Where(v => !removeEmptyEntries || !string.IsNullOrEmpty(v.Value as string))
+                .Select(v => v.Text);
+                
+            var joined = string.Join(separator, valuesToConcatenate);
+
+            return new ValueExpression(joined, joined);
+        };
+
+        public static FunctionHandler NewLine = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            return new ValueExpression(Environment.NewLine, Environment.NewLine);
+        };
+
         public static FunctionHandler Concat = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var text = "";
