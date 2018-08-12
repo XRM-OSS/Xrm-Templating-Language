@@ -329,7 +329,7 @@ var assemblies = [
       { "name": "Xrm.Oss.XTL.Interpreter.FunctionHandlers", "reportPath": "Xrm.Oss.XTL.Templating_FunctionHandlers.htm", "coveredLines": 560, "uncoveredLines": 0, "coverableLines": 560, "totalLines": 601, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 89, "totalBranches": 144, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.PropertyStringifier", "reportPath": "Xrm.Oss.XTL.Templating_PropertyStringifier.htm", "coveredLines": 25, "uncoveredLines": 0, "coverableLines": 25, "totalLines": 47, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 8, "totalBranches": 8, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.ValueExpression", "reportPath": "Xrm.Oss.XTL.Templating_ValueExpression.htm", "coveredLines": 16, "uncoveredLines": 0, "coverableLines": 16, "totalLines": 40, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 6, "totalBranches": 8, "lineCoverageHistory": [], "branchCoverageHistory": [] },
-      { "name": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "coveredLines": 137, "uncoveredLines": 3, "coverableLines": 140, "totalLines": 228, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 35, "totalBranches": 38, "lineCoverageHistory": [], "branchCoverageHistory": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "coveredLines": 144, "uncoveredLines": 5, "coverableLines": 149, "totalLines": 242, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 38, "totalBranches": 42, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Templating.OrganizationConfig", "reportPath": "Xrm.Oss.XTL.Templating_OrganizationConfig.htm", "coveredLines": 13, "uncoveredLines": 0, "coverableLines": 13, "totalLines": 38, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 2, "totalBranches": 2, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Templating.PersistentTracingService", "reportPath": "Xrm.Oss.XTL.Templating_PersistentTracingService.htm", "coveredLines": 12, "uncoveredLines": 0, "coverableLines": 12, "totalLines": 35, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 0, "totalBranches": 0, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Templating.ProcessingResult", "reportPath": "Xrm.Oss.XTL.Templating_ProcessingResult.htm", "coveredLines": 4, "uncoveredLines": 0, "coverableLines": 4, "totalLines": 25, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 0, "totalBranches": 0, "lineCoverageHistory": [], "branchCoverageHistory": [] },
@@ -339,9 +339,17 @@ var assemblies = [
 ];
 
 var riskHotspotMetrics = [
+      { "name": "Cyclomatic complexity", "explanationUrl": "https://en.wikipedia.org/wiki/Cyclomatic_complexity" },
+      { "name": "NPath complexity", "explanationUrl": "https://modess.io/npath-complexity-cyclomatic-complexity-explained" },
 ];
 
 var riskHotspots = [
+  {
+    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "method": "Expression()",
+    "metrics": [
+      { "value": 13, "exceeded": false },
+      { "value": 256, "exceeded": true },
+    ]},
 ];
 
 var branchCoverageAvailable = true;

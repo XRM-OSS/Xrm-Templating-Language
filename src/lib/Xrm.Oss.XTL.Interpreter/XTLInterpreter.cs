@@ -77,7 +77,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private void Expected(string expected)
         {
-            throw new InvalidPluginExecutionException($"{expected} Expected after {_previous}{_current}");
+            throw new InvalidPluginExecutionException($"{expected} expected after '{_previous}{_current}'");
         }
 
         private void SkipWhiteSpace() 
@@ -103,7 +103,7 @@ namespace Xrm.Oss.XTL.Interpreter
             SkipWhiteSpace();
 
             if (!char.IsLetter(_current)) {
-                Expected("Name");
+                Expected($"An identifier was expected, but the current char {_current} is not a letter. ");
             }
 
             var name = string.Empty;
@@ -160,6 +160,10 @@ namespace Xrm.Oss.XTL.Interpreter
                 {
                     // Parameterless function encountered
                 }
+                else if (_current == ']') 
+                {
+                    // Empty array
+                }
                 // The first char of a function must not be a digit
                 else
                 {
@@ -167,7 +171,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 }
 
                 SkipWhiteSpace();
-            } while (_current != ')');
+            } while (_current != ')' && _current != ']');
 
             return returnValue;
         }
@@ -192,22 +196,33 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private ValueExpression Formula()
         {
-            var name = GetName();
+            SkipWhiteSpace();
 
-            switch(name)
-            {
-                case "true":
-                    return new ValueExpression(bool.TrueString, true);
-                case "false":
-                    return new ValueExpression(bool.FalseString, false);
-                case "null":
-                    return new ValueExpression( null );
-                default:
-                    Match('(');
-                    var parameters = Expression();
-                    Match(')');
+            if (_current == '[') {
+                Match('[');
+                var arrayParameters = Expression();
+                Match(']');
 
-                    return ApplyExpression(name, parameters);
+                return ApplyExpression("Array", arrayParameters);
+            }
+            else {
+                var name = GetName();
+
+                switch(name)
+                {
+                    case "true":
+                        return new ValueExpression(bool.TrueString, true);
+                    case "false":
+                        return new ValueExpression(bool.FalseString, false);
+                    case "null":
+                        return new ValueExpression( null );
+                    default:
+                        Match('(');
+                        var parameters = Expression();
+                        Match(')');
+
+                        return ApplyExpression(name, parameters);
+                }
             }
         }
 

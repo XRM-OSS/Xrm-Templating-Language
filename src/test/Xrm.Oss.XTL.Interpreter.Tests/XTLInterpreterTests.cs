@@ -374,6 +374,28 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
         }
 
         [Test]
+        public void It_Should_Join_Values_And_Remove_Empty_Entries_With_Native_Array()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            string result = null;
+            Assert.That(() => result = new XTLInterpreter(@"Join ( "","", [ Value(""subject""), Value(""none""), Value(""subject"") ], true)", email, null, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(result, Is.EqualTo("TestSubject,TestSubject"));
+        }
+
+        [Test]
         public void It_Should_Insert_New_Line()
         {
             var context = new XrmFakedContext();
