@@ -40,3 +40,4 @@ paket-files/*
 .vs/*
 **/node_modules/*
 **/dist/*
+temp/*
