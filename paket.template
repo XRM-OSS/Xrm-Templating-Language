@@ -1,0 +1,25 @@
+type file
+id Xrm.Oss.TemplatingLanguage.Sources
+version 1.0
+authors Florian Krönert
+title
+    Xrm-Templating-Language
+tags
+    Xrm Dynamics CRM 365 Templating DSL Programming Language String Text
+projectUrl
+    https://github.com/DigitalFlow/Xrm-Templating-Language
+licenseUrl
+    https://github.com/DigitalFlow/Xrm-Templating-Language/blob/master/LICENSE
+description
+    A domain specific language for Dynamics CRM / Dynamics 365 CE allowing for easy text template processing
+files
+    src\lib\Xrm.Oss.XTL.Interpreter\DataRetriever.cs       ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\FunctionHandlers.cs    ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\PropertyStringifier.cs ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs     ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs      ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\DataRetriever.cs       ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\FunctionHandlers.cs    ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\PropertyStringifier.cs ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs     ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs      ==> content

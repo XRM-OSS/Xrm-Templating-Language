@@ -116,6 +116,13 @@ Target "ReportCodeCoverage" (fun _ ->
     
 )
 
+Target "CreateNuget" (fun _ ->
+    Pack (fun p ->
+            {p with
+                Version = asmVersion
+            })
+)
+
 // Dependencies
 "Clean"
   ==> "BuildVersions"
@@ -126,6 +133,7 @@ Target "ReportCodeCoverage" (fun _ ->
   ==> "CodeCoverage"
   ==> "ReportCodeCoverage"
   ==> "Publish"
+  ==> "CreateNuget"
 
 // start build
 RunTargetOrDefault "Publish"
