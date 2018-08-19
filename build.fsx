@@ -33,9 +33,9 @@ let nUnitPath = "packages" @@ "nunit.consolerunner" @@ "tools" @@ "nunit3-consol
 let sha = Git.Information.getCurrentHash()
 
 // version info
-let major           = "1"
-let minor           = "0"
-let mutable build           = buildVersion
+let major           = "2"
+let minor           = "1"
+let mutable patch           = "1"
 let mutable asmVersion      = ""
 let mutable asmFileVersion  = ""
 
@@ -46,12 +46,9 @@ Target "Clean" (fun _ ->
 )
 
 Target "BuildVersions" (fun _ ->
-    if isLocalBuild then
-        build <- "0"
-
     // Follow SemVer scheme: http://semver.org/
-    asmVersion  <- major + "." + minor + "." + build 
-    asmFileVersion      <- major + "." + minor + "." + build + "+" + sha
+    asmVersion  <- major + "." + minor + "." + patch 
+    asmFileVersion      <- major + "." + minor + "." + patch + "+" + sha
 
     SetBuildNumber asmFileVersion
 )
