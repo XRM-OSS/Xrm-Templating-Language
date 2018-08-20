@@ -13,13 +13,15 @@ licenseUrl
 description
     A domain specific language for Dynamics CRM / Dynamics 365 CE allowing for easy text template processing
 files
-    src\lib\Xrm.Oss.XTL.Interpreter\DataRetriever.cs       ==> contentFiles\cs\net452\lib
-    src\lib\Xrm.Oss.XTL.Interpreter\FunctionHandlers.cs    ==> contentFiles\cs\net452\lib
-    src\lib\Xrm.Oss.XTL.Interpreter\PropertyStringifier.cs ==> contentFiles\cs\net452\lib
-    src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs     ==> contentFiles\cs\net452\lib
-    src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs      ==> contentFiles\cs\net452\lib
-    src\lib\Xrm.Oss.XTL.Interpreter\DataRetriever.cs       ==> content
-    src\lib\Xrm.Oss.XTL.Interpreter\FunctionHandlers.cs    ==> content
-    src\lib\Xrm.Oss.XTL.Interpreter\PropertyStringifier.cs ==> content
-    src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs     ==> content
-    src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs      ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\DataRetriever.cs        ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\FunctionHandlers.cs     ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\PropertyStringifier.cs  ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs      ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs       ==> contentFiles\cs\net452\lib
+    src\plugin\Xrm.Oss.XTL.Templating\OrganizationConfig.cs ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\DataRetriever.cs        ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\FunctionHandlers.cs     ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\PropertyStringifier.cs  ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs      ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs       ==> content
+    src\plugin\Xrm.Oss.XTL.Templating\OrganizationConfig.cs ==> content
