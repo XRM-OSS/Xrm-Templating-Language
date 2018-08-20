@@ -35,7 +35,7 @@ let sha = Git.Information.getCurrentHash()
 // version info
 let major           = "2"
 let minor           = "1"
-let mutable patch           = "4"
+let mutable patch           = "5"
 let mutable asmVersion      = ""
 let mutable asmFileVersion  = ""
 
