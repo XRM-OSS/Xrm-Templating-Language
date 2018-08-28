@@ -1,26 +1,45 @@
+const path = require("path");
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
 module.exports = {
     entry: "./components/index.tsx",
+
     output: {
         filename: "bundle.js",
-        path: __dirname + "/dist/js",
-        publicPath: ''
+        path: __dirname + "/dist/bundle",
+        publicPath: "",
     },
 
-    // Enable sourcemaps for debugging webpack's output.
+    plugins: [
+        new MonacoWebpackPlugin()
+    ],
+
+    // Enable sourcemaps for debugging webpack"s output.
     devtool: "source-map",
 
     resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".ts", ".tsx", ".js", ".json"]
+        // Add ".ts" and ".tsx" as resolvable extensions.
+        extensions: [".ts", ".tsx", ".js", ".json", ".css"],
+        modules: [ "node_modules" ]
     },
 
     module: {
         rules: [
-            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
+            // All files with a ".ts" or ".tsx" extension will be handled by "awesome-typescript-loader".
             { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
 
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
+            // All output ".js" files will have any sourcemaps re-processed by "source-map-loader".
+            {
+                "enforce": "pre",
+                "test": /\.js$/,
+                "loader": "source-map-loader",
+                "exclude": [
+                  // instead of /\/node_modules\//
+                  path.join(process.cwd(), 'node_modules')
+                ]
+              },
+
+            { test: /\.css$/, use: ["style-loader", "css-loader"] }
         ]
     },
 

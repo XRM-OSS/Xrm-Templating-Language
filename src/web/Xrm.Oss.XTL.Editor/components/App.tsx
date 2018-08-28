@@ -6,6 +6,8 @@ import { SdkStepManager } from "./SdkStepManager";
 import { SdkStep } from "../domain/SdkStep";
 import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl, ListGroup, ListGroupItem, Checkbox } from "react-bootstrap";
 import * as Parser from "html-react-parser";
+import MonacoEditor from "react-monaco-editor";
+import * as monacoEditor from "monaco-editor";
 
 interface XtlEditorState {
   inputTemplate: string;
@@ -502,6 +504,44 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         }
     }
 
+    editorWillMount = (monaco: any) => {
+        // Register a new language
+        monaco.languages.register({ id: 'XTL' });
+
+        // Register a tokens provider for the language
+        monaco.languages.setMonarchTokensProvider('XTL', {
+        	tokenizer: {
+        		root: [
+        			[/Value/, "custom-function"]
+        		]
+        	}
+        });
+
+        // Define a new theme that contains only rules that match this language
+        monaco.editor.defineTheme('XTL', {
+        	base: 'vs',
+        	inherit: false,
+        	rules: [
+        		{ token: 'custom-function', foreground: '808080' }
+        	]
+        });
+
+        // Register a completion item provider for the new language
+        monaco.languages.registerCompletionItemProvider('XTL', {
+        	provideCompletionItems: () => {
+        		return [
+        			{
+        				label: 'Value',
+        				kind: monaco.languages.CompletionItemKind.Snippet,
+        				insertText: {
+        					value: 'Value ( "" )'
+        				}
+        			}
+        		]
+        	}
+        });
+    }
+
     render() {
         return (
         <div>
@@ -587,7 +627,15 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                     <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } value={this.state.executionCriteria} componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
                     <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
                     <Checkbox checked={this.state.isHtmlTemplate} onChange={this.isHtmlTemplateChanged}>Is HTML template</Checkbox>
-                    <FormControl style={ { "height": "75vh", "overflow": "auto" } } onChange={ this.inputChanged } value={this.state.inputTemplate} componentClass="textarea" placeholder="Enter template" />
+                    <MonacoEditor
+                            language="XTL"
+                            theme="XTL"
+                            width="800"
+                            height="600"
+                            value={this.state.inputTemplate}
+                            onChange={this.inputChanged}
+                            editorWillMount={this.editorWillMount}
+                    />
                   </FormGroup>
                   <div className="col-xs-6">
                     <ControlLabel>Result</ControlLabel>
