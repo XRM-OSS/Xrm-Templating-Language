@@ -70,7 +70,6 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         // Webpack should import WebApiClient from global itself, but somehow it doesn't
         this.WebApiClient = (window as any).WebApiClient;
 
-        this.inputChanged = this.inputChanged.bind(this);
         this.criteriaChanged = this.criteriaChanged.bind(this);
         this.preview = this.preview.bind(this);
         this.selectTarget = this.selectTarget.bind(this);
@@ -200,21 +199,15 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         });
     }
 
-    inputChanged(e: any) {
-      this.setState({
-        inputTemplate: e.target.value
-      });
-    }
-
     isHtmlTemplateChanged(e: any) {
       this.setState({
         isHtmlTemplate: e.target.checked
       });
     }
 
-    criteriaChanged(e: any) {
+    criteriaChanged(newValue: any, e: any) {
       this.setState({
-        executionCriteria: e.target.value
+        executionCriteria: newValue
       });
     }
 
@@ -504,27 +497,118 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         }
     }
 
+    onChange = (newValue: any, e: any) => {
+        this.setState({
+          inputTemplate: newValue
+        });
+    }
+
     editorWillMount = (monaco: any) => {
         // Register a new language
         monaco.languages.register({ id: 'XTL' });
 
-        // Register a tokens provider for the language
-        monaco.languages.setMonarchTokensProvider('XTL', {
-        	tokenizer: {
-        		root: [
-        			[/Value/, "custom-function"]
-        		]
-        	}
-        });
+        monaco.languages.setLanguageConfiguration("XTL", {
+            brackets: [
+        		['{', '}'],
+        		['[', ']'],
+        		['(', ')'],
+        	],
 
-        // Define a new theme that contains only rules that match this language
-        monaco.editor.defineTheme('XTL', {
-        	base: 'vs',
-        	inherit: false,
-        	rules: [
-        		{ token: 'custom-function', foreground: '808080' }
+        	autoClosingPairs: [
+        		{ open: '{', close: '}' },
+        		{ open: '[', close: ']' },
+        		{ open: '(', close: ')' },
+        		{ open: '"', close: '"' },
+        		{ open: '\'', close: '\'' },
+        	],
+
+        	surroundingPairs: [
+        		{ open: '{', close: '}' },
+        		{ open: '[', close: ']' },
+        		{ open: '(', close: ')' },
+        		{ open: '"', close: '"' },
+        		{ open: '\'', close: '\'' },
         	]
         });
+
+        // Register a tokens provider for the language
+        monaco.languages.setMonarchTokensProvider('XTL', {
+            keywords: [
+                'null', 'true', 'false'
+              ],
+
+            typeKeywords: [
+
+            ],
+
+            operators: [ ],
+
+            // we include these common regular expressions
+            symbols:  /[=><!~?:&|+\-*\/\^%]+/,
+
+            // C# style strings
+            escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+
+            tokenizer: {
+                root: [
+                  // identifiers and keywords
+                  [/[a-z_$][\w$]*/, { cases: { '@typeKeywords': 'keyword',
+                                               '@keywords': 'keyword',
+                                               '@default': 'identifier' } }],
+                  [/[A-Z][\w\$]*/, 'type.identifier' ],  // to show class names nicely
+
+                  // whitespace
+                  { include: '@whitespace' },
+
+                  // delimiters and operators
+                  [/[{}()\[\]]/, '@brackets'],
+                  [/@symbols/, { cases: { '@operators': 'operator',
+                                          '@default'  : '' } } ],
+
+                  // @ annotations.
+                  // As an example, we emit a debugging log message on these tokens.
+                  // Note: message are supressed during the first load -- change some lines to see them.
+                  [/@\s*[a-zA-Z_\$][\w\$]*/, { token: 'annotation', log: 'annotation token: $0' }],
+
+                  // numbers
+                  [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+                  [/0[xX][0-9a-fA-F]+/, 'number.hex'],
+                  [/\d+/, 'number'],
+
+                  // delimiter: after number because of .\d floats
+                  [/[;,.]/, 'delimiter'],
+
+                  // strings
+                  [/"([^"\\]|\\.)*$/, 'string.invalid' ],  // non-teminated string
+                  [/"/,  { token: 'string.quote', bracket: '@open', next: '@string' } ],
+
+                  // characters
+                  [/'[^\\']'/, 'string'],
+                  [/(')(@escapes)(')/, ['string','string.escape','string']],
+                  [/'/, 'string.invalid']
+                ],
+
+                comment: [
+                  [/[^\/*]+/, 'comment' ],
+                  [/\/\*/,    'comment', '@push' ],    // nested comment
+                  ["\\*/",    'comment', '@pop'  ],
+                  [/[\/*]/,   'comment' ]
+                ],
+
+                string: [
+                  [/[^\\"]+/,  'string'],
+                  [/@escapes/, 'string.escape'],
+                  [/\\./,      'string.escape.invalid'],
+                  [/"/,        { token: 'string.quote', bracket: '@close', next: '@pop' } ]
+                ],
+
+                whitespace: [
+                  [/[ \t\r\n]+/, 'white'],
+                  [/\/\*/,       'comment', '@comment' ],
+                  [/\/\/.*$/,    'comment'],
+                ],
+              }
+            });
 
         // Register a completion item provider for the new language
         monaco.languages.registerCompletionItemProvider('XTL', {
@@ -624,16 +708,24 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                   <h3>Template Configuration</h3>
                   <FormGroup className="col-xs-6" controlId="input">
                     <ControlLabel>Execution Criteria</ControlLabel>
-                    <FormControl style={ { "height": "25vh", "overflow": "auto" } } onChange={ this.criteriaChanged } value={this.state.executionCriteria} componentClass="textarea" placeholder="Leave empty for executing unconditionally" />
+                    <MonacoEditor
+                            language="XTL"
+                            theme="vs"
+                            width="800"
+                            height="300"
+                            value={ this.state.executionCriteria || "// Leave empty for executing unconditionally" }
+                            onChange={this.criteriaChanged}
+                            editorWillMount={this.editorWillMount}
+                    />
                     <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
                     <Checkbox checked={this.state.isHtmlTemplate} onChange={this.isHtmlTemplateChanged}>Is HTML template</Checkbox>
                     <MonacoEditor
                             language="XTL"
-                            theme="XTL"
+                            theme="vs"
                             width="800"
                             height="600"
-                            value={this.state.inputTemplate}
-                            onChange={this.inputChanged}
+                            value={ this.state.inputTemplate || "// Enter your template..." }
+                            onChange={this.onChange}
                             editorWillMount={this.editorWillMount}
                     />
                   </FormGroup>
