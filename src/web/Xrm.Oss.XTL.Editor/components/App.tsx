@@ -90,6 +90,11 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         this.onSelectEntityAttribute = this.onSelectEntityAttribute.bind(this);
         this.isHtmlTemplateChanged = this.isHtmlTemplateChanged.bind(this);
         this.rankChanged = this.rankChanged.bind(this);
+
+        window.onresize = () => {
+            (this.refs.criteriaEditor as any).editor.layout();
+            (this.refs.templateEditor as any).editor.layout();
+        };
     }
 
     componentDidMount() {
@@ -708,26 +713,28 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                   <h3>Template Configuration</h3>
                   <FormGroup className="col-xs-6" controlId="input">
                     <ControlLabel>Execution Criteria</ControlLabel>
-                    <MonacoEditor
-                            language="XTL"
-                            theme="vs"
-                            width="800"
-                            height="300"
-                            value={ this.state.executionCriteria || "// Leave empty for executing unconditionally" }
-                            onChange={this.criteriaChanged}
-                            editorWillMount={this.editorWillMount}
-                    />
+                    <div style={ { "height": "25vh" } }>
+                        <MonacoEditor
+                                language="XTL"
+                                theme="vs"
+                                value={ this.state.executionCriteria || "// Leave empty for executing unconditionally" }
+                                onChange={this.criteriaChanged}
+                                editorWillMount={this.editorWillMount}
+                                ref="criteriaEditor"
+                        />
+                    </div>
                     <ControlLabel style={{"padding-top": "10px"}}>Template</ControlLabel>
                     <Checkbox checked={this.state.isHtmlTemplate} onChange={this.isHtmlTemplateChanged}>Is HTML template</Checkbox>
-                    <MonacoEditor
-                            language="XTL"
-                            theme="vs"
-                            width="800"
-                            height="600"
-                            value={ this.state.inputTemplate || "// Enter your template..." }
-                            onChange={this.onChange}
-                            editorWillMount={this.editorWillMount}
-                    />
+                    <div style={ { "height": "75vh" } }>
+                        <MonacoEditor
+                                language="XTL"
+                                theme="vs"
+                                value={ this.state.inputTemplate || "// Enter your template..." }
+                                onChange={this.onChange}
+                                editorWillMount={this.editorWillMount}
+                                ref="templateEditor"
+                        />
+                    </div>
                   </FormGroup>
                   <div className="col-xs-6">
                     <ControlLabel>Result</ControlLabel>
