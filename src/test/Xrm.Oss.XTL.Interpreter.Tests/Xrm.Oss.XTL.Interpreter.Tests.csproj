@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConditionalTests.cs" />
+    <Compile Include="DateTimeTests.cs" />
     <Compile Include="ReplaceTests.cs" />
     <Compile Include="SubstringTests.cs" />
     <Compile Include="IsEqualTests.cs" />

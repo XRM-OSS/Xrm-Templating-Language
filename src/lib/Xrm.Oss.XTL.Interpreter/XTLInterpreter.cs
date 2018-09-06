@@ -43,7 +43,10 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Replace", FunctionHandlers.Replace },
             { "Array", FunctionHandlers.Array },
             { "Join", FunctionHandlers.Join },
-            { "NewLine", FunctionHandlers.NewLine }
+            { "NewLine", FunctionHandlers.NewLine },
+            { "DateTimeNow", FunctionHandlers.DateTimeNow },
+            { "DateTimeUtcNow", FunctionHandlers.DateTimeUtcNow },
+            { "DateToString", FunctionHandlers.DateToString }
         };
 
         public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)

@@ -597,5 +597,41 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             return new ValueExpression(string.Join(", ", parameters.Select(p => p.Text)), parameters);
         };
+
+        public static FunctionHandler DateTimeNow = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var date = DateTime.Now;
+            return new ValueExpression(date.ToString(), date);
+        };
+
+        public static FunctionHandler DateTimeUtcNow = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var date = DateTime.UtcNow;
+            return new ValueExpression(date.ToString(), date);
+        };
+
+        public static FunctionHandler DateToString = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 1)
+            {
+                throw new Exception("No date to stringify");
+            }
+
+            if (!(parameters[0].Value is DateTime))
+            {
+                throw new Exception("You need to pass a date");
+            }
+
+            var date = (DateTime) parameters[0].Value;
+
+            if (parameters.Count > 1)
+            {
+                var format = parameters[1].Value as string;
+
+                return new ValueExpression(date.ToString(format), date.ToString(format));
+            }
+
+            return new ValueExpression(date.ToString(), date.ToString());
+        };
     }
 }
