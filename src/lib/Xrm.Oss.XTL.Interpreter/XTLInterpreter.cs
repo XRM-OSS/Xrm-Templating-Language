@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
@@ -46,7 +47,8 @@ namespace Xrm.Oss.XTL.Interpreter
             { "NewLine", FunctionHandlers.NewLine },
             { "DateTimeNow", FunctionHandlers.DateTimeNow },
             { "DateTimeUtcNow", FunctionHandlers.DateTimeUtcNow },
-            { "DateToString", FunctionHandlers.DateToString }
+            { "DateToString", FunctionHandlers.DateToString },
+            { "Static", FunctionHandlers.Static }
         };
 
         public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
@@ -94,7 +96,7 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             if (_current != c) 
             {
-                Expected(c.ToString());
+                Expected(c.ToString(CultureInfo.InvariantCulture));
             }
 
             GetChar();
@@ -150,14 +152,52 @@ namespace Xrm.Oss.XTL.Interpreter
                 else if (char.IsDigit(_current))
                 {
                     var digit = 0;
+                    var fractionalPart = 0;
+                    var processingFractionalPart = false;
 
                     do
                     {
-                        digit = digit * 10 + int.Parse(_current.ToString());
-                        GetChar();
-                    } while (char.IsDigit(_current) && !_eof);
+                        if (_current != '.')
+                        {
+                            if (processingFractionalPart)
+                            {
+                                fractionalPart = fractionalPart * 10 + int.Parse(_current.ToString(CultureInfo.InvariantCulture));
+                            }
+                            else
+                            {
+                                digit = digit * 10 + int.Parse(_current.ToString(CultureInfo.InvariantCulture));
+                            }
+                        }
+                        else
+                        {
+                            processingFractionalPart = true;
+                        }
 
-                    returnValue.Add(new ValueExpression(digit.ToString(), digit));
+                        GetChar();
+                    } while ((char.IsDigit(_current) || _current == '.') && !_eof);
+
+                    switch(_current)
+                    {
+                        case 'd':
+                            double doubleValue = digit + fractionalPart / Math.Pow(10, (fractionalPart.ToString(CultureInfo.InvariantCulture).Length));
+                            returnValue.Add(new ValueExpression(doubleValue.ToString(CultureInfo.InvariantCulture), doubleValue));
+                            GetChar();
+                            break;
+                        case 'm':
+                            decimal decimalValue = digit + fractionalPart / (decimal) Math.Pow(10, (fractionalPart.ToString(CultureInfo.InvariantCulture).Length));
+                            returnValue.Add(new ValueExpression(decimalValue.ToString(CultureInfo.InvariantCulture), decimalValue));
+                            GetChar();
+                            break;
+                        default:
+                            if (processingFractionalPart)
+                            {
+                                throw new InvalidDataException("For defining numbers with fractional parts, please append d (for double) or m (for decimal) to your number");
+                            }
+
+                            returnValue.Add(new ValueExpression(digit.ToString(CultureInfo.InvariantCulture), digit));
+                            break;
+                    }
+
                 }
                 else if (_current == ')')
                 {

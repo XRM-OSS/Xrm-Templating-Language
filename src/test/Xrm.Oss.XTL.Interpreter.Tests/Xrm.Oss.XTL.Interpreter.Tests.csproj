@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="DateTimeTests.cs" />
+    <Compile Include="NumberTests.cs" />
     <Compile Include="ReplaceTests.cs" />
     <Compile Include="SubstringTests.cs" />
     <Compile Include="IsEqualTests.cs" />

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Globalization;
 
 namespace Xrm.Oss.XTL.Interpreter
 {
@@ -31,14 +32,14 @@ namespace Xrm.Oss.XTL.Interpreter
             {
                 return record.FormattedValues.ContainsKey(field)
                         ? record.FormattedValues[field]
-                        : optionSet.Value.ToString();
+                        : optionSet.Value.ToString(CultureInfo.InvariantCulture);
             }
 
             if (money != null)
             {
                 return record.FormattedValues.ContainsKey(field)
                         ? record.FormattedValues[field]
-                        : money.Value.ToString();
+                        : money.Value.ToString(CultureInfo.InvariantCulture);
             }
 
             return value.ToString();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,7 +26,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var result = !((bool)target.Value);
 
-            return new ValueExpression(result.ToString(), result);
+            return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
         };
 
         public static FunctionHandler First = (primary, service, tracing, organizationConfig, parameters) =>
@@ -94,22 +95,22 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (expected.Value is string && actual.Value is string)
             {
-                return new ValueExpression(result.ToString(), result);
+                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
             }
 
             if (expected.Value is bool && actual.Value is bool)
             {
-                return new ValueExpression(result.ToString(), result);
+                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
             }
 
             if (expected.Value is int && actual.Value is int)
             {
-                return new ValueExpression(result.ToString(), result);
+                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
             }
 
             if (expected.Value is EntityReference && actual.Value is EntityReference)
             {
-                return new ValueExpression(result.ToString(), result);
+                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
             }
 
             if (new[] { expected.Value, actual.Value }.All(v => v is int || v is OptionSetValue))
@@ -119,7 +120,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     .ToList();
 
                 var optionSetResult = values[0].Equals(values[1]);
-                return new ValueExpression(optionSetResult.ToString(), optionSetResult);
+                return new ValueExpression(optionSetResult.ToString(CultureInfo.InvariantCulture), optionSetResult);
             }
 
             throw new InvalidPluginExecutionException($"Incompatible comparison types: {expected.Value.GetType().Name} and {actual.Value.GetType().Name}");
@@ -601,13 +602,24 @@ namespace Xrm.Oss.XTL.Interpreter
         public static FunctionHandler DateTimeNow = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var date = DateTime.Now;
-            return new ValueExpression(date.ToString(), date);
+            return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date);
         };
 
         public static FunctionHandler DateTimeUtcNow = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var date = DateTime.UtcNow;
-            return new ValueExpression(date.ToString(), date);
+            return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date);
+        };
+
+        public static FunctionHandler Static = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 1)
+            {
+                throw new InvalidOperationException("You have to pass a static value");
+            }
+
+            var parameter = parameters[0];
+            return new ValueExpression(parameter.Text, parameter.Value);
         };
 
         public static FunctionHandler DateToString = (primary, service, tracing, organizationConfig, parameters) =>
@@ -631,7 +643,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 return new ValueExpression(date.ToString(format), date.ToString(format));
             }
 
-            return new ValueExpression(date.ToString(), date.ToString());
+            return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date.ToString(CultureInfo.InvariantCulture));
         };
     }
 }
