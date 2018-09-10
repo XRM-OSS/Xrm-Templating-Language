@@ -103,8 +103,8 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidOperationException("Parameters are not comparable");
             }
 
-            var expected = (IComparable)parameters[0].Value;
-            var actual = (IComparable)parameters[1].Value;
+            var actual = (IComparable)parameters[0].Value;
+            var expected = (IComparable)parameters[1].Value;
 
             // Negative: actual is less than expected, 0: equal, 1: actual is greater than expected
             return actual.CompareTo(expected);
@@ -649,13 +649,13 @@ namespace Xrm.Oss.XTL.Interpreter
         public static FunctionHandler DateTimeNow = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var date = DateTime.Now;
-            return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date);
+            return new ValueExpression(date.ToString("o", CultureInfo.InvariantCulture), date);
         };
 
         public static FunctionHandler DateTimeUtcNow = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var date = DateTime.UtcNow;
-            return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date);
+            return new ValueExpression(date.ToString("o", CultureInfo.InvariantCulture), date);
         };
 
         public static FunctionHandler Static = (primary, service, tracing, organizationConfig, parameters) =>

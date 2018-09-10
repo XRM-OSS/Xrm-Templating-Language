@@ -31,7 +31,8 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var tracing = context.GetFakeTracingService();
 
             var formula = "DateTimeUtcNow()";
-            Assert.That(() => DateTime.Parse(new XTLInterpreter(formula, null, null, service, tracing).Produce()), Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(5)));
+            // DateTime.Parse parses to local time...
+            Assert.That(() => DateTime.Parse(new XTLInterpreter(formula, null, null, service, tracing).Produce()).ToUniversalTime(), Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(5)));
         }
 
         [Test]

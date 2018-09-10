@@ -87,7 +87,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "IsLess ( 1.2d, 1.1d )";
             var interpreter = new XTLInterpreter(formula, null, null, service, tracing);
 
-            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.TrueString));
+            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.FalseString));
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "IsGreater ( 1.0d, 1.1d )";
             var interpreter = new XTLInterpreter(formula, null, null, service, tracing);
 
-            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.TrueString));
+            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.FalseString));
         }
 
         [Test]
@@ -165,7 +165,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "IsLess ( 1.2m, 1.1m )";
             var interpreter = new XTLInterpreter(formula, null, null, service, tracing);
 
-            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.TrueString));
+            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.FalseString));
         }
 
         [Test]
@@ -204,7 +204,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "IsGreater ( 1.0m, 1.1m )";
             var interpreter = new XTLInterpreter(formula, null, null, service, tracing);
 
-            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.TrueString));
+            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.FalseString));
         }
 
         [Test]
@@ -243,7 +243,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "IsLess ( 2, 1 )";
             var interpreter = new XTLInterpreter(formula, null, null, service, tracing);
 
-            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.TrueString));
+            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.FalseString));
         }
 
         [Test]
@@ -282,7 +282,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "IsGreater ( 0, 1 )";
             var interpreter = new XTLInterpreter(formula, null, null, service, tracing);
 
-            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.TrueString));
+            Assert.That(() => interpreter.Produce(), Is.EqualTo(bool.FalseString));
         }
 
         [Test]
