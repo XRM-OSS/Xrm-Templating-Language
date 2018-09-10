@@ -48,7 +48,11 @@ namespace Xrm.Oss.XTL.Interpreter
             { "DateTimeNow", FunctionHandlers.DateTimeNow },
             { "DateTimeUtcNow", FunctionHandlers.DateTimeUtcNow },
             { "DateToString", FunctionHandlers.DateToString },
-            { "Static", FunctionHandlers.Static }
+            { "Static", FunctionHandlers.Static },
+            { "IsLess", FunctionHandlers.IsLess },
+            { "IsLessEqual", FunctionHandlers.IsLessEqual },
+            { "IsGreater", FunctionHandlers.IsGreater },
+            { "IsGreaterEqual", FunctionHandlers.IsGreaterEqual }
         };
 
         public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)

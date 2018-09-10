@@ -63,6 +63,53 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Empty, ((List<object>)firstParam).LastOrDefault());
         };
 
+        public static FunctionHandler IsLess = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            bool result = Compare(parameters) < 0;
+
+            return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
+        };
+
+        public static FunctionHandler IsLessEqual = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            bool result = Compare(parameters) <= 0;
+
+            return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
+        };
+
+        public static FunctionHandler IsGreater = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            bool result = Compare(parameters) > 0;
+
+            return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
+        };
+
+        public static FunctionHandler IsGreaterEqual = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            bool result = Compare(parameters) >= 0;
+
+            return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
+        };
+
+        private static int Compare(List<ValueExpression> parameters)
+        {
+            if (parameters.Count != 2)
+            {
+                throw new InvalidPluginExecutionException("IsLess expects exactly 2 parameters!");
+            }
+
+            if (parameters.Any(p => !(p.Value is IComparable)))
+            {
+                throw new InvalidOperationException("Parameters are not comparable");
+            }
+
+            var expected = (IComparable)parameters[0].Value;
+            var actual = (IComparable)parameters[1].Value;
+
+            // Negative: actual is less than expected, 0: equal, 1: actual is greater than expected
+            return actual.CompareTo(expected);
+        }
+
         public static FunctionHandler IsEqual = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count != 2)
