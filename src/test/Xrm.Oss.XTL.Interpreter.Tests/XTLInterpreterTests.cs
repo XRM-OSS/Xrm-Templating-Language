@@ -408,5 +408,19 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
 
             Assert.That(result1, Is.EqualTo(Environment.NewLine));
         }
+
+        [Test]
+        public void It_Should_Parse_Dictionaries()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "{ \"retrieveLabels\": true, \"returnOptionSetValue\": IsEqual(true, false) }";
+
+            var result = new XTLInterpreter(formula, null, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("retrieveLabels: True, returnOptionSetValue: False"));
+        }
     }
 }

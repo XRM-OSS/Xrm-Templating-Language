@@ -252,6 +252,44 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 return ApplyExpression("Array", arrayParameters);
             }
+            else if (_current == '{')
+            {
+                Match('{');
+                var dictionary = new Dictionary<string, object>();
+                var firstRunPassed = false;
+
+                do
+                {
+                    SkipWhiteSpace();
+
+                    if (firstRunPassed)
+                    {
+                        Match(',');
+                        SkipWhiteSpace();
+                    }
+                    else
+                    {
+                        firstRunPassed = true;
+                    }
+
+                    Match('"');
+
+                    var name = GetName();
+
+                    Match('"');
+                    SkipWhiteSpace();
+                    Match(':');
+                    SkipWhiteSpace();
+
+                    dictionary[name] = Formula().Value;
+                    
+                    SkipWhiteSpace();
+                } while (_current != '}');
+
+                Match('}');
+
+                return new ValueExpression(string.Join(", ", dictionary.Select(p => $"{p.Key}: {p.Value}")), dictionary);
+            }
             else {
                 var name = GetName();
 
