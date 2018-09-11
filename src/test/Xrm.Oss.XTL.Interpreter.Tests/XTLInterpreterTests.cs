@@ -416,7 +416,7 @@ namespace Xrm.Oss.RecursiveDescentParser.Tests
             var service = context.GetFakedOrganizationService();
             var tracing = context.GetFakeTracingService();
 
-            var formula = "{ \"retrieveLabels\": true, \"returnOptionSetValue\": IsEqual(true, false) }";
+            var formula = "{ retrieveLabels: true, returnOptionSetValue: IsEqual(true, false) }";
 
             var result = new XTLInterpreter(formula, null, null, service, tracing).Produce();
 

@@ -15,6 +15,11 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public static class FunctionHandlers
     {
+        private static Dictionary<string, object> GetConfig(List<ValueExpression> parameters)
+        {
+            return (Dictionary<string, object>) parameters.FirstOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>();
+        }
+
         public static FunctionHandler Not = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var target = parameters.FirstOrDefault();
@@ -138,28 +143,6 @@ namespace Xrm.Oss.XTL.Interpreter
                 return falseReturn;
             }
 
-            var result = expected.Value.Equals(actual.Value);
-
-            if (expected.Value is string && actual.Value is string)
-            {
-                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
-            }
-
-            if (expected.Value is bool && actual.Value is bool)
-            {
-                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
-            }
-
-            if (expected.Value is int && actual.Value is int)
-            {
-                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
-            }
-
-            if (expected.Value is EntityReference && actual.Value is EntityReference)
-            {
-                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
-            }
-
             if (new[] { expected.Value, actual.Value }.All(v => v is int || v is OptionSetValue))
             {
                 var values = new[] { expected.Value, actual.Value }
@@ -169,8 +152,12 @@ namespace Xrm.Oss.XTL.Interpreter
                 var optionSetResult = values[0].Equals(values[1]);
                 return new ValueExpression(optionSetResult.ToString(CultureInfo.InvariantCulture), optionSetResult);
             }
+            else
+            {
+                var result = expected.Value.Equals(actual.Value);
 
-            throw new InvalidPluginExecutionException($"Incompatible comparison types: {expected.Value.GetType().Name} and {actual.Value.GetType().Name}");
+                return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
+            }
         };
 
         public static FunctionHandler And = (primary, service, tracing, organizationConfig, parameters) =>
@@ -350,18 +337,20 @@ namespace Xrm.Oss.XTL.Interpreter
 
             // We need the column names explicitly, since CRM does not return new ValueExpression(null)-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
             var displayColumns = (parameters[3].Value as List<ValueExpression>).Select(p => p.Value).Cast<string>() ?? new List<string>();
+            var config = GetConfig(parameters);
 
             tracing.Trace("Retrieving column names");
             var columnNames = RetrieveColumnNames(entityName, service);
             tracing.Trace($"Column names done");
 
-            var tableHeadStyle = @"style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px""";
-            var tableDataStyle = @"style=""border:1px solid black;padding:1px 15px 1px 5px""";
+            var tableStyle = config.ContainsKey("tableStyle") ? $" style=\"{config["tableStyle"]}\"" : string.Empty;
+            var tableHeadStyle = config.ContainsKey("headerStyle") ? config["headerStyle"] : @"border:1px solid black;text-align:left;padding:1px 15px 1px 5px";
+            var tableDataStyle = config.ContainsKey("dataStyle") ? config["dataStyle"] : @"border:1px solid black;padding:1px 15px 1px 5px";
 
             tracing.Trace("Parsed parameters");
 
             // Create table header
-            var stringBuilder = new StringBuilder("<table>\n<tr>");
+            var stringBuilder = new StringBuilder($"<table{tableStyle}>\n<tr>");
             foreach (var column in displayColumns)
             {
                 var name = string.Empty;
@@ -375,13 +364,13 @@ namespace Xrm.Oss.XTL.Interpreter
                     name = columnNames.ContainsKey(column) ? columnNames[column] : column;
                 }
 
-                stringBuilder.AppendLine($"<th {tableHeadStyle}>{name}</th>");
+                stringBuilder.AppendLine($"<th style=\"{tableHeadStyle}\">{name}</th>");
             }
 
             // Add column for url if wanted
             if (addRecordUrl.HasValue && addRecordUrl.Value)
             {
-                stringBuilder.AppendLine($"<th {tableHeadStyle}>URL</th>");
+                stringBuilder.AppendLine($"<th style=\"{tableHeadStyle}\">URL</th>");
             }
             stringBuilder.AppendLine("<tr />");
 
@@ -393,12 +382,12 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     foreach (var column in displayColumns)
                     {
-                        stringBuilder.AppendLine($"<td {tableDataStyle}>{PropertyStringifier.Stringify(record, column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column)}</td>");
+                        stringBuilder.AppendLine($"<td style=\"{tableDataStyle}\">{PropertyStringifier.Stringify(record, column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column)}</td>");
                     }
 
                     if (addRecordUrl.HasValue && addRecordUrl.Value)
                     {
-                        stringBuilder.AppendLine($"<td {tableDataStyle}>{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record) }).Value}</td>");
+                        stringBuilder.AppendLine($"<td style=\"{tableDataStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record) }).Value}</td>");
                     }
 
                     stringBuilder.AppendLine("<tr />");

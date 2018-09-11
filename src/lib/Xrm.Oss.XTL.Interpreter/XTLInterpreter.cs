@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -12,6 +11,8 @@ namespace Xrm.Oss.XTL.Interpreter
     public class XTLInterpreter
     {
         private StringReader _reader = null;
+        private int _position;
+        private int _lastPosition;
         private string _input;
         private char _previous;
         private char _current;
@@ -62,6 +63,7 @@ namespace Xrm.Oss.XTL.Interpreter
             _tracing = tracing;
             _organizationConfig = organizationConfig;
             _input = input;
+            _position = 0;
 
             _reader = new StringReader(input ?? string.Empty);
             GetChar();
@@ -82,11 +84,15 @@ namespace Xrm.Oss.XTL.Interpreter
             {
                 _eof = true;
             }
+            else
+            {
+                _position++;
+            }
         }
 
         private void Expected(string expected)
         {
-            throw new InvalidPluginExecutionException($"{expected} expected after '{_previous}{_current}'");
+            throw new InvalidPluginExecutionException($"{expected} expected after '{_previous}' at position {_position}, but encountered '{_current}'");
         }
 
         private void SkipWhiteSpace() 
@@ -112,7 +118,7 @@ namespace Xrm.Oss.XTL.Interpreter
             SkipWhiteSpace();
 
             if (!char.IsLetter(_current)) {
-                Expected($"An identifier was expected, but the current char {_current} is not a letter. ");
+                Expected($"Identifier");
             }
 
             var name = string.Empty;
@@ -126,7 +132,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return name;
         }
 
-        private List<ValueExpression> Expression()
+        private List<ValueExpression> Expression(char[] terminators)
         {
             var returnValue = new List<ValueExpression>();
 
@@ -203,13 +209,9 @@ namespace Xrm.Oss.XTL.Interpreter
                     }
 
                 }
-                else if (_current == ')')
+                else if (terminators.Contains(_current))
                 {
-                    // Parameterless function encountered
-                }
-                else if (_current == ']') 
-                {
-                    // Empty array
+                    // Parameterless function or empty array encountered
                 }
                 // The first char of a function must not be a digit
                 else
@@ -218,7 +220,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 }
 
                 SkipWhiteSpace();
-            } while (_current != ')' && _current != ']');
+            } while (!terminators.Contains(_current) && !_eof);
 
             return returnValue;
         }
@@ -247,7 +249,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (_current == '[') {
                 Match('[');
-                var arrayParameters = Expression();
+                var arrayParameters = Expression(new[] { ']' });
                 Match(']');
 
                 return ApplyExpression("Array", arrayParameters);
@@ -272,11 +274,8 @@ namespace Xrm.Oss.XTL.Interpreter
                         firstRunPassed = true;
                     }
 
-                    Match('"');
-
                     var name = GetName();
-
-                    Match('"');
+                    
                     SkipWhiteSpace();
                     Match(':');
                     SkipWhiteSpace();
@@ -289,6 +288,11 @@ namespace Xrm.Oss.XTL.Interpreter
                 Match('}');
 
                 return new ValueExpression(string.Join(", ", dictionary.Select(p => $"{p.Key}: {p.Value}")), dictionary);
+            }
+            else if (char.IsDigit(_current) || _current == '"')
+            {
+                // This is only called in object initializers / dictionaries. Only one value should be entered here
+                return Expression(new[] { '}', ',' }).First();
             }
             else {
                 var name = GetName();
@@ -303,7 +307,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         return new ValueExpression( null );
                     default:
                         Match('(');
-                        var parameters = Expression();
+                        var parameters = Expression(new[] { ')' });
                         Match(')');
 
                         return ApplyExpression(name, parameters);
