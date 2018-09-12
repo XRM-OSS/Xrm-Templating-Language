@@ -8,7 +8,7 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public static class DataRetriever
     {
-        public static ValueExpression ResolveTokenValue(string token, Entity primary, IOrganizationService service)
+        public static ValueExpression ResolveTokenValue(string token, Entity primary, IOrganizationService service, Dictionary<string, object> config = null)
         {
             var path = new Queue<string>(token.Split('.'));
             var currentEntity = primary;
@@ -29,7 +29,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 if (entityReference == null || (entityReference != null && nextField == null))
                 {
-                    value = new ValueExpression(PropertyStringifier.Stringify(currentEntity, currentField), currentObject);
+                    value = new ValueExpression(PropertyStringifier.Stringify(currentField, currentEntity, service, config), currentObject);
                 }
                 else
                 {

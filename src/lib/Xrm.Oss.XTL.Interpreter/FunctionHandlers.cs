@@ -389,7 +389,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     foreach (var column in displayColumns)
                     {
-                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{PropertyStringifier.Stringify(record, column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column)}</td>");
+                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{PropertyStringifier.Stringify(column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column, record, service, config)}</td>");
                     }
 
                     if (addRecordUrl.HasValue && addRecordUrl.Value)
@@ -509,10 +509,11 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var target = primary;
+            Dictionary<string, object> config = GetConfig(parameters);
 
-            if (parameters.Count > 1)
+            if (config.ContainsKey("explicitTarget"))
             {
-                var explicitTarget = parameters[1].Value;
+                var explicitTarget = config["explicitTarget"];
 
                 if (explicitTarget != null)
                 {
@@ -521,7 +522,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         throw new InvalidPluginExecutionException("When passing a second parameter as primary entity to Value function, it has to be of type entity.");
                     }
 
-                    target = parameters[1].Value as Entity;
+                    target = explicitTarget as Entity;
                 }
                 else
                 {
@@ -534,7 +535,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Value requires a field target string as input");
             }
 
-            return DataRetriever.ResolveTokenValue(field, target, service);
+            return DataRetriever.ResolveTokenValue(field, target, service, config);
         };
 
         public static FunctionHandler Join = (primary, service, tracing, organizationConfig, parameters) =>

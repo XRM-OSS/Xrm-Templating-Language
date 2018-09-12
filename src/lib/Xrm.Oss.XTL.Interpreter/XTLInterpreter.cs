@@ -12,7 +12,6 @@ namespace Xrm.Oss.XTL.Interpreter
     {
         private StringReader _reader = null;
         private int _position;
-        private int _lastPosition;
         private string _input;
         private char _previous;
         private char _current;

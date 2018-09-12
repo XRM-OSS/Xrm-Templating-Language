@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FakeXrmEasy;
+using Microsoft.Xrm.Sdk.Metadata;
+using System.Reflection;
 
 namespace Xrm.Oss.XTL.Interpreter.Tests
 {
@@ -24,7 +27,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var text = PropertyStringifier.Stringify(email, "oss_OptionSet");
+            var text = PropertyStringifier.Stringify("oss_OptionSet", email, null);
             Assert.That(text, Is.Null);
         }
 
@@ -41,13 +44,16 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var text = PropertyStringifier.Stringify(email, "oss_OptionSet");
+            var text = PropertyStringifier.Stringify("oss_OptionSet", email, null);
             Assert.That(text, Is.EqualTo("1"));
         }
 
         [Test]
         public void It_Should_Stringify_OptionSet_Using_Formatted_Value_If_Available()
         {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
             var email = new Entity
             {
                 LogicalName = "email",
@@ -58,9 +64,18 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            email.FormattedValues.Add("oss_OptionSet", "Value1");
+            var config = new Dictionary<string, object>
+            {
+                { "optionSetLcid", 1031 }
+            };
 
-            var text = PropertyStringifier.Stringify(email, "oss_OptionSet");
+            var metadata = new EntityMetadata { LogicalName = "email" };
+            var field = typeof(EntityMetadata).GetField("_attributes", BindingFlags.NonPublic | BindingFlags.Instance);
+            field.SetValue(metadata, new AttributeMetadata[] { new PicklistAttributeMetadata { LogicalName = "oss_OptionSet", OptionSet = new OptionSetMetadata { Options = { new OptionMetadata { Value = 1, Label = new Label("Value1", 1031) } } } } });
+
+            context.InitializeMetadata(metadata);
+
+            var text = PropertyStringifier.Stringify("oss_OptionSet", email, service, config);
             Assert.That(text, Is.EqualTo("Value1"));
         }
 
@@ -79,7 +94,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var text = PropertyStringifier.Stringify(email, "oss_Ref");
+            var text = PropertyStringifier.Stringify("oss_Ref", email, null);
             Assert.That(text, Is.EqualTo(reference.Id.ToString()));
         }
 
@@ -100,7 +115,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             email.FormattedValues.Add("oss_Ref", "EntityReference Name");
 
-            var text = PropertyStringifier.Stringify(email, "oss_Ref");
+            var text = PropertyStringifier.Stringify("oss_Ref", email, null);
             Assert.That(text, Is.EqualTo("EntityReference Name"));
         }
 
@@ -117,7 +132,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var text = PropertyStringifier.Stringify(email, "oss_Money");
+            var text = PropertyStringifier.Stringify("oss_Money", email, null);
             Assert.That(text, Is.EqualTo("1000"));
         }
 
@@ -136,7 +151,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             email.FormattedValues.Add("oss_Money", "1000.00€");
 
-            var text = PropertyStringifier.Stringify(email, "oss_Money");
+            var text = PropertyStringifier.Stringify("oss_Money", email, null);
             Assert.That(text, Is.EqualTo("1000.00€"));
         }
     }
