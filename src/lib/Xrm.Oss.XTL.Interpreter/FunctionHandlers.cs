@@ -347,6 +347,9 @@ namespace Xrm.Oss.XTL.Interpreter
             var tableHeadStyle = config.ContainsKey("headerStyle") ? config["headerStyle"] : @"border:1px solid black;text-align:left;padding:1px 15px 1px 5px";
             var tableDataStyle = config.ContainsKey("dataStyle") ? config["dataStyle"] : @"border:1px solid black;padding:1px 15px 1px 5px";
 
+            var evenDataStyle = config.ContainsKey("evenDataStyle") ? config["evenDataStyle"] : null;
+            var unevenDataStyle = config.ContainsKey("unevenDataStyle") ? config["unevenDataStyle"] : null;
+
             tracing.Trace("Parsed parameters");
 
             // Create table header
@@ -376,18 +379,22 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (records != null)
             {
-                foreach (var record in records)
+                for (var i = 0; i < records.Count; i++)
                 {
+                    var record = records[i];
+                    var isEven = i % 2 == 0;
+                    var lineStyle = (isEven ? evenDataStyle : unevenDataStyle) ?? tableDataStyle;
+
                     stringBuilder.AppendLine("<tr>");
 
                     foreach (var column in displayColumns)
                     {
-                        stringBuilder.AppendLine($"<td style=\"{tableDataStyle}\">{PropertyStringifier.Stringify(record, column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column)}</td>");
+                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{PropertyStringifier.Stringify(record, column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column)}</td>");
                     }
 
                     if (addRecordUrl.HasValue && addRecordUrl.Value)
                     {
-                        stringBuilder.AppendLine($"<td style=\"{tableDataStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record) }).Value}</td>");
+                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record) }).Value}</td>");
                     }
 
                     stringBuilder.AppendLine("<tr />");
