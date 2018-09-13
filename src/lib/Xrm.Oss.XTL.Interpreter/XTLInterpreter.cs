@@ -158,15 +158,22 @@ namespace Xrm.Oss.XTL.Interpreter
                     GetChar();
                     returnValue.Add(new ValueExpression(stringConstant, stringConstant));
                 }
-                else if (char.IsDigit(_current))
+                else if (char.IsDigit(_current) || _current == '-')
                 {
                     var digit = 0;
                     var fractionalPart = 0;
                     var processingFractionalPart = false;
 
+                    // Multiply by -1 for negative numbers
+                    var multiplicator = 1;
+
                     do
                     {
-                        if (_current != '.')
+                        if (_current == '-')
+                        {
+                            multiplicator = -1;
+                        }
+                        else if (_current != '.')
                         {
                             if (processingFractionalPart)
                             {
@@ -188,12 +195,12 @@ namespace Xrm.Oss.XTL.Interpreter
                     switch(_current)
                     {
                         case 'd':
-                            double doubleValue = digit + fractionalPart / Math.Pow(10, (fractionalPart.ToString(CultureInfo.InvariantCulture).Length));
+                            double doubleValue = multiplicator * (digit + fractionalPart / Math.Pow(10, (fractionalPart.ToString(CultureInfo.InvariantCulture).Length)));
                             returnValue.Add(new ValueExpression(doubleValue.ToString(CultureInfo.InvariantCulture), doubleValue));
                             GetChar();
                             break;
                         case 'm':
-                            decimal decimalValue = digit + fractionalPart / (decimal) Math.Pow(10, (fractionalPart.ToString(CultureInfo.InvariantCulture).Length));
+                            decimal decimalValue = multiplicator * (digit + fractionalPart / (decimal) Math.Pow(10, (fractionalPart.ToString(CultureInfo.InvariantCulture).Length)));
                             returnValue.Add(new ValueExpression(decimalValue.ToString(CultureInfo.InvariantCulture), decimalValue));
                             GetChar();
                             break;
@@ -202,8 +209,9 @@ namespace Xrm.Oss.XTL.Interpreter
                             {
                                 throw new InvalidDataException("For defining numbers with fractional parts, please append d (for double) or m (for decimal) to your number");
                             }
+                            var value = digit * multiplicator;
 
-                            returnValue.Add(new ValueExpression(digit.ToString(CultureInfo.InvariantCulture), digit));
+                            returnValue.Add(new ValueExpression(value.ToString(CultureInfo.InvariantCulture), value));
                             break;
                     }
 
@@ -288,7 +296,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 return new ValueExpression(string.Join(", ", dictionary.Select(p => $"{p.Key}: {p.Value}")), dictionary);
             }
-            else if (char.IsDigit(_current) || _current == '"')
+            else if (char.IsDigit(_current) || _current == '"' || _current == '-')
             {
                 // This is only called in object initializers / dictionaries. Only one value should be entered here
                 return Expression(new[] { '}', ',' }).First();
