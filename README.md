@@ -86,8 +86,11 @@ Using XTL provides the following benefits:
 Native Types:
 - String Constants (Alpha numeric text inside quotes)
 - Integers (Digit expression)
+- Doubles (Digits are separated by '.', a 'd' is appended to separate from decimals. E.g: 1.4d)
+- Decimals (Digits are separated by '.', a 'm' is appended to separate from doubles. E.g: 1.4m)
 - Booleans (true or false)
 - Functions (Identifiers without quotes followed by parenthesis with parameters)
+- Dictionaries (JS style objects, such as { propertyName: value }. Value can be a constant or another expression.
 
 In addition, null is also a reserved keyword.
 
@@ -145,11 +148,43 @@ Example:
 IsEqual ( Value ( "gendercode" ), 1 )
 ```
 
+### IsLess
+Checks if first parameter is less than the second. If yes, true is returned, otherwise false.
+
+Example:
+```
+IsLess ( 1, 2 )
+```
+
+### IsLessEqual
+Checks if first parameter is less or equal than the second. If yes, true is returned, otherwise false.
+
+Example:
+```
+IsLessEqual ( 1, 2 )
+```
+
+### IsGreater
+Checks if first parameter is greater than the second. If yes, true is returned, otherwise false.
+
+Example:
+```
+IsGreater ( 1, 2 )
+```
+
+### IsGreaterEqual
+Checks if first parameter is greater or equal than the second. If yes, true is returned, otherwise false.
+
+Example:
+```
+IsGreaterEqual ( 1, 2 )
+```
+
 ### Value
 Returns the object value of the given property. If it is used as top level function, the matching string representation is returned.
 The text function which was present in early releases was replaced by this, as the Value function hosts both the string representation and the actual value now.
 You can jump to entities that are connected by a lookup by concatenating field names with a '.' as separator.
-Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as second parameter.
+Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as config parameter named `explicitTarget`, like so: `Value("regardingobjectid.firstname", PrimaryRecord())`. 
 
 Example:
 ```
@@ -211,16 +246,20 @@ Last ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='descr
 ### RecordTable
 Returns a table of records with specified columns and record url if wanted.
 First parameter is a list of records, for displaying inside the table. Consider retrieving them using the Fetch function.
-Second is the name of the sub entity, third whether to include URL or not.
+Second is the name of the sub entity.
 Third is an array expression containing the columns to retrieve, which will be added in the same order.
 By default the columns are named like the display names of their respective CRM columns. If you want to override that, append a colon and the text you want to use, such as "subject:Overridden Subject Label".
+
+If you wish to append the record url as last column, pass a configuration object as last parameter as follows: `{ addRecordUrl: true }`.
+There is also the possibility to configure table, header and row styling. Pass a style property inside your configuration parameter, as follows: `{ tableStyle: "border:1px solid green;", headerStyle: "border:1px solid orange;", dataStyle: "border:1px solid red;"}`.
+Only pass one configuration object, it can contain information on addRecordUrl as well as on table styling.
 
 Below you can find an example, which executes on e-mail creation and searches for tasks associated to the mails regarding contact.
 It will then print the task subject and description, including an url, into the mail.
  
 Example:
 ```
-RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, Array( "subject:Overridden Subject Label", "description" ))
+RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", Array( "subject:Overridden Subject Label", "description" ), { addRecordUrl: true })
 ```
 
 ### PrimaryRecord
@@ -288,6 +327,32 @@ Example:
 NewLine()
 ```
 Info: This is needed when wanting to concatenate multiple texts using concat or join, since passing "\n" as .NET line break string is interpreted as plain string.
+
+### DateTimeNow
+Gets the current local time.
+
+Example:
+```
+DateTimeNow()
+```
+
+### DateTimeUtcNow
+Gets the current UTC time.
+
+Example:
+```
+DateTimeUtcNow()
+```
+
+### DateToString
+Prints the date that is passed as first parameter. A custom format can be appended using a configuration object with format key.
+
+Example:
+```
+DateToString(DateTimeUtcNow(), { format: \"yyyyMMdd\" })
+```
+
+Refer to the .NET style for date formatting.
 
 ## Sample
 Consider the following e-mail template content:
