@@ -33,9 +33,9 @@ let nUnitPath = "packages" @@ "nunit.consolerunner" @@ "tools" @@ "nunit3-consol
 let sha = Git.Information.getCurrentHash()
 
 // version info
-let major           = "2"
-let minor           = "1"
-let mutable patch           = "5"
+let major           = "3"
+let minor           = "0"
+let mutable patch           = "0"
 let mutable asmVersion      = ""
 let mutable asmFileVersion  = ""
 

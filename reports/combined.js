@@ -325,16 +325,17 @@ var assemblies = [
   {
     "name": "Xrm.Oss.XTL.Templating",
     "classes": [
+      { "name": "Xrm.Oss.XTL.Interpreter.ConfigHandler", "reportPath": "Xrm.Oss.XTL.Templating_ConfigHandler.htm", "coveredLines": 18, "uncoveredLines": 2, "coverableLines": 20, "totalLines": 44, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 3, "totalBranches": 4, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.DataRetriever", "reportPath": "Xrm.Oss.XTL.Templating_DataRetriever.htm", "coveredLines": 22, "uncoveredLines": 0, "coverableLines": 22, "totalLines": 43, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 8, "totalBranches": 8, "lineCoverageHistory": [], "branchCoverageHistory": [] },
-      { "name": "Xrm.Oss.XTL.Interpreter.FunctionHandlers", "reportPath": "Xrm.Oss.XTL.Templating_FunctionHandlers.htm", "coveredLines": 603, "uncoveredLines": 0, "coverableLines": 603, "totalLines": 649, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 93, "totalBranches": 152, "lineCoverageHistory": [], "branchCoverageHistory": [] },
-      { "name": "Xrm.Oss.XTL.Interpreter.PropertyStringifier", "reportPath": "Xrm.Oss.XTL.Templating_PropertyStringifier.htm", "coveredLines": 25, "uncoveredLines": 0, "coverableLines": 25, "totalLines": 48, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 8, "totalBranches": 8, "lineCoverageHistory": [], "branchCoverageHistory": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.FunctionHandlers", "reportPath": "Xrm.Oss.XTL.Templating_FunctionHandlers.htm", "coveredLines": 599, "uncoveredLines": 2, "coverableLines": 601, "totalLines": 660, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 96, "totalBranches": 148, "lineCoverageHistory": [], "branchCoverageHistory": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.OrganizationConfig", "reportPath": "Xrm.Oss.XTL.Templating_OrganizationConfig.htm", "coveredLines": 13, "uncoveredLines": 0, "coverableLines": 13, "totalLines": 38, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 2, "totalBranches": 2, "lineCoverageHistory": [], "branchCoverageHistory": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.PropertyStringifier", "reportPath": "Xrm.Oss.XTL.Templating_PropertyStringifier.htm", "coveredLines": 43, "uncoveredLines": 1, "coverableLines": 44, "totalLines": 82, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 15, "totalBranches": 18, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.ValueExpression", "reportPath": "Xrm.Oss.XTL.Templating_ValueExpression.htm", "coveredLines": 16, "uncoveredLines": 0, "coverableLines": 16, "totalLines": 40, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 6, "totalBranches": 8, "lineCoverageHistory": [], "branchCoverageHistory": [] },
-      { "name": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "coveredLines": 176, "uncoveredLines": 5, "coverableLines": 181, "totalLines": 286, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 49, "totalBranches": 52, "lineCoverageHistory": [], "branchCoverageHistory": [] },
-      { "name": "Xrm.Oss.XTL.Templating.OrganizationConfig", "reportPath": "Xrm.Oss.XTL.Templating_OrganizationConfig.htm", "coveredLines": 13, "uncoveredLines": 0, "coverableLines": 13, "totalLines": 38, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 2, "totalBranches": 2, "lineCoverageHistory": [], "branchCoverageHistory": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "coveredLines": 215, "uncoveredLines": 4, "coverableLines": 219, "totalLines": 339, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 57, "totalBranches": 60, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Templating.PersistentTracingService", "reportPath": "Xrm.Oss.XTL.Templating_PersistentTracingService.htm", "coveredLines": 12, "uncoveredLines": 0, "coverableLines": 12, "totalLines": 35, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 0, "totalBranches": 0, "lineCoverageHistory": [], "branchCoverageHistory": [] },
       { "name": "Xrm.Oss.XTL.Templating.ProcessingResult", "reportPath": "Xrm.Oss.XTL.Templating_ProcessingResult.htm", "coveredLines": 4, "uncoveredLines": 0, "coverableLines": 4, "totalLines": 25, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 0, "totalBranches": 0, "lineCoverageHistory": [], "branchCoverageHistory": [] },
-      { "name": "Xrm.Oss.XTL.Templating.ProcessorConfig", "reportPath": "Xrm.Oss.XTL.Templating_ProcessorConfig.htm", "coveredLines": 21, "uncoveredLines": 0, "coverableLines": 21, "totalLines": 63, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 2, "totalBranches": 2, "lineCoverageHistory": [], "branchCoverageHistory": [] },
-      { "name": "Xrm.Oss.XTL.Templating.XTLProcessor", "reportPath": "Xrm.Oss.XTL.Templating_XTLProcessor.htm", "coveredLines": 186, "uncoveredLines": 9, "coverableLines": 195, "totalLines": 296, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 28, "totalBranches": 34, "lineCoverageHistory": [], "branchCoverageHistory": [] },
+      { "name": "Xrm.Oss.XTL.Templating.ProcessorConfig", "reportPath": "Xrm.Oss.XTL.Templating_ProcessorConfig.htm", "coveredLines": 21, "uncoveredLines": 0, "coverableLines": 21, "totalLines": 64, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 2, "totalBranches": 2, "lineCoverageHistory": [], "branchCoverageHistory": [] },
+      { "name": "Xrm.Oss.XTL.Templating.XTLProcessor", "reportPath": "Xrm.Oss.XTL.Templating_XTLProcessor.htm", "coveredLines": 195, "uncoveredLines": 9, "coverableLines": 204, "totalLines": 309, "coverageType": "LineCoverage", "methodCoverage": "-", "coveredBranches": 32, "totalBranches": 38, "lineCoverageHistory": [], "branchCoverageHistory": [] },
     ]},
 ];
 
@@ -345,10 +346,22 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "method": "Expression()",
+    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "method": "Expression(...)",
     "metrics": [
-      { "value": 19, "exceeded": true },
+      { "value": 20, "exceeded": true },
       { "value": 8192, "exceeded": true },
+    ]},
+  {
+    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.PropertyStringifier", "reportPath": "Xrm.Oss.XTL.Templating_PropertyStringifier.htm", "method": "Stringify(...)",
+    "metrics": [
+      { "value": 13, "exceeded": false },
+      { "value": 256, "exceeded": true },
+    ]},
+  {
+    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "method": "Formula()",
+    "metrics": [
+      { "value": 12, "exceeded": false },
+      { "value": 256, "exceeded": true },
     ]},
 ];
 
