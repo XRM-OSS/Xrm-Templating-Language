@@ -9,8 +9,11 @@
     <Import_RootNamespace>Xrm.Oss.XTL.Interpreter</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ConfigHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataRetriever.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FunctionHandlers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OrganizationConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyStringifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValueExpression.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)XTLInterpreter.cs" />

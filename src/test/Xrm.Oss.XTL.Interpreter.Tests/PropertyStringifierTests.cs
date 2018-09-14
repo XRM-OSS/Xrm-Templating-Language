@@ -64,10 +64,10 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var config = new Dictionary<string, object>
+            var config = new ConfigHandler(new Dictionary<string, object>
             {
                 { "optionSetLcid", 1031 }
-            };
+            });
 
             var metadata = new EntityMetadata { LogicalName = "email" };
             var field = typeof(EntityMetadata).GetField("_attributes", BindingFlags.NonPublic | BindingFlags.Instance);

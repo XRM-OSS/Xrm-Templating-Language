@@ -11,7 +11,7 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public static class PropertyStringifier
     {
-        public static string Stringify(string field, Entity record, IOrganizationService service, Dictionary<string, object> config = null)
+        public static string Stringify(string field, Entity record, IOrganizationService service, ConfigHandler config = null)
         {
             var value = record.GetAttributeValue<object>(field);
 
@@ -40,7 +40,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     return textValue;
                 }
 
-                var configLanguage = config.ContainsKey("optionSetLcid") ? (int) config["optionSetLcid"] : 0;
+                var configLanguage = config.GetValue<int>("optionSetLcid", "optionSetLcid must be an int!");
 
                 if (configLanguage == 0)
                 {

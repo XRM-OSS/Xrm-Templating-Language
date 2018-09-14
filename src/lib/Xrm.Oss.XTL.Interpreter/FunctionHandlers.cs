@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,21 +16,15 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public static class FunctionHandlers
     {
-        private static Dictionary<string, object> GetConfig(List<ValueExpression> parameters)
+        private static ConfigHandler GetConfig(List<ValueExpression> parameters)
         {
-            return (Dictionary<string, object>) parameters.FirstOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>();
+            return new ConfigHandler((Dictionary<string, object>) parameters.FirstOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>());
         }
 
         public static FunctionHandler Not = (primary, service, tracing, organizationConfig, parameters) =>
         {
             var target = parameters.FirstOrDefault();
-
-            if (!(target.Value is bool))
-            {
-                throw new InvalidPluginExecutionException("Not expects a boolean input, consider using one of the Is methods");
-            }
-
-            var result = !((bool)target.Value);
+            var result = !CheckedCast<bool>(target?.Value, "Not expects a boolean input, consider using one of the Is methods");
 
             return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
         };
@@ -41,12 +36,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First expects a list as only parameter!");
             }
 
-            var firstParam = parameters.FirstOrDefault().Value;
-
-            if (!(firstParam is List<object>))
-            {
-                throw new InvalidPluginExecutionException("First expects a list as input");
-            }
+            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, "First expects a list as input");
 
             return new ValueExpression(string.Empty, ((List<object>)firstParam).FirstOrDefault());
         };
@@ -58,12 +48,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list as only parameter!");
             }
 
-            var firstParam = parameters.FirstOrDefault().Value;
-
-            if (!(firstParam is List<object>))
-            {
-                throw new InvalidPluginExecutionException("Last expects a list as input");
-            }
+            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, "Last expects a list as input");
 
             return new ValueExpression(string.Empty, ((List<object>)firstParam).LastOrDefault());
         };
@@ -103,13 +88,8 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("IsLess expects exactly 2 parameters!");
             }
 
-            if (parameters.Any(p => !(p.Value is IComparable)))
-            {
-                throw new InvalidOperationException("Parameters are not comparable");
-            }
-
-            var actual = (IComparable)parameters[0].Value;
-            var expected = (IComparable)parameters[1].Value;
+            var actual = CheckedCast<IComparable>(parameters[0].Value, "Actual value is not comparable");
+            var expected = CheckedCast<IComparable>(parameters[1].Value, "Expected value is not comparable");
 
             // Negative: actual is less than expected, 0: equal, 1: actual is greater than expected
             return actual.CompareTo(expected);
@@ -219,16 +199,11 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("If-Then-Else expects exactly three parameters: Condition, True-Action, False-Action");
             }
 
-            var condition = parameters[0];
+            var condition = CheckedCast<bool>(parameters[0]?.Value, "If condition must be a boolean!");
             var trueAction = parameters[1];
             var falseAction = parameters[2];
 
-            if (!(condition.Value is bool))
-            {
-                throw new InvalidPluginExecutionException("If condition must be a boolean!");
-            }
-
-            if ((bool)condition.Value)
+            if (condition)
             {
                 tracing.Trace("Executing true condition");
                 return new ValueExpression(new Lazy<ValueExpression>(() => trueAction));
@@ -257,7 +232,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (!parameters.All(p => p.Value is EntityReference || p.Value is Entity || p.Value == null))
             {
-                throw new InvalidPluginExecutionException("Only Entity Reference ValueExpressions are supported in GetRecordUrl");
+                throw new InvalidPluginExecutionException("Only Entity Reference and Entity ValueExpressions are supported in GetRecordUrl");
             }
 
             var refs = parameters.Where(p => p != null).Select(e =>
@@ -312,43 +287,44 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("RecordTable needs at least 3 parameters: Entities, entity name, add url boolean, display columns as separate string constants");
             }
 
-            if (!(parameters[0].Value is List<object>))
-            {
-                throw new InvalidPluginExecutionException("RecordTable requires the first parameter to be a list of entities");
-            }
+            var records = CheckedCast<List<object>>(parameters[0].Value, "RecordTable requires the first parameter to be a list of entities")
+                .Cast<Entity>()
+                .ToList();
 
-            var records = ((List<object>)parameters[0].Value).Cast<Entity>().ToList();
             tracing.Trace($"Records: {records.Count}");
 
             // We need the entity name although it should be set in the record. If no records are passed, we would fail to display the grid with proper columns otherwise
-            var entityName = parameters[1].Value as string;
+            var entityName = CheckedCast<string>(parameters[1]?.Value, "Second parameter of the RecordTable function needs to be the entity name as string");
 
             if (string.IsNullOrEmpty(entityName))
             {
                 throw new InvalidPluginExecutionException("Second parameter of the RecordTable function needs to be the entity name as string");
             }
-
-            var addRecordUrl = parameters[2].Value as bool?;
-
-            if (!(parameters[3].Value is List<ValueExpression>))
-            {
-                throw new InvalidPluginExecutionException("List of column names for record table must be an array expression");
-            }
-
+            
             // We need the column names explicitly, since CRM does not return new ValueExpression(null)-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
-            var displayColumns = (parameters[3].Value as List<ValueExpression>).Select(p => p.Value).Cast<string>() ?? new List<string>();
-            var config = GetConfig(parameters);
+            var displayColumns = CheckedCast<List<ValueExpression>>(parameters[2]?.Value, "List of column names for record table must be an array expression")
+                .Select(p => p.Value)
+                .Cast<string>() ?? new List<string>();
 
             tracing.Trace("Retrieving column names");
             var columnNames = RetrieveColumnNames(entityName, service);
             tracing.Trace($"Column names done");
 
-            var tableStyle = config.ContainsKey("tableStyle") ? $" style=\"{config["tableStyle"]}\"" : string.Empty;
-            var tableHeadStyle = config.ContainsKey("headerStyle") ? config["headerStyle"] : @"border:1px solid black;text-align:left;padding:1px 15px 1px 5px";
-            var tableDataStyle = config.ContainsKey("dataStyle") ? config["dataStyle"] : @"border:1px solid black;padding:1px 15px 1px 5px";
+            var config = GetConfig(parameters);
+            var addRecordUrl = config.GetValue<bool>("addRecordUrl", "When setting addRecordUrl, value must be a boolean");
 
-            var evenDataStyle = config.ContainsKey("evenDataStyle") ? config["evenDataStyle"] : null;
-            var unevenDataStyle = config.ContainsKey("unevenDataStyle") ? config["unevenDataStyle"] : null;
+            var tableStyle = config.GetValue("tableStyle", "tableStyle must be a string!", string.Empty);
+
+            if (!string.IsNullOrEmpty(tableStyle))
+            {
+                tableStyle = $" style=\"{tableStyle}\"";
+            }
+
+            var tableHeadStyle = config.GetValue("headerStyle", "headerStyle must be a string!", @"border:1px solid black;text-align:left;padding:1px 15px 1px 5px");
+            var tableDataStyle = config.GetValue("dataStyle", "dataStyle must be a string!", @"border:1px solid black;padding:1px 15px 1px 5px");
+
+            var evenDataStyle = config.GetValue<string>("evenDataStyle", "evenDataStyle must be a string!");
+            var unevenDataStyle = config.GetValue<string>("unevenDataStyle", "unevenDataStyle must be a string!");
 
             tracing.Trace("Parsed parameters");
 
@@ -371,7 +347,7 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             // Add column for url if wanted
-            if (addRecordUrl.HasValue && addRecordUrl.Value)
+            if (addRecordUrl)
             {
                 stringBuilder.AppendLine($"<th style=\"{tableHeadStyle}\">URL</th>");
             }
@@ -392,7 +368,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{PropertyStringifier.Stringify(column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column, record, service, config)}</td>");
                     }
 
-                    if (addRecordUrl.HasValue && addRecordUrl.Value)
+                    if (addRecordUrl)
                     {
                         stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record) }).Value}</td>");
                     }
@@ -509,20 +485,15 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var target = primary;
-            Dictionary<string, object> config = GetConfig(parameters);
+            var config = GetConfig(parameters);
 
-            if (config.ContainsKey("explicitTarget"))
+            if (config.Contains("explicitTarget"))
             {
-                var explicitTarget = config["explicitTarget"];
-
-                if (explicitTarget != null)
+                if (config.IsSet("explicitTarget"))
                 {
-                    if (!(explicitTarget is Entity))
-                    {
-                        throw new InvalidPluginExecutionException("When passing a second parameter as primary entity to Value function, it has to be of type entity.");
-                    }
+                    var explicitTarget = config.GetValue<Entity>("explicitTarget", "explicitTarget must be an entity!");
 
-                    target = explicitTarget as Entity;
+                    target = explicitTarget;
                 }
                 else
                 {
@@ -559,6 +530,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("The values parameter needs to be an enumerable, please wrap them using an Array expression.");
             }
 
+            var config = GetConfig(parameters);
             var removeEmptyEntries = false;
 
             if (parameters.Count > 2 && parameters[2].Value is bool)
@@ -673,17 +645,12 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new Exception("No date to stringify");
             }
 
-            if (!(parameters[0].Value is DateTime))
+            var date = CheckedCast<DateTime>(parameters[0].Value, "You need to pass a date");
+            var config = GetConfig(parameters);
+            var format = config.GetValue<string>("format", "format must be a string!");
+
+            if (!string.IsNullOrEmpty(format))
             {
-                throw new Exception("You need to pass a date");
-            }
-
-            var date = (DateTime) parameters[0].Value;
-
-            if (parameters.Count > 1)
-            {
-                var format = parameters[1].Value as string;
-
                 return new ValueExpression(date.ToString(format), date.ToString(format));
             }
 

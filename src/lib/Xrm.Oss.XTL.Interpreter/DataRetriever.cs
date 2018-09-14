@@ -8,7 +8,7 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public static class DataRetriever
     {
-        public static ValueExpression ResolveTokenValue(string token, Entity primary, IOrganizationService service, Dictionary<string, object> config = null)
+        public static ValueExpression ResolveTokenValue(string token, Entity primary, IOrganizationService service, ConfigHandler config = null)
         {
             var path = new Queue<string>(token.Split('.'));
             var currentEntity = primary;

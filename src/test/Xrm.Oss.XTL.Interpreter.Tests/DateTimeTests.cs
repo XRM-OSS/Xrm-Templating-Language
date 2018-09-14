@@ -42,7 +42,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var service = context.GetFakedOrganizationService();
             var tracing = context.GetFakeTracingService();
 
-            var formula = "DateToString(DateTimeUtcNow(), \"yyyyMMdd\")";
+            var formula = "DateToString(DateTimeUtcNow(), { format: \"yyyyMMdd\" })";
             Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Is.EqualTo(DateTime.UtcNow.ToString("yyyyMMdd")));
         }
     }

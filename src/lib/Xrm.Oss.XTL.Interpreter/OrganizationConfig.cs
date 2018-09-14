@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Xrm.Oss.XTL.Templating
+namespace Xrm.Oss.XTL.Interpreter
 {
     [DataContract]
     public class OrganizationConfig : IConfig

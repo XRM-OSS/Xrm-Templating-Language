@@ -84,7 +84,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, Array(\"subject\", \"description\"))";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", Array(\"subject\", \"description\"))";
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Subject Label</th>
@@ -147,7 +147,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact, task, task2 });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, [\"subject\", \"description\"], { tableStyle: \"border:1px solid green;\", headerStyle: \"border:1px solid orange;\", dataStyle: \"border:1px solid red;\"})";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", [\"subject\", \"description\"], { tableStyle: \"border:1px solid green;\", headerStyle: \"border:1px solid orange;\", dataStyle: \"border:1px solid red;\"})";
 
             var expected = @"<table style=""border:1px solid green;"">
 <tr><th style=""border:1px solid orange;"">Subject Label</th>
@@ -211,7 +211,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact, task, task2 });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, [\"subject\", \"description\"], { tableStyle: \"border:1px solid green;\", headerStyle: \"border:1px solid orange;\", evenDataStyle: \"border:1px solid white;\", unevenDataStyle: \"border:1px solid blue;\"})";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", [\"subject\", \"description\"], { tableStyle: \"border:1px solid green;\", headerStyle: \"border:1px solid orange;\", evenDataStyle: \"border:1px solid white;\", unevenDataStyle: \"border:1px solid blue;\"})";
 
             var expected = @"<table style=""border:1px solid green;"">
 <tr><th style=""border:1px solid orange;"">Subject Label</th>
@@ -275,7 +275,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact, task, task2 });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, Array(\"subject:Overridden Subject Label\", \"description\"))";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", Array(\"subject:Overridden Subject Label\", \"description\"))";
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Overridden Subject Label</th>
@@ -340,7 +340,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact, task, task2 });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", false, Array(\"subject\", \"description\"))";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", Array(\"subject\", \"description\"))";
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Subject Label</th>
@@ -405,7 +405,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             SetupContext(context);
             context.Initialize(new Entity[] { contact, task, task2 });
 
-            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", true, Array(\"subject\", \"description\"))";
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", Array(\"subject\", \"description\"), { addRecordUrl: true })";
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Subject Label</th>
