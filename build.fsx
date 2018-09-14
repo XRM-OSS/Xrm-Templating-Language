@@ -35,7 +35,7 @@ let sha = Git.Information.getCurrentHash()
 // version info
 let major           = "3"
 let minor           = "0"
-let mutable patch           = "0"
+let mutable patch           = "1"
 let mutable asmVersion      = ""
 let mutable asmFileVersion  = ""
 
@@ -123,7 +123,8 @@ Target "CreateNuget" (fun _ ->
 // Dependencies
 "Clean"
   ==> "BuildVersions"
-  =?> ("AssemblyInfo", not isLocalBuild )
+  // Do not generate AssemblyInfo versions for now. It breaks registering of plugin assemblies
+  // =?> ("AssemblyInfo", not isLocalBuild )
   ==> "BuildPlugin"
   ==> "BuildTest"
   ==> "NUnit"
