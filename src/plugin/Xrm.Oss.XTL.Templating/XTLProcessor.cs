@@ -177,7 +177,7 @@ namespace Xrm.Oss.XTL.Templating
             }
 
             ValidateConfig(targetField, template, templateField);
-            var templateText = RetrieveTemplate(template, templateField, dataSource);
+            var templateText = RetrieveTemplate(template, templateField, dataSource, service, tracing);
 
             var output = ProcessTemplate(tracing, service, dataSource, templateText);
 
@@ -217,17 +217,30 @@ namespace Xrm.Oss.XTL.Templating
             return templateText;
         }
 
-        private static string RetrieveTemplate(string template, string templateField, Entity dataSource)
+        private static string RetrieveTemplate(string template, string templateField, Entity dataSource, IOrganizationService service, ITracingService tracing)
         {
             string templateText;
+
             if (!string.IsNullOrEmpty(template))
             {
                 templateText = template;
             }
+            else if (!string.IsNullOrEmpty(templateField))
+            {
+                if (new Regex("^[a-zA-Z_0-9]*$").IsMatch(templateField))
+                {
+                    templateText = dataSource.GetAttributeValue<string>(templateField);
+                }
+                else
+                {
+                    templateText = new XTLInterpreter(templateField, dataSource, null, service, tracing).Produce();
+                }
+            }
             else
             {
-                templateText = dataSource.GetAttributeValue<string>(templateField);
+                throw new InvalidDataException("You must either pass a template text or define a template field");
             }
+
 
             // Templates inside e-mails will be HTML encoded
             templateText = WebUtility.HtmlDecode(templateText);

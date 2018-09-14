@@ -65,6 +65,32 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Parse_Negative_Decimals()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "Static( -1m )";
+            var result = new XTLInterpreter(formula, null, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo((-1m).ToString(CultureInfo.InvariantCulture)));
+        }
+
+        [Test]
+        public void It_Should_Parse_Negative_Doubles()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "Static( -1d )";
+            var result = new XTLInterpreter(formula, null, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo((-1d).ToString(CultureInfo.InvariantCulture)));
+        }
+
+        [Test]
         public void It_Should_Throw_On_Int_With_Fractional_Part()
         {
             var context = new XrmFakedContext();

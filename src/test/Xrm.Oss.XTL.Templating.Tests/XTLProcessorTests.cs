@@ -81,6 +81,71 @@ namespace Xrm.Oss.XTL.Templating.Tests
         }
 
         [Test]
+        public void It_Should_Allow_Expressions_Inside_Template_Fields()
+        {
+            var context = new XrmFakedContext();
+
+            var account = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "account",
+                Attributes =
+                {
+                    { "oss_template", "AccountTemplate - ${{Value(\"firstname\")}}" }
+                }
+            };
+
+            var contact = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "contact",
+                Attributes =
+                {
+                    { "firstname", "Frodo" },
+                    { "parentcustomerid", account.ToEntityReference() }
+                }
+            };
+
+            context.Initialize(new Entity[] { account, contact });
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", contact }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""Value(\""parentcustomerid.oss_template\"")"" }";
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            Assert.That(contact.GetAttributeValue<string>("description"), Is.EqualTo("AccountTemplate - Frodo"));
+        }
+
+        [Test]
+        public void It_Should_Fail_If_No_Template_Passed()
+        {
+            var context = new XrmFakedContext();
+
+            var contact = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "contact",
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            context.Initialize(new Entity[] { contact });
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", contact }
+            };
+
+            var config = @"{ ""targetField"": ""description"" }";
+            Assert.That(() => context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty), Throws.Exception.With.Message.EqualTo("Both template and template field were null, please set one of them in the unsecure config!"));
+        }
+
+        [Test]
         public void It_Should_Preserve_Text()
         {
             var context = new XrmFakedContext();
