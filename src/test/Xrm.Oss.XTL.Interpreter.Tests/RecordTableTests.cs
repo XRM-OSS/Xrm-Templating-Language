@@ -428,5 +428,73 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
         }
+
+        [Test]
+        public void It_Should_Create_Sub_Record_Table_With_Url_And_Custom_Link_Text()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            var task = new Entity
+            {
+                LogicalName = "task",
+                Id = new Guid("76f167d6-35b3-44ae-b2a0-9373dee13e82"),
+                Attributes =
+                {
+                    { "subject", "Task 1" },
+                    { "description", "Description 1" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            var task2 = new Entity
+            {
+                LogicalName = "task",
+                Id = new Guid("5c0370f2-9b79-4abc-86d6-09260d5bbfed"),
+                Attributes =
+                {
+                    { "subject", "Task 2" },
+                    { "description", "Description 2" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            SetupContext(context);
+            context.Initialize(new Entity[] { contact, task, task2 });
+
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{0}' /></filter></entity></fetch>\"), \"task\", Array(\"subject\", \"description\"), { addRecordUrl: true, linkText: \"Link\" })";
+
+            var expected = @"<table>
+<tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Subject Label</th>
+<th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">Description Label</th>
+<th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px"">URL</th>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Task 1</td>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Description 1</td>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px""><a href=""https://test.local/main.aspx?etn=task&id=76f167d6-35b3-44ae-b2a0-9373dee13e82&newWindow=true&pagetype=entityrecord"">Link</a></td>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Task 2</td>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px"">Description 2</td>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px""><a href=""https://test.local/main.aspx?etn=task&id=5c0370f2-9b79-4abc-86d6-09260d5bbfed&newWindow=true&pagetype=entityrecord"">Link</a></td>
+<tr />
+</table>".Replace("\r", "").Replace("\n", "");
+
+            var result = new XTLInterpreter(formula, contact, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
+
+            Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
+        }
     }
 }

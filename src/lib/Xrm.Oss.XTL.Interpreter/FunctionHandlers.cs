@@ -230,12 +230,12 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("GetRecordUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
             }
 
-            if (!parameters.All(p => p.Value is EntityReference || p.Value is Entity || p.Value == null))
+            if (!parameters.All(p => p.Value is EntityReference || p.Value is Entity || p.Value is Dictionary<string, object> || p.Value == null))
             {
                 throw new InvalidPluginExecutionException("Only Entity Reference and Entity ValueExpressions are supported in GetRecordUrl");
             }
 
-            var refs = parameters.Where(p => p != null).Select(e =>
+            var refs = parameters.Where(p => p != null && !(p?.Value is Dictionary<string, object>)).Select(e =>
             {
                 var entityReference = e.Value as EntityReference;
 
@@ -256,10 +256,14 @@ namespace Xrm.Oss.XTL.Interpreter
                 };
             });
             var organizationUrl = organizationConfig.OrganizationUrl.EndsWith("/") ? organizationConfig.OrganizationUrl : organizationConfig.OrganizationUrl + "/";
+
+            var config = GetConfig(parameters);
+            var linkText = config.GetValue<string>("linkText", "linkText must be a string");
+
             var urls = string.Join(Environment.NewLine, refs.Select(e =>
             {
                 var url = $"{organizationUrl}main.aspx?etn={e.LogicalName}&id={e.Id}&newWindow=true&pagetype=entityrecord";
-                return $"<a href=\"{url}\">{url}</a>";
+                return $"<a href=\"{url}\">{(string.IsNullOrEmpty(linkText) ? url : linkText)}</a>";
             }));
 
             return new ValueExpression(urls, urls);
@@ -370,7 +374,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     if (addRecordUrl)
                     {
-                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record) }).Value}</td>");
+                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record), new ValueExpression(string.Empty, config.Dictionary) }).Value}</td>");
                     }
 
                     stringBuilder.AppendLine("<tr />");

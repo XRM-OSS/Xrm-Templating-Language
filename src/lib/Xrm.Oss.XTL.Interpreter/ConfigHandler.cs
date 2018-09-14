@@ -7,31 +7,31 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public class ConfigHandler
     {
-        private Dictionary<string, object> _config;
+        public Dictionary<string, object> Dictionary { get; internal set; }
 
         public ConfigHandler(Dictionary<string, object> config)
         {
-            _config = config;
+            Dictionary = config;
         }
 
         public bool Contains(string name)
         {
-            return _config.ContainsKey(name);
+            return Dictionary.ContainsKey(name);
         }
 
         public bool IsSet(string name)
         {
-            return _config.ContainsKey(name) && _config[name] != null;
+            return Dictionary.ContainsKey(name) && Dictionary[name] != null;
         }
 
         public T GetValue<T>(string name, string typeErrorMessage, T defaultValue = default(T))
         {
-            if (!_config.ContainsKey(name))
+            if (!Dictionary.ContainsKey(name))
             {
                 return defaultValue;
             }
 
-            var value = _config[name];
+            var value = Dictionary[name];
 
             if (!(value is T))
             {
