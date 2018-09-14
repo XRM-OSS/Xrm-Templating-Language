@@ -51,7 +51,7 @@ You'll need an unsecure json configuration per step.
 
 Properties in there:
 - target: The target field for the generated text
-- templateField: The source field for the template (for "per record" templates, for example if replacing place holders inside emails)
+- templateField: The source field for the template (for "per record" templates, for example if replacing place holders inside emails). Since release v3.0.1 you can use XTL expressions in here as well, for getting your per record templates from a parent record for example. You could for example set `Value("parentcustomerid.oss_templatefield")` for getting your template from the oss_templatefield of a contact's account.
 - template: A constant template that will be used for all records (for example when formatting addresses)
 - executionCriteria: An XTL expression that should return true if the template should be applied, or false otherwise. If not set, default is to apply the logic. Comparison Operators such as IsEqual automatically return booleans.
 
