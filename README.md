@@ -184,7 +184,10 @@ IsGreaterEqual ( 1, 2 )
 Returns the object value of the given property. If it is used as top level function, the matching string representation is returned.
 The text function which was present in early releases was replaced by this, as the Value function hosts both the string representation and the actual value now.
 You can jump to entities that are connected by a lookup by concatenating field names with a '.' as separator.
-Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as config parameter named `explicitTarget`, like so: `Value("regardingobjectid.firstname", PrimaryRecord())`. 
+Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as config parameter named `explicitTarget`, like so: `Value("regardingobjectid.firstname", { explicitTarget: PrimaryRecord() })`.
+
+When working with option sets, you can instruct XTL to use a specific language's label by passing adding a key `optionSetLcid` to your configuration object and setting the desired lcid (1033 = english, 1031 = german, etc...) as value, as follows: ` Value("someOptionSet", { optionSetLcid: 1033 })`. It is recommended to pass a fixed lcid matching the language you're currently creating your template for.
+When not passing the optionSetLcid setting, the option set integer value will be returned. If passing the optionSetLcid and no label is found for the specified language, the user language label is used. So if you just want to use your current user's label, you can pass an invalid value such as -1. 
 
 Example:
 ```
