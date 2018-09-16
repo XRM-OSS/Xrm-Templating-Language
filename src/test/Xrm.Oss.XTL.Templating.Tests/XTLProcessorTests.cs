@@ -387,6 +387,44 @@ namespace Xrm.Oss.XTL.Templating.Tests
         }
 
         [Test]
+        public void It_Should_Use_Organization_Url_On_Custom_Action()
+        {
+            var context = new XrmFakedContext();
+            var template = "Hello ${{RecordUrl(PrimaryRecord())}}";
+
+            var email = new Entity
+            {
+                Id = new Guid("e8ac0401-1078-471d-a59e-c879a8d8ef23"),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" }
+                }
+            };
+
+            context.Initialize(email);
+
+            var inputParameters = new ParameterCollection
+            {
+                { "jsonInput", "{" +
+                $"\"template\": \"{template}\"," +
+                "\"organizationUrl\": \"https://crmOrg/\"," +
+                "\"throwOnCustomActionError\": true," +
+                $"\"target\": {{\"Id\": \"{email.Id}\", \"LogicalName\": \"{email.LogicalName}\"}}" +
+                "}" }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = inputParameters;
+            pluginContext.OutputParameters = new ParameterCollection();
+
+            context.ExecutePluginWith<XTLProcessor>(pluginContext);
+
+            var expected = @"{""error"":null,""result"":""Hello <a href=\""https:\/\/crmOrg\/main.aspx?etn=email&id=e8ac0401-1078-471d-a59e-c879a8d8ef23&newWindow=true&pagetype=entityrecord\"">https:\/\/crmOrg\/main.aspx?etn=email&id=e8ac0401-1078-471d-a59e-c879a8d8ef23&newWindow=true&pagetype=entityrecord<\/a>"",""success"":true,""traceLog"":""Processing token 'RecordUrl(PrimaryRecord())'\u000d\u000aInitiating interpreter\u000d\u000aProcessing handler RecordUrl\u000d\u000aProcessing handler PrimaryRecord\u000d\u000aSuccessfully processed handler PrimaryRecord\u000d\u000aSuccessfully processed handler RecordUrl\u000d\u000aReplacing token with '<a href=\""https:\/\/crmOrg\/main.aspx?etn=email&id=e8ac0401-1078-471d-a59e-c879a8d8ef23&newWindow=true&pagetype=entityrecord\"">https:\/\/crmOrg\/main.aspx?etn=email&id=e8ac0401-1078-471d-a59e-c879a8d8ef23&newWindow=true&pagetype=entityrecord<\/a>'\u000d\u000a""}";
+            Assert.That(pluginContext.OutputParameters["jsonOutput"], Is.EqualTo(expected));
+        }
+
+        [Test]
         public void It_Should_Send_Organization_Service_Update_With_Trigger_Update_Flag()
         {
             var context = new XrmFakedContext();

@@ -74,7 +74,7 @@ namespace Xrm.Oss.XTL.Templating
         {
             var config = ProcessorConfig.Parse(context.InputParameters["jsonInput"] as string);
             
-            if (config.Target == null)
+            if (config.Target == null && config.TargetEntity == null)
             {
                 throw new InvalidPluginExecutionException("Target property inside JSON parameters is needed for custom actions");
             }
@@ -92,7 +92,7 @@ namespace Xrm.Oss.XTL.Templating
 
             try
             {
-                var dataSource = service.Retrieve(config.Target.LogicalName, config.Target.Id, columnSet);
+                var dataSource = config.TargetEntity != null ? config.TargetEntity : service.Retrieve(config.Target.LogicalName, config.Target.Id, columnSet);
 
                 if (!CheckExecutionCriteria(config, dataSource, service, tracing))
                 {
@@ -109,7 +109,7 @@ namespace Xrm.Oss.XTL.Templating
                     return;
                 }
 
-                var output = ProcessTemplate(tracing, service, dataSource, config.Template);
+                var output = ProcessTemplate(config.Template, dataSource, new OrganizationConfig { OrganizationUrl = config.OrganizationUrl }, service, tracing);
 
                 var result = new ProcessingResult
                 {
@@ -179,13 +179,13 @@ namespace Xrm.Oss.XTL.Templating
             ValidateConfig(targetField, template, templateField);
             var templateText = RetrieveTemplate(template, templateField, dataSource, service, tracing);
 
-            var output = ProcessTemplate(tracing, service, dataSource, templateText);
+            var output = ProcessTemplate(templateText, dataSource, _organizationConfig, service, tracing);
 
             target[targetField] = output;
             TriggerUpdateConditionally(output, dataSource, _config, service);
         }
 
-        private string ProcessTemplate(ITracingService tracing, IOrganizationService service, Entity dataSource, string templateText)
+        private string ProcessTemplate(string templateText, Entity dataSource, OrganizationConfig config, IOrganizationService service, ITracingService tracing)
         {
             var tokenRegex = new Regex(@"\${{([\s\S]*?(?=}}))}}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
 
@@ -199,7 +199,7 @@ namespace Xrm.Oss.XTL.Templating
             {
                 tracing.Trace($"Processing token '{token}'");
 
-                var processor = new XTLInterpreter(token, dataSource, _organizationConfig, service, tracing);
+                var processor = new XTLInterpreter(token, dataSource, config, service, tracing);
                 var processed = string.Empty;
 
                 try

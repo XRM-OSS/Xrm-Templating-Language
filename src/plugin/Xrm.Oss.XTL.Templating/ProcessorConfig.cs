@@ -31,6 +31,9 @@ namespace Xrm.Oss.XTL.Templating
         [DataMember(Name = "target")]
         public EntityReference Target { get; set; }
 
+        [DataMember(Name = "targetEntity")]
+        public Entity TargetEntity { get; set; }
+
         [DataMember(Name = "targetColumns")]
         public string[] TargetColumns { get; set; }
 
@@ -42,6 +45,9 @@ namespace Xrm.Oss.XTL.Templating
 
         [DataMember(Name = "throwOnCustomActionError")]
         public bool ThrowOnCustomActionError { get; set; }
+
+        [DataMember(Name = "organizationUrl")]
+        public string OrganizationUrl { get; set; }
 
         public static ProcessorConfig Parse (string json)
         {
