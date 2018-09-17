@@ -33,11 +33,15 @@ let nUnitPath = "packages" @@ "nunit.consolerunner" @@ "tools" @@ "nunit3-consol
 let sha = Git.Information.getCurrentHash()
 
 // version info
-let major           = "3"
-let minor           = "0"
-let mutable patch           = "1"
-let mutable asmVersion      = ""
-let mutable asmFileVersion  = ""
+let major = "3"
+let minor = "0"
+let patch = "1"
+
+// Follow SemVer scheme: http://semver.org/
+let asmVersion = major + "." + minor + "." + patch
+let asmFileVersion  = asmVersion + "+" + sha
+
+let pluginVersion = sprintf "1.0.%s" buildVersion
 
 // Targets
 Target "Clean" (fun _ ->
@@ -45,20 +49,12 @@ Target "Clean" (fun _ ->
     CleanDirs [buildDir; testDir; deployDir; nugetDir]
 )
 
-Target "BuildVersions" (fun _ ->
-    // Follow SemVer scheme: http://semver.org/
-    asmVersion  <- major + "." + minor + "." + patch 
-    asmFileVersion      <- major + "." + minor + "." + patch + "+" + sha
-
-    SetBuildNumber asmFileVersion
-)
-
 Target "AssemblyInfo" (fun _ ->
     BulkReplaceAssemblyInfoVersions "src" (fun f -> 
                                               {f with
-                                                  AssemblyVersion = asmVersion
-                                                  AssemblyInformationalVersion = asmVersion
-                                                  AssemblyFileVersion = asmFileVersion
+                                                  AssemblyVersion = pluginVersion
+                                                  AssemblyInformationalVersion = pluginVersion
+                                                  AssemblyFileVersion = pluginVersion
                                               })
 )
 
@@ -122,9 +118,7 @@ Target "CreateNuget" (fun _ ->
 
 // Dependencies
 "Clean"
-  ==> "BuildVersions"
-  // Do not generate AssemblyInfo versions for now. It breaks registering of plugin assemblies
-  // =?> ("AssemblyInfo", not isLocalBuild )
+  =?> ("AssemblyInfo", not isLocalBuild )
   ==> "BuildPlugin"
   ==> "BuildTest"
   ==> "NUnit"
