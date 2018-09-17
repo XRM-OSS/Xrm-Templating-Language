@@ -164,6 +164,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                         Id: this.state.selectedEntityId,
                         LogicalName: this.state.selectedEntityLogicalName
                     },
+                    organizationUrl: this.WebApiClient.GetApiUrl().substring(0, this.WebApiClient.GetApiUrl().indexOf("/api/data/v")),
                     template: template,
                     executionCriteria: this.state.executionCriteria
                 })
