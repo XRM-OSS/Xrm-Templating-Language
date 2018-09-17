@@ -184,7 +184,10 @@ IsGreaterEqual ( 1, 2 )
 Returns the object value of the given property. If it is used as top level function, the matching string representation is returned.
 The text function which was present in early releases was replaced by this, as the Value function hosts both the string representation and the actual value now.
 You can jump to entities that are connected by a lookup by concatenating field names with a '.' as separator.
-Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as config parameter named `explicitTarget`, like so: `Value("regardingobjectid.firstname", PrimaryRecord())`. 
+Default base entity for all operations is the primary entity. You can override this behaviour by passing an entity object as config parameter named `explicitTarget`, like so: `Value("regardingobjectid.firstname", { explicitTarget: PrimaryRecord() })`.
+
+When working with option sets, you can instruct XTL to use a specific language's label by passing adding a key `optionSetLcid` to your configuration object and setting the desired lcid (1033 = english, 1031 = german, etc...) as value, as follows: ` Value("someOptionSet", { optionSetLcid: 1033 })`. It is recommended to pass a fixed lcid matching the language you're currently creating your template for.
+When not passing the optionSetLcid setting, the option set integer value will be returned. If passing the optionSetLcid and no label is found for the specified language, the user language label is used. So if you just want to use your current user's label, you can pass an invalid value such as -1. 
 
 Example:
 ```
@@ -194,6 +197,7 @@ Value ("regardingobjectid.firstname")
 ### RecordUrl
 Returns the record urls of all entities or entity references that are passed as paramters.
 For this to work, you have to set a secure json configuration with property organizationUrl set to your organization's url.
+By default, the URL will have the ref as link text as well. You can pass a configuration object with key `linkText` for defining a custom text to show link: `RecordUrl(PrimaryRecord(), { linkText: Value("name") })` (of course a normal string can be passed to linkText as well, the function call should just show the possibilities).
  
 Example:
 ```
@@ -251,8 +255,10 @@ Third is an array expression containing the columns to retrieve, which will be a
 By default the columns are named like the display names of their respective CRM columns. If you want to override that, append a colon and the text you want to use, such as "subject:Overridden Subject Label".
 
 If you wish to append the record url as last column, pass a configuration object as last parameter as follows: `{ addRecordUrl: true }`.
+You can also set a custom label for the url in each column by using the `linkText` property.
 There is also the possibility to configure table, header and row styling. Pass a style property inside your configuration parameter, as follows: `{ tableStyle: "border:1px solid green;", headerStyle: "border:1px solid orange;", dataStyle: "border:1px solid red;"}`.
 Only pass one configuration object, it can contain information on addRecordUrl as well as on table styling.
+You can also define different styles for even and uneven rows by using the configuration keys `unevenDataStyle` and `evenDataStyle`.
 
 Below you can find an example, which executes on e-mail creation and searches for tasks associated to the mails regarding contact.
 It will then print the task subject and description, including an url, into the mail.
