@@ -355,7 +355,7 @@ Prints the date that is passed as first parameter. A custom format can be append
 
 Example:
 ```
-DateToString(DateTimeUtcNow(), { format: \"yyyyMMdd\" })
+DateToString(DateTimeUtcNow(), { format: "yyyyMMdd" })
 ```
 
 Refer to the .NET style for date formatting.
