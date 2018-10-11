@@ -24,13 +24,6 @@ namespace Xrm.Oss.XTL.Interpreter
             var optionSet = value as OptionSetValue;
             var money = value as Money;
 
-            if (entityReference != null)
-            {
-                return record.FormattedValues.ContainsKey(field)
-                        ? record.FormattedValues[field]
-                        : entityReference.Name ?? entityReference.Id.ToString();
-            }
-
             if (optionSet != null)
             {
                 var textValue = optionSet.Value.ToString(CultureInfo.InvariantCulture);
@@ -69,11 +62,19 @@ namespace Xrm.Oss.XTL.Interpreter
                 return fieldMetadata.Label.UserLocalizedLabel.Label;
             }
 
+            if (record.FormattedValues.ContainsKey(field))
+            {
+                return record.FormattedValues[field];
+            }
+
+            if (entityReference != null)
+            {
+                return entityReference.Name ?? entityReference.Id.ToString();
+            }
+
             if (money != null)
             {
-                return record.FormattedValues.ContainsKey(field)
-                        ? record.FormattedValues[field]
-                        : money.Value.ToString(CultureInfo.InvariantCulture);
+                return money.Value.ToString(CultureInfo.InvariantCulture);
             }
 
             return value.ToString();

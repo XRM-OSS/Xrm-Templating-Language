@@ -570,12 +570,24 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private static T CheckedCast<T>(object input, string errorMessage)
         {
-            if (!(input is T))
+            var value = input;
+
+            if (input is Money)
+            {
+                value = (input as Money).Value;
+            }
+
+            if (input is OptionSetValue)
+            {
+                value = (input as OptionSetValue).Value;
+            }
+
+            if (!(value is T))
             {
                 throw new InvalidPluginExecutionException(errorMessage);
             }
 
-            return (T)input;
+            return (T)value;
         }
 
         public static FunctionHandler Substring = (primary, service, tracing, organizationConfig, parameters) =>
