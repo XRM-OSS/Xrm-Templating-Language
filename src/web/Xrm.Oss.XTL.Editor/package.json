@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    
+    "prebuild": "npm run tslint",
     "build": "tsc -t ES6 -m commonjs --jsx react --outDir ./dist && webpack"
   },
   "author": "",

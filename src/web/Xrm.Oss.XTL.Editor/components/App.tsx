@@ -67,7 +67,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
           selectedEntityAttributes: []
         };
 
-        // Webpack should import WebApiClient from global itself, but somehow it doesn't
+        // Webpack should import WebApiClient from global itself, but somehow it doesn"t
         this.WebApiClient = (window as any).WebApiClient;
 
         this.criteriaChanged = this.criteriaChanged.bind(this);
@@ -151,7 +151,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
 
         let template = this.state.inputTemplate;
 
-        // This needs to be done before interpreting if it's an HTML template
+        // This needs to be done before interpreting if it"s an HTML template
         // RecordTables will mess up otherwise, as they create linebreaks inside
         if (this.state.isHtmlTemplate) {
             template = template.replace(/\n/g, "<br />");
@@ -509,38 +509,83 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         });
     }
 
-    editorWillMount = (monaco: any) => {
+    registerXtl = (monaco: any, isTemplateEditor: boolean) => {
+        const root = [
+          [/\${{/, { token: "keyword", switchTo: "@xtl" }],
+        ];
+
+        const xtl = [
+          // This must stay first, it will be removed when not being in template but in criteria editor
+          [/}}/, {token: "keyword", switchTo: "@root"}],
+
+          // identifiers and keywords
+          [/[a-z_$][\w$]*/, { cases: { "@typeKeywords": "keyword",
+                                       "@keywords": "keyword",
+                                       "@default": "identifier" } }],
+          [/[A-Z][\w\$]*/, "type.identifier" ],  // to show class names nicely
+
+          // whitespace
+          { include: "@whitespace" },
+
+          // delimiters and operators
+          [/[{}()\[\]]/, "@brackets"],
+          [/@symbols/, { cases: { "@operators": "operator",
+                                  "@default"  : "" } } ],
+
+          // @ annotations.
+          // As an example, we emit a debugging log message on these tokens.
+          // Note: message are supressed during the first load -- change some lines to see them.
+          [/@\s*[a-zA-Z_\$][\w\$]*/, { token: "annotation", log: "annotation token: $0" }],
+
+          // numbers
+          [/\d*\.\d+([eE][\-+]?\d+)?/, "number.float"],
+          [/0[xX][0-9a-fA-F]+/, "number.hex"],
+          [/\d+/, "number"],
+
+          // delimiter: after number because of .\d floats
+          [/[;,.]/, "delimiter"],
+
+          // strings
+          [/"([^"\\]|\\.)*$/, "string.invalid" ],  // non-teminated string
+          [/"/,  { token: "string.quote", bracket: "@open", next: "@string" } ],
+
+          // characters
+          [/'[^\\']'/, "string"],
+          [/(')(@escapes)(')/, ["string", "string.escape", "string"]],
+          [/'/, "string.invalid"]
+        ];
+
         // Register a new language
-        monaco.languages.register({ id: 'XTL' });
+        monaco.languages.register({ id: "XTL" });
 
         monaco.languages.setLanguageConfiguration("XTL", {
             brackets: [
-        		['{', '}'],
-        		['[', ']'],
-        		['(', ')'],
-        	],
+                ["{", "}"],
+                ["[", "]"],
+                ["(", ")"],
+            ],
 
-        	autoClosingPairs: [
-        		{ open: '{', close: '}' },
-        		{ open: '[', close: ']' },
-        		{ open: '(', close: ')' },
-        		{ open: '"', close: '"' },
-        		{ open: '\'', close: '\'' },
-        	],
+            autoClosingPairs: [
+                { open: "{", close: "}" },
+                { open: "[", close: "]" },
+                { open: "(", close: ")" },
+                { open: "\"", close: "\"" },
+                { open: "'", close: "'" },
+            ],
 
-        	surroundingPairs: [
-        		{ open: '{', close: '}' },
-        		{ open: '[', close: ']' },
-        		{ open: '(', close: ')' },
-        		{ open: '"', close: '"' },
-        		{ open: '\'', close: '\'' },
-        	]
+            surroundingPairs: [
+                { open: "{", close: "}" },
+                { open: "[", close: "]" },
+                { open: "(", close: ")" },
+                { open: "\"", close: "\"" },
+                { open: "'", close: "'" }
+            ]
         });
 
         // Register a tokens provider for the language
-        monaco.languages.setMonarchTokensProvider('XTL', {
+        monaco.languages.setMonarchTokensProvider("XTL", {
             keywords: [
-                'null', 'true', 'false'
+                "null", "true", "false"
               ],
 
             typeKeywords: [
@@ -553,83 +598,59 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             symbols:  /[=><!~?:&|+\-*\/\^%]+/,
 
             // C# style strings
-            escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+            escapes: /\\(?:[abfnrtv\\""]|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
 
             tokenizer: {
-                root: [
-                  // identifiers and keywords
-                  [/[a-z_$][\w$]*/, { cases: { '@typeKeywords': 'keyword',
-                                               '@keywords': 'keyword',
-                                               '@default': 'identifier' } }],
-                  [/[A-Z][\w\$]*/, 'type.identifier' ],  // to show class names nicely
+                // If template editor with place holders is used, only highlight placeholders
+                // Execution Criteria is always an XTL expression, so it does not need the rule for switching to the unhighlighted root
+                root: isTemplateEditor ? root : xtl.slice(1),
 
-                  // whitespace
-                  { include: '@whitespace' },
-
-                  // delimiters and operators
-                  [/[{}()\[\]]/, '@brackets'],
-                  [/@symbols/, { cases: { '@operators': 'operator',
-                                          '@default'  : '' } } ],
-
-                  // @ annotations.
-                  // As an example, we emit a debugging log message on these tokens.
-                  // Note: message are supressed during the first load -- change some lines to see them.
-                  [/@\s*[a-zA-Z_\$][\w\$]*/, { token: 'annotation', log: 'annotation token: $0' }],
-
-                  // numbers
-                  [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
-                  [/0[xX][0-9a-fA-F]+/, 'number.hex'],
-                  [/\d+/, 'number'],
-
-                  // delimiter: after number because of .\d floats
-                  [/[;,.]/, 'delimiter'],
-
-                  // strings
-                  [/"([^"\\]|\\.)*$/, 'string.invalid' ],  // non-teminated string
-                  [/"/,  { token: 'string.quote', bracket: '@open', next: '@string' } ],
-
-                  // characters
-                  [/'[^\\']'/, 'string'],
-                  [/(')(@escapes)(')/, ['string','string.escape','string']],
-                  [/'/, 'string.invalid']
-                ],
+                xtl: xtl,
 
                 comment: [
-                  [/[^\/*]+/, 'comment' ],
-                  [/\/\*/,    'comment', '@push' ],    // nested comment
-                  ["\\*/",    'comment', '@pop'  ],
-                  [/[\/*]/,   'comment' ]
+                  [/[^\/*]+/, "comment" ],
+                  [/\/\*/,    "comment", "@push" ],    // nested comment
+                  ["\\*/",    "comment", "@pop"  ],
+                  [/[\/*]/,   "comment" ]
                 ],
 
                 string: [
-                  [/[^\\"]+/,  'string'],
-                  [/@escapes/, 'string.escape'],
-                  [/\\./,      'string.escape.invalid'],
-                  [/"/,        { token: 'string.quote', bracket: '@close', next: '@pop' } ]
+                  [/[^\\"]+/,  "string"],
+                  [/@escapes/, "string.escape"],
+                  [/\\./,      "string.escape.invalid"],
+                  [/"/,        { token: "string.quote", bracket: "@close", next: "@pop" } ]
                 ],
 
                 whitespace: [
-                  [/[ \t\r\n]+/, 'white'],
-                  [/\/\*/,       'comment', '@comment' ],
-                  [/\/\/.*$/,    'comment'],
+                  [/[ \t\r\n]+/, "white"],
+                  [/\/\*/,       "comment", "@comment" ],
+                  [/\/\/.*$/,    "comment"],
                 ],
               }
             });
 
         // Register a completion item provider for the new language
-        monaco.languages.registerCompletionItemProvider('XTL', {
-        	provideCompletionItems: () => {
-        		return [
-        			{
-        				label: 'Value',
-        				kind: monaco.languages.CompletionItemKind.Snippet,
-        				insertText: {
-        					value: 'Value ( "" )'
-        				}
-        			}
-        		]
-        	}
+        monaco.languages.registerCompletionItemProvider("XTL", {
+            provideCompletionItems: () => {
+                return [
+                    {
+                        label: "Value",
+                        kind: monaco.languages.CompletionItemKind.Snippet,
+                        insertText: {
+                            value: "Value (\"\")"
+                        }
+                    }
+                ];
+            }
         });
+    }
+
+    templateEditorWillMount = (monaco: any) => {
+        this.registerXtl(monaco, true);
+    }
+
+    criteriaEditorWillMount = (monaco: any) => {
+        this.registerXtl(monaco, false);
     }
 
     render() {
@@ -720,7 +741,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                                 theme="vs"
                                 value={ this.state.executionCriteria || "// Leave empty for executing unconditionally" }
                                 onChange={this.criteriaChanged}
-                                editorWillMount={this.editorWillMount}
+                                editorWillMount={this.criteriaEditorWillMount}
                                 ref="criteriaEditor"
                         />
                     </div>
@@ -732,7 +753,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                                 theme="vs"
                                 value={ this.state.inputTemplate || "// Enter your template..." }
                                 onChange={this.onChange}
-                                editorWillMount={this.editorWillMount}
+                                editorWillMount={this.templateEditorWillMount}
                                 ref="templateEditor"
                         />
                     </div>
