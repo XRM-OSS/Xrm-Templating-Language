@@ -555,10 +555,11 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
           [/'/, "string.invalid"]
         ];
 
+        const id = isTemplateEditor ? "XTL_Template" : "XTL";
         // Register a new language
-        monaco.languages.register({ id: "XTL" });
+        monaco.languages.register({ id: id });
 
-        monaco.languages.setLanguageConfiguration("XTL", {
+        monaco.languages.setLanguageConfiguration(id, {
             brackets: [
                 ["{", "}"],
                 ["[", "]"],
@@ -583,7 +584,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         });
 
         // Register a tokens provider for the language
-        monaco.languages.setMonarchTokensProvider("XTL", {
+        monaco.languages.setMonarchTokensProvider(id, {
             keywords: [
                 "null", "true", "false"
               ],
@@ -630,7 +631,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             });
 
         // Register a completion item provider for the new language
-        monaco.languages.registerCompletionItemProvider("XTL", {
+        monaco.languages.registerCompletionItemProvider(id, {
             provideCompletionItems: () => {
                 return [
                     {
@@ -749,7 +750,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                     <Checkbox checked={this.state.isHtmlTemplate} onChange={this.isHtmlTemplateChanged}>Is HTML template</Checkbox>
                     <div style={ { "height": "75vh" } }>
                         <MonacoEditor
-                                language="XTL"
+                                language="XTL_Template"
                                 theme="vs"
                                 value={ this.state.inputTemplate || "// Enter your template..." }
                                 onChange={this.onChange}
