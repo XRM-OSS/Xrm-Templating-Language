@@ -18,7 +18,7 @@ namespace Xrm.Oss.XTL.Interpreter
     {
         private static ConfigHandler GetConfig(List<ValueExpression> parameters)
         {
-            return new ConfigHandler((Dictionary<string, object>) parameters.FirstOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>());
+            return new ConfigHandler((Dictionary<string, object>) parameters.LastOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>());
         }
 
         public static FunctionHandler Not = (primary, service, tracing, organizationConfig, parameters) =>
@@ -304,11 +304,12 @@ namespace Xrm.Oss.XTL.Interpreter
             {
                 throw new InvalidPluginExecutionException("Second parameter of the RecordTable function needs to be the entity name as string");
             }
-            
+
             // We need the column names explicitly, since CRM does not return new ValueExpression(null)-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
             var displayColumns = CheckedCast<List<ValueExpression>>(parameters[2]?.Value, "List of column names for record table must be an array expression")
                 .Select(p => p.Value)
-                .Cast<string>() ?? new List<string>();
+                .Select(p => p is Dictionary<string, object> ? (Dictionary<string, object>) p : new Dictionary<string, object> { { "name", p } })
+                .ToList();
 
             tracing.Trace("Retrieving column names");
             var columnNames = RetrieveColumnNames(entityName, service);
@@ -337,17 +338,25 @@ namespace Xrm.Oss.XTL.Interpreter
             foreach (var column in displayColumns)
             {
                 var name = string.Empty;
+                var columnName = column["name"] as string;
 
-                if (column.Contains(":"))
+                if (columnName.Contains(":"))
                 {
-                    name = column.Substring(column.IndexOf(':') + 1);
+                    name = columnName.Substring(columnName.IndexOf(':') + 1);
                 }
                 else
                 {
-                    name = columnNames.ContainsKey(column) ? columnNames[column] : column;
+                    name = columnNames.ContainsKey(columnName) ? columnNames[columnName] : columnName;
                 }
 
-                stringBuilder.AppendLine($"<th style=\"{tableHeadStyle}\">{name}</th>");
+                if (column.ContainsKey("style"))
+                {
+                    stringBuilder.AppendLine($"<th style=\"{column["style"]}\">{name}</th>");
+                }
+                else
+                {
+                    stringBuilder.AppendLine($"<th style=\"{tableHeadStyle}\">{name}</th>");
+                }
             }
 
             // Add column for url if wanted
@@ -369,7 +378,17 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     foreach (var column in displayColumns)
                     {
-                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{PropertyStringifier.Stringify(column.Contains(":") ? column.Substring(0, column.IndexOf(':')) : column, record, service, config)}</td>");
+                        var columnName = column["name"] as string;
+                        columnName = columnName.Contains(":") ? columnName.Substring(0, columnName.IndexOf(':')) : columnName;
+
+                        if (column.ContainsKey("style"))
+                        {
+                            stringBuilder.AppendLine($"<td style=\"{column["style"]}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                        }
+                        else
+                        {
+                            stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                        }
                     }
 
                     if (addRecordUrl)
