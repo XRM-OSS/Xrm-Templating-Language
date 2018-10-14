@@ -325,8 +325,8 @@ namespace Xrm.Oss.XTL.Interpreter
                 tableStyle = $" style=\"{tableStyle}\"";
             }
 
-            var tableHeadStyle = config.GetValue("headerStyle", "headerStyle must be a string!", @"border:1px solid black;text-align:left;padding:1px 15px 1px 5px");
-            var tableDataStyle = config.GetValue("dataStyle", "dataStyle must be a string!", @"border:1px solid black;padding:1px 15px 1px 5px");
+            var tableHeadStyle = config.GetValue("headerStyle", "headerStyle must be a string!", @"border:1px solid black;text-align:left;padding:1px 15px 1px 5px;");
+            var tableDataStyle = config.GetValue("dataStyle", "dataStyle must be a string!", @"border:1px solid black;padding:1px 15px 1px 5px;");
 
             var evenDataStyle = config.GetValue<string>("evenDataStyle", "evenDataStyle must be a string!");
             var unevenDataStyle = config.GetValue<string>("unevenDataStyle", "unevenDataStyle must be a string!");
@@ -349,9 +349,21 @@ namespace Xrm.Oss.XTL.Interpreter
                     name = columnNames.ContainsKey(columnName) ? columnNames[columnName] : columnName;
                 }
 
+                if (column.ContainsKey("label"))
+                {
+                    name = column["label"] as string;
+                }
+
                 if (column.ContainsKey("style"))
                 {
-                    stringBuilder.AppendLine($"<th style=\"{column["style"]}\">{name}</th>");
+                    if (!column.ContainsKey("mergeStyle") || (bool) column["mergeStyle"])
+                    {
+                        stringBuilder.AppendLine($"<th style=\"{tableHeadStyle}{column["style"]}\">{name}</th>");
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine($"<th style=\"{column["style"]}\">{name}</th>");
+                    }
                 }
                 else
                 {
@@ -383,7 +395,14 @@ namespace Xrm.Oss.XTL.Interpreter
 
                         if (column.ContainsKey("style"))
                         {
-                            stringBuilder.AppendLine($"<td style=\"{column["style"]}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                            if (!column.ContainsKey("mergeStyle") || (bool)column["mergeStyle"])
+                            {
+                                stringBuilder.AppendLine($"<td style=\"{lineStyle}{column["style"]}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                            }
+                            else
+                            {
+                                stringBuilder.AppendLine($"<td style=\"{column["style"]}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                            }
                         }
                         else
                         {
