@@ -262,10 +262,22 @@ You can also define different styles for even and uneven rows by using the confi
 
 Below you can find an example, which executes on e-mail creation and searches for tasks associated to the mails regarding contact.
 It will then print the task subject and description, including an url, into the mail.
+
+In release v3.0.2 you will also be able to configure each column's style separately.
+This will allow for defining a custom width to each column.
+You can set it by passing the columns not as array of strings, but as array of objects.
+They may containt the keys `name` for the column name, which you previously passed directly as string, `label` as custom label to show in the header, `style` for your style information for this column and `mergeStyle` for defining, whether your style information should be appended to the line (or header) style or not (defaults to true).
+
+Passing all column names as array of strings is still possible.
  
 Example:
 ```
 RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", Array( "subject:Overridden Subject Label", "description" ), { addRecordUrl: true })
+```
+
+Example of objects as columns:
+```
+RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", [ { name: "subject", label: "Overridden Subject Label", style: "width:70%" }, {name: "description"} ], { addRecordUrl: true })
 ```
 
 ### PrimaryRecord
