@@ -145,7 +145,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
 
         const request = this.WebApiClient.Requests.Request.prototype.with({
             method: "POST",
-            name: "oss_XTLProcessTemplate",
+            name: "oss_XTLApplyTemplate",
             bound: false
         });
 
