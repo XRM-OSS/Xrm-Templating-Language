@@ -36,9 +36,15 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First expects a list as only parameter!");
             }
 
-            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, "First expects a list as input");
+            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, string.Empty, false);
+            var entityCollection = CheckedCast<EntityCollection>(parameters.FirstOrDefault().Value, string.Empty, false)?.Entities.ToList();
 
-            return new ValueExpression(string.Empty, ((List<object>)firstParam).FirstOrDefault());
+            if (firstParam == null && entityCollection == null)
+            {
+                throw new InvalidPluginExecutionException("First expects a list or EntityCollection as input");
+            }
+
+            return new ValueExpression(string.Empty, firstParam?.FirstOrDefault() ?? entityCollection?.FirstOrDefault());
         };
 
         public static FunctionHandler Last = (primary, service, tracing, organizationConfig, parameters) =>
@@ -606,7 +612,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(text, text);
         };
 
-        private static T CheckedCast<T>(object input, string errorMessage)
+        private static T CheckedCast<T>(object input, string errorMessage, bool failOnError = true)
         {
             var value = input;
 
@@ -622,7 +628,12 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (!(value is T))
             {
-                throw new InvalidPluginExecutionException(errorMessage);
+                if (failOnError)
+                {
+                    throw new InvalidPluginExecutionException(errorMessage);
+                }
+
+                return default(T);
             }
 
             return (T)value;
