@@ -99,7 +99,7 @@ Takes 3 Parameters: A condition to check, a true action and a false action.
 If the condition resolves to true, the true action is executed, otherwise the false action.
 
 Example:
-```
+``` JavaScript
 If( IsNull ( Value("subject") ), "No subject passed", Value("subject") )
 ```
 
@@ -108,7 +108,7 @@ Takes 2 ... n parameters and checks if any of them resolves to true.
 If yes, then true is returned, otherwise false
 
 Example:
-```
+``` JavaScript
 Or ( IsNull( Value ("parentaccountid") ), IsNull( Value ("parentcontactid") ) )  
 ```
 
@@ -117,7 +117,7 @@ Takes 2 ... n parameters and checks if all of them resolve to true.
 If yes, then true is returned, otherwise false
 
 Example:
-```
+``` JavaScript
 And ( IsNull( Value ("parentaccountid") ), IsNull( Value ("parentcontactid") ) )  
 ```
 
@@ -125,7 +125,7 @@ And ( IsNull( Value ("parentaccountid") ), IsNull( Value ("parentcontactid") ) )
 Takes a parameter that resolves to a boolean and reverts its value.
 
 Example:
-```
+``` JavaScript
 Not ( IsNull( Value ("parentaccountid") ) )  
 ```
 
@@ -133,7 +133,7 @@ Not ( IsNull( Value ("parentaccountid") ) )
 Checks if a parameter is null. If yes, true is returned, otherwise false.
 
 Example:
-```
+``` JavaScript
 IsNull( Value ("parentaccountid") )  
 ```
 
@@ -143,7 +143,7 @@ The parameters are required to be of the same type.
 OptionSetValues are compared with their respective integer values.
 
 Example:
-```
+``` JavaScript
 IsEqual ( Value ( "gendercode" ), 1 )
 ```
 
@@ -151,7 +151,7 @@ IsEqual ( Value ( "gendercode" ), 1 )
 Checks if first parameter is less than the second. If yes, true is returned, otherwise false.
 
 Example:
-```
+``` JavaScript
 IsLess ( 1, 2 )
 ```
 
@@ -159,7 +159,7 @@ IsLess ( 1, 2 )
 Checks if first parameter is less or equal than the second. If yes, true is returned, otherwise false.
 
 Example:
-```
+``` JavaScript
 IsLessEqual ( 1, 2 )
 ```
 
@@ -167,7 +167,7 @@ IsLessEqual ( 1, 2 )
 Checks if first parameter is greater than the second. If yes, true is returned, otherwise false.
 
 Example:
-```
+``` JavaScript
 IsGreater ( 1, 2 )
 ```
 
@@ -175,7 +175,7 @@ IsGreater ( 1, 2 )
 Checks if first parameter is greater or equal than the second. If yes, true is returned, otherwise false.
 
 Example:
-```
+``` JavaScript
 IsGreaterEqual ( 1, 2 )
 ```
 
@@ -189,7 +189,7 @@ When working with option sets, you can instruct XTL to use a specific language's
 When not passing the optionSetLcid setting, the option set integer value will be returned. If passing the optionSetLcid and no label is found for the specified language, the user language label is used. So if you just want to use your current user's label, you can pass an invalid value such as -1. 
 
 Example:
-```
+``` JavaScript
 Value ("regardingobjectid.firstname")
 ```
 
@@ -199,7 +199,7 @@ For this to work, you have to set a secure json configuration with property orga
 By default, the URL will have the ref as link text as well. You can pass a configuration object with key `linkText` for defining a custom text to show link: `RecordUrl(PrimaryRecord(), { linkText: Value("name") })` (of course a normal string can be passed to linkText as well, the function call should just show the possibilities).
  
 Example:
-```
+``` JavaScript
 RecordUrl ( Value ( "regardingobjectid") )
 ```
 
@@ -210,7 +210,7 @@ Inside the fetch you can then reference them by {0}, {1}, ... and so on.
 The primary entity is always {0}, so additional references start at {1}.
  
 Example:
-```
+``` JavaScript
 Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Array( Value ( "regardingobjectid" ) ) )
 ```
 
@@ -219,10 +219,12 @@ Passing a null value inside a fetch equal constraint for example, such as ```ope
 You could now create your FetchXML expression using the Concat function or you'll have to wrap the fetch inside an if-clause that only executes the fetch, if your reference is not null. Otherwise the function will fail and replace the whole placeholder with an empty string.
 
 Example for Concat:
-```Fetch ( Concat("<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter>", If( Not ( IsNull ( Value ("regardingobjectid") ) ), "<condition attribute='regardingobjectid' operator='eq' value='{1}' />", "<condition attribute='regardingobjectid' operator='eq-null' />"), "</filter></entity></fetch>"), Array ( Value ("regardingobjectid") ))```
+``` JavaScript
+Fetch ( Concat("<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter>", If( Not ( IsNull ( Value ("regardingobjectid") ) ), "<condition attribute='regardingobjectid' operator='eq' value='{1}' />", "<condition attribute='regardingobjectid' operator='eq-null' />"), "</filter></entity></fetch>"), Array ( Value ("regardingobjectid") ))
+```
 
 Example for conditional fetch:
-```
+``` JavaScript
 ${{If(IsNull(Value("regardingobjectid" ) ), "No tasks", RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", true, "subject", "description"))}}
 ```
 
@@ -234,11 +236,11 @@ Example(Please note that in recent releases (>= v1.0.31) the Text function is re
 Receives a list and returns the first object found in it.
 
 Example:
-```
+``` JavaScript
 First ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ) )
 ```
 
-Example of using it for getting the full name of the first to recipient:
+Example of using it for getting the full name of the first to recipient on an email:
 ``` JavaScript
 Value ( "partyid.fullname", { explicitTarget: First( Value("to") ) } )
 ``` 
@@ -247,7 +249,7 @@ Value ( "partyid.fullname", { explicitTarget: First( Value("to") ) } )
 Receives a list and returns the last object found in it.
 
 Example:
-```
+``` JavaScript
 Last ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ) )
 ```
 
@@ -275,12 +277,12 @@ They may containt the keys `name` for the column name, which you previously pass
 Passing all column names as array of strings is still possible.
  
 Example:
-```
+``` JavaScript
 RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", Array( "subject:Overridden Subject Label", "description" ), { addRecordUrl: true })
 ```
 
 Example of objects as columns:
-```
+``` JavaScript
 RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", [ { name: "subject", label: "Overridden Subject Label", style: "width:70%" }, {name: "description"} ], { addRecordUrl: true })
 ```
 
@@ -289,7 +291,7 @@ Returns the current primary entity as Entity object.
 No parameters are needed.
 
 Example:
-```
+``` JavaScript
 PrimaryRecord ()
 ```
 
@@ -297,7 +299,7 @@ PrimaryRecord ()
 Concatenates all parameters that were passed into one string.
 
 Example:
-```
+``` JavaScript
 Concat(Value("lastname"), ", ", Value("firstname"))
 ```
 Above example could return something like 'Baggins, Frodo'.
@@ -316,7 +318,7 @@ Replaces text in an input string using your pattern and replacement regexes.
 You can use the whole .NET regex syntax for your pattern and replacement regex.
 
 Example:
-```
+``` JavaScript
 Replace(Value("firstname"), "o", "a" )
 ```
 Above example returns 'Frada' when input is 'Frodo'.
@@ -327,7 +329,7 @@ You can enter static values such as string values, or even use XTL functions for
 Static strings are for example used for column names inside the RecordTable function, XTL functions as array values are used as fetch parameters in the Fetch function.
 
 Example:
-```
+``` JavaScript
 Array("those", "are", "test", "parameters")
 ```
 Info: Arrays have a default textual representation, which is all of the array value text representations delimited by ", ". Above examples textual representation would therefore be "those, are, test, parameters". Null values are not removed, but show up as empty string.
@@ -337,7 +339,7 @@ Joins multiple strings together using the separator that you passed. You can pas
 You can pass a boolean as third parameter, stating whether empty parameters should be left out when concatenating (defaults to false).
 
 Example:
-```
+``` JavaScript
 Join(NewLine(), Array ( Value("address1_line1"), Value("address1_line2")), true)
 ```
 
@@ -345,7 +347,7 @@ Join(NewLine(), Array ( Value("address1_line1"), Value("address1_line2")), true)
 Inserts a new line. 
 
 Example:
-```
+``` JavaScript
 NewLine()
 ```
 Info: This is needed when wanting to concatenate multiple texts using concat or join, since passing "\n" as .NET line break string is interpreted as plain string.
@@ -354,7 +356,7 @@ Info: This is needed when wanting to concatenate multiple texts using concat or 
 Gets the current local time.
 
 Example:
-```
+``` JavaScript
 DateTimeNow()
 ```
 
@@ -362,7 +364,7 @@ DateTimeNow()
 Gets the current UTC time.
 
 Example:
-```
+``` JavaScript
 DateTimeUtcNow()
 ```
 
@@ -370,7 +372,7 @@ DateTimeUtcNow()
 Prints the date that is passed as first parameter. A custom format can be appended using a configuration object with format key.
 
 Example:
-```
+``` JavaScript
 DateToString(DateTimeUtcNow(), { format: "yyyyMMdd" })
 ```
 
