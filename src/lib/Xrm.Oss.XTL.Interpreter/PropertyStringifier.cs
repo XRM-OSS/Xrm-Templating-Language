@@ -11,18 +11,12 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public static class PropertyStringifier
     {
-        public static string Stringify(string field, Entity record, IOrganizationService service, ConfigHandler config = null)
+        private static string StringifyProperty(string field, object value, Entity record, IOrganizationService service, ConfigHandler config = null)
         {
-            var value = record.GetAttributeValue<object>(field);
-
-            if (value == null)
-            {
-                return null;
-            }
-
             var entityReference = value as EntityReference;
             var optionSet = value as OptionSetValue;
             var money = value as Money;
+            var aliasedValue = value as AliasedValue;
 
             if (optionSet != null)
             {
@@ -77,7 +71,24 @@ namespace Xrm.Oss.XTL.Interpreter
                 return money.Value.ToString(CultureInfo.InvariantCulture);
             }
 
+            if (aliasedValue != null)
+            {
+                return StringifyProperty(field, aliasedValue.Value, record, service, config);
+            }
+
             return value.ToString();
+        }
+
+        public static string Stringify(string field, Entity record, IOrganizationService service, ConfigHandler config = null)
+        {
+            var value = record.GetAttributeValue<object>(field);
+
+            if (value == null)
+            {
+                return null;
+            }
+
+            return StringifyProperty(field, value, record, service, config);
         }
     }
 }

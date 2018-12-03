@@ -154,5 +154,22 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var text = PropertyStringifier.Stringify("oss_Money", email, null);
             Assert.That(text, Is.EqualTo("1000.00€"));
         }
+
+        [Test]
+        public void It_Should_Stringify_Aliased_Value()
+        {
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "someGroup.name", new AliasedValue("account", "name", "Baggins Inc." ) }
+                }
+            };
+
+            var text = PropertyStringifier.Stringify("someGroup.name", email, null);
+            Assert.That(text, Is.EqualTo("Baggins Inc."));
+        }
     }
 }
