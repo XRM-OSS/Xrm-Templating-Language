@@ -109,7 +109,8 @@ namespace Xrm.Oss.XTL.Templating
                     return;
                 }
 
-                var output = ProcessTemplate(config.Template, dataSource, new OrganizationConfig { OrganizationUrl = config.OrganizationUrl }, service, tracing);
+                var templateText = RetrieveTemplate(config.Template, config.TemplateField, dataSource, service, tracing);
+                var output = ProcessTemplate(templateText, dataSource, new OrganizationConfig { OrganizationUrl = config.OrganizationUrl }, service, tracing);
 
                 var result = new ProcessingResult
                 {
