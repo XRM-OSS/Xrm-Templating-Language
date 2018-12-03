@@ -54,9 +54,15 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list as only parameter!");
             }
 
-            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, "Last expects a list as input");
+            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, string.Empty, false);
+            var entityCollection = CheckedCast<EntityCollection>(parameters.FirstOrDefault().Value, string.Empty, false)?.Entities.ToList();
 
-            return new ValueExpression(string.Empty, ((List<object>)firstParam).LastOrDefault());
+            if (firstParam == null && entityCollection == null)
+            {
+                throw new InvalidPluginExecutionException("Last expects a list or EntityCollection as input");
+            }
+
+            return new ValueExpression(string.Empty, firstParam?.LastOrDefault() ?? entityCollection?.LastOrDefault());
         };
 
         public static FunctionHandler IsLess = (primary, service, tracing, organizationConfig, parameters) =>

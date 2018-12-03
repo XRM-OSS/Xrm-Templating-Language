@@ -449,7 +449,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
-        public void List_Functions_Should_Work_On_Entity_Collection()
+        public void First_Should_Work_On_Entity_Collection()
         {
             var context = new XrmFakedContext();
             var service = context.GetFakedOrganizationService();
@@ -491,6 +491,61 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             context.Initialize(new Entity[] { user, email });
 
             var result = new XTLInterpreter(@"Value ( ""systemuserid.fullname"", { explicitTarget: First( Value(""to"") ) } )", email, null, service, tracing).Produce();
+            Assert.That(result, Is.EqualTo("Bilbo Baggins"));
+        }
+
+        [Test]
+        public void Last_Should_Work_On_Entity_Collection()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var user = new Entity
+            {
+                LogicalName = "systemuser",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "fullname", "Bilbo Baggins" }
+                }
+            };
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "to", new EntityCollection(
+                        new List<Entity>
+                        {
+                            new Entity
+                            {
+                                LogicalName = "activityparty",
+                                Id = Guid.NewGuid(),
+                                Attributes =
+                                {
+                                    { "systemuserid", null }
+                                }
+                            },
+                            new Entity
+                            {
+                                LogicalName = "activityparty",
+                                Id = Guid.NewGuid(),
+                                Attributes =
+                                {
+                                    { "systemuserid", user.ToEntityReference() }
+                                }
+                            }
+                        })
+                    }
+                }
+            };
+
+            context.Initialize(new Entity[] { user, email });
+
+            var result = new XTLInterpreter(@"Value ( ""systemuserid.fullname"", { explicitTarget: Last( Value(""to"") ) } )", email, null, service, tracing).Produce();
             Assert.That(result, Is.EqualTo("Bilbo Baggins"));
         }
     }
