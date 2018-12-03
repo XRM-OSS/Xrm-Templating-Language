@@ -238,6 +238,11 @@ Example:
 First ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ) )
 ```
 
+Example of using it for getting the full name of the first to recipient:
+``` JavaScript
+Value ( "partyid.fullname", { explicitTarget: First( Value("to") ) } )
+``` 
+
 ### Last
 Receives a list and returns the last object found in it.
 
