@@ -480,7 +480,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                                 Id = Guid.NewGuid(),
                                 Attributes =
                                 {
-                                    { "systemuserid", user.ToEntityReference() }
+                                    { "partyid", user.ToEntityReference() }
                                 }
                             }
                         })
@@ -490,7 +490,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             context.Initialize(new Entity[] { user, email });
 
-            var result = new XTLInterpreter(@"Value ( ""systemuserid.fullname"", { explicitTarget: First( Value(""to"") ) } )", email, null, service, tracing).Produce();
+            var result = new XTLInterpreter(@"Value ( ""partyid.fullname"", { explicitTarget: First( Value(""to"") ) } )", email, null, service, tracing).Produce();
             Assert.That(result, Is.EqualTo("Bilbo Baggins"));
         }
 
@@ -526,7 +526,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                                 Id = Guid.NewGuid(),
                                 Attributes =
                                 {
-                                    { "systemuserid", null }
+                                    { "partyid", null }
                                 }
                             },
                             new Entity
@@ -535,7 +535,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                                 Id = Guid.NewGuid(),
                                 Attributes =
                                 {
-                                    { "systemuserid", user.ToEntityReference() }
+                                    { "partyid", user.ToEntityReference() }
                                 }
                             }
                         })
@@ -545,7 +545,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             context.Initialize(new Entity[] { user, email });
 
-            var result = new XTLInterpreter(@"Value ( ""systemuserid.fullname"", { explicitTarget: Last( Value(""to"") ) } )", email, null, service, tracing).Produce();
+            var result = new XTLInterpreter(@"Value ( ""partyid.fullname"", { explicitTarget: Last( Value(""to"") ) } )", email, null, service, tracing).Produce();
             Assert.That(result, Is.EqualTo("Bilbo Baggins"));
         }
     }

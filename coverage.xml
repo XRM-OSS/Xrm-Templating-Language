@@ -122,6 +122,60 @@
       <ModuleName>System.Configuration</ModuleName>
       <Classes />
     </Module>
+    <Module skippedDueTo="Filter" hash="83-FA-75-0A-A9-E2-8A-BB-13-33-45-9D-42-E2-70-A8-84-69-0F-90">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_64\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:14.265288Z</ModuleTime>
+      <ModuleName>mscorlib</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="23-B3-8E-36-35-0B-BD-20-43-E0-A1-0E-D9-F4-93-5D-15-17-91-15">
+      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\nunit-agent.exe</ModulePath>
+      <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
+      <ModuleName>nunit-agent</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="C1-08-CD-F2-59-9C-E6-0B-62-F9-09-43-74-9F-8D-57-9D-A9-93-31">
+      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\nunit.engine.api.dll</ModulePath>
+      <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
+      <ModuleName>nunit.engine.api</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="95-2A-FF-98-B6-82-8F-7C-F0-AC-3D-56-5A-54-93-7D-3B-32-4F-7B">
+      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\nunit.engine.dll</ModulePath>
+      <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
+      <ModuleName>nunit.engine</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="B1-CB-EC-80-E4-0E-88-DF-36-29-D5-8A-77-95-28-88-F0-FE-F0-9B">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:14.3294592Z</ModuleTime>
+      <ModuleName>System</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="C9-90-56-C8-34-0E-96-2A-07-09-EA-81-19-89-AB-9B-B6-6C-C4-D4">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:14.4131837Z</ModuleTime>
+      <ModuleName>System.Xml</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="EE-88-39-61-68-77-57-72-82-B0-46-D1-FF-33-40-4E-38-C7-5B-5F">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_64\System.Web\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Web.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:17.4146917Z</ModuleTime>
+      <ModuleName>System.Web</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="99-11-EB-F5-78-AC-B1-38-60-82-1D-90-D3-48-FC-57-C0-00-EA-04">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Runtime.Remoting\v4.0_4.0.0.0__b77a5c561934e089\System.Runtime.Remoting.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:14.2748142Z</ModuleTime>
+      <ModuleName>System.Runtime.Remoting</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="9D-4A-D9-EF-6E-3C-A9-69-99-30-1A-B3-AA-5A-7C-F2-17-66-83-59">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Configuration.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:14.131933Z</ModuleTime>
+      <ModuleName>System.Configuration</ModuleName>
+      <Classes />
+    </Module>
     <Module skippedDueTo="Filter" hash="8A-2E-8F-D6-9D-39-02-4A-2F-30-FC-06-42-F7-0F-A8-32-69-07-72">
       <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\Mono.Cecil.dll</ModulePath>
       <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
@@ -152,22 +206,10 @@
       <ModuleName>System.Web</ModuleName>
       <Classes />
     </Module>
-    <Module skippedDueTo="Filter" hash="BB-8C-0B-DA-AA-42-E9-AF-9B-0E-40-16-64-2C-8A-74-66-2F-72-B2">
+    <Module skippedDueTo="Filter" hash="78-6F-1E-CB-7D-35-80-52-10-7F-35-AE-84-E3-06-16-AF-D6-5E-94">
       <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\test\Xrm.Oss.XTL.Interpreter.Tests.dll</ModulePath>
-      <ModuleTime>2018-12-03T10:25:29.494047Z</ModuleTime>
+      <ModuleTime>2018-12-03T10:30:52.2091215Z</ModuleTime>
       <ModuleName>Xrm.Oss.XTL.Interpreter.Tests</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="83-FA-75-0A-A9-E2-8A-BB-13-33-45-9D-42-E2-70-A8-84-69-0F-90">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_64\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:14.265288Z</ModuleTime>
-      <ModuleName>mscorlib</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="23-B3-8E-36-35-0B-BD-20-43-E0-A1-0E-D9-F4-93-5D-15-17-91-15">
-      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\nunit-agent.exe</ModulePath>
-      <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
-      <ModuleName>nunit-agent</ModuleName>
       <Classes />
     </Module>
     <Module skippedDueTo="Filter" hash="C9-90-56-C8-34-0E-96-2A-07-09-EA-81-19-89-AB-9B-B6-6C-C4-D4">
@@ -176,22 +218,10 @@
       <ModuleName>System.Xml</ModuleName>
       <Classes />
     </Module>
-    <Module skippedDueTo="Filter" hash="C1-08-CD-F2-59-9C-E6-0B-62-F9-09-43-74-9F-8D-57-9D-A9-93-31">
-      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\nunit.engine.api.dll</ModulePath>
+    <Module skippedDueTo="Filter" hash="8A-2E-8F-D6-9D-39-02-4A-2F-30-FC-06-42-F7-0F-A8-32-69-07-72">
+      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\Mono.Cecil.dll</ModulePath>
       <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
-      <ModuleName>nunit.engine.api</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="95-2A-FF-98-B6-82-8F-7C-F0-AC-3D-56-5A-54-93-7D-3B-32-4F-7B">
-      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\nunit.engine.dll</ModulePath>
-      <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
-      <ModuleName>nunit.engine</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="B1-CB-EC-80-E4-0E-88-DF-36-29-D5-8A-77-95-28-88-F0-FE-F0-9B">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:14.3294592Z</ModuleTime>
-      <ModuleName>System</ModuleName>
+      <ModuleName>Mono.Cecil</ModuleName>
       <Classes />
     </Module>
     <Module skippedDueTo="Filter" hash="74-AA-64-E8-77-FA-A1-E0-59-74-C6-09-A8-9F-75-82-A5-1C-E0-54">
@@ -218,10 +248,22 @@
       <ModuleName>System.Activities</ModuleName>
       <Classes />
     </Module>
-    <Module skippedDueTo="Filter" hash="C9-90-56-C8-34-0E-96-2A-07-09-EA-81-19-89-AB-9B-B6-6C-C4-D4">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:14.4131837Z</ModuleTime>
-      <ModuleName>System.Xml</ModuleName>
+    <Module skippedDueTo="Filter" hash="A7-9F-41-2F-47-0F-3E-C7-DD-99-9E-73-7D-AF-41-93-23-DC-2B-18">
+      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\test\nunit.framework.dll</ModulePath>
+      <ModuleTime>2017-11-10T12:00:24Z</ModuleTime>
+      <ModuleName>nunit.framework</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="B1-CB-EC-80-E4-0E-88-DF-36-29-D5-8A-77-95-28-88-F0-FE-F0-9B">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:14.3294592Z</ModuleTime>
+      <ModuleName>System</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="5C-BA-15-81-FF-83-84-F0-50-8F-23-E9-0C-3A-BF-AF-46-07-BE-CF">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Core\v4.0_4.0.0.0__b77a5c561934e089\System.Core.dll</ModulePath>
+      <ModuleTime>2018-11-06T12:49:02.87679Z</ModuleTime>
+      <ModuleName>System.Core</ModuleName>
       <Classes />
     </Module>
     <Module skippedDueTo="Filter" hash="EE-88-39-61-68-77-57-72-82-B0-46-D1-FF-33-40-4E-38-C7-5B-5F">
@@ -230,16 +272,10 @@
       <ModuleName>System.Web</ModuleName>
       <Classes />
     </Module>
-    <Module skippedDueTo="Filter" hash="99-11-EB-F5-78-AC-B1-38-60-82-1D-90-D3-48-FC-57-C0-00-EA-04">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Runtime.Remoting\v4.0_4.0.0.0__b77a5c561934e089\System.Runtime.Remoting.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:14.2748142Z</ModuleTime>
-      <ModuleName>System.Runtime.Remoting</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="9D-4A-D9-EF-6E-3C-A9-69-99-30-1A-B3-AA-5A-7C-F2-17-66-83-59">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Configuration.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:14.131933Z</ModuleTime>
-      <ModuleName>System.Configuration</ModuleName>
+    <Module skippedDueTo="Filter" hash="2D-4D-A8-04-BD-C4-D0-DA-4E-CB-7E-64-38-A3-7B-C5-AA-1C-A2-2F">
+      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\test\Xrm.Oss.XTL.Templating.Tests.dll</ModulePath>
+      <ModuleTime>2018-12-03T10:25:30.7168663Z</ModuleTime>
+      <ModuleName>Xrm.Oss.XTL.Templating.Tests</ModuleName>
       <Classes />
     </Module>
     <Module hash="42-1D-2D-68-83-18-4B-6C-A8-97-45-91-65-8B-F0-BD-54-6F-94-A8">
@@ -2200,24 +2236,24 @@
               <Name>System.Void Xrm.Oss.XTL.Interpreter.XTLInterpreter::GetChar()</Name>
               <FileRef uid="16" />
               <SequencePoints>
-                <SequencePoint vc="7303" uspid="989" ordinal="0" offset="0" sl="77" sc="9" el="77" ec="10" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7303" uspid="990" ordinal="1" offset="1" sl="78" sc="13" el="78" ec="34" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7303" uspid="991" ordinal="2" offset="13" sl="79" sc="13" el="79" ec="44" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7303" uspid="992" ordinal="3" offset="25" sl="80" sc="13" el="80" ec="40" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7303" uspid="993" ordinal="4" offset="33" sl="82" sc="13" el="82" ec="33" bec="2" bev="2" fileid="16" />
+                <SequencePoint vc="7293" uspid="989" ordinal="0" offset="0" sl="77" sc="9" el="77" ec="10" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7293" uspid="990" ordinal="1" offset="1" sl="78" sc="13" el="78" ec="34" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7293" uspid="991" ordinal="2" offset="13" sl="79" sc="13" el="79" ec="44" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7293" uspid="992" ordinal="3" offset="25" sl="80" sc="13" el="80" ec="40" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7293" uspid="993" ordinal="4" offset="33" sl="82" sc="13" el="82" ec="33" bec="2" bev="2" fileid="16" />
                 <SequencePoint vc="100" uspid="994" ordinal="5" offset="41" sl="83" sc="13" el="83" ec="14" bec="0" bev="0" fileid="16" />
                 <SequencePoint vc="100" uspid="995" ordinal="6" offset="42" sl="84" sc="17" el="84" ec="29" bec="0" bev="0" fileid="16" />
                 <SequencePoint vc="100" uspid="996" ordinal="7" offset="49" sl="85" sc="13" el="85" ec="14" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7203" uspid="997" ordinal="8" offset="52" sl="87" sc="13" el="87" ec="14" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7203" uspid="998" ordinal="9" offset="53" sl="88" sc="17" el="88" ec="29" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7203" uspid="999" ordinal="10" offset="67" sl="89" sc="13" el="89" ec="14" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="7303" uspid="1000" ordinal="11" offset="68" sl="90" sc="9" el="90" ec="10" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7193" uspid="997" ordinal="8" offset="52" sl="87" sc="13" el="87" ec="14" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7193" uspid="998" ordinal="9" offset="53" sl="88" sc="17" el="88" ec="29" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7193" uspid="999" ordinal="10" offset="67" sl="89" sc="13" el="89" ec="14" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="7293" uspid="1000" ordinal="11" offset="68" sl="90" sc="9" el="90" ec="10" bec="0" bev="0" fileid="16" />
               </SequencePoints>
               <BranchPoints>
                 <BranchPoint vc="100" uspid="1001" ordinal="0" offset="39" sl="82" path="0" offsetend="41" fileid="16" />
-                <BranchPoint vc="7203" uspid="1002" ordinal="1" offset="39" sl="82" path="1" offsetend="52" fileid="16" />
+                <BranchPoint vc="7193" uspid="1002" ordinal="1" offset="39" sl="82" path="1" offsetend="52" fileid="16" />
               </BranchPoints>
-              <MethodPoint xsi:type="SequencePoint" vc="7303" uspid="989" ordinal="0" offset="0" sl="77" sc="9" el="77" ec="10" bec="0" bev="0" fileid="16" />
+              <MethodPoint xsi:type="SequencePoint" vc="7293" uspid="989" ordinal="0" offset="0" sl="77" sc="9" el="77" ec="10" bec="0" bev="0" fileid="16" />
             </Method>
             <Method visited="true" cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
               <Summary numSequencePoints="2" visitedSequencePoints="2" numBranchPoints="1" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
@@ -2318,11 +2354,11 @@
                 <SequencePoint vc="175" uspid="1054" ordinal="8" offset="50" sl="144" sc="17" el="144" ec="18" bec="0" bev="0" fileid="16" />
                 <SequencePoint vc="175" uspid="1055" ordinal="9" offset="51" sl="145" sc="21" el="145" ec="55" bec="0" bev="0" fileid="16" />
                 <SequencePoint vc="175" uspid="1056" ordinal="10" offset="57" sl="148" sc="21" el="148" ec="31" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="3971" uspid="1057" ordinal="11" offset="66" sl="152" sc="21" el="152" ec="22" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="3971" uspid="1058" ordinal="12" offset="67" sl="153" sc="25" el="153" ec="52" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="3971" uspid="1059" ordinal="13" offset="85" sl="154" sc="25" el="154" ec="35" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="3971" uspid="1060" ordinal="14" offset="92" sl="155" sc="21" el="155" ec="22" bec="0" bev="0" fileid="16" />
-                <SequencePoint vc="4146" uspid="1061" ordinal="15" offset="93" sl="151" sc="21" el="151" ec="76" bec="2" bev="2" fileid="16" />
+                <SequencePoint vc="3961" uspid="1057" ordinal="11" offset="66" sl="152" sc="21" el="152" ec="22" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="3961" uspid="1058" ordinal="12" offset="67" sl="153" sc="25" el="153" ec="52" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="3961" uspid="1059" ordinal="13" offset="85" sl="154" sc="25" el="154" ec="35" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="3961" uspid="1060" ordinal="14" offset="92" sl="155" sc="21" el="155" ec="22" bec="0" bev="0" fileid="16" />
+                <SequencePoint vc="4136" uspid="1061" ordinal="15" offset="93" sl="151" sc="21" el="151" ec="76" bec="2" bev="2" fileid="16" />
                 <SequencePoint vc="175" uspid="1062" ordinal="16" offset="131" sl="158" sc="21" el="158" ec="31" bec="0" bev="0" fileid="16" />
                 <SequencePoint vc="175" uspid="1063" ordinal="17" offset="138" sl="159" sc="21" el="159" ec="90" bec="0" bev="0" fileid="16" />
                 <SequencePoint vc="175" uspid="1064" ordinal="18" offset="152" sl="160" sc="17" el="160" ec="18" bec="0" bev="0" fileid="16" />
@@ -2387,7 +2423,7 @@
                 <BranchPoint vc="175" uspid="1121" ordinal="2" offset="48" sl="143" path="0" offsetend="50" fileid="16" />
                 <BranchPoint vc="196" uspid="1122" ordinal="3" offset="48" sl="143" path="1" offsetend="158" fileid="16" />
                 <BranchPoint vc="175" uspid="1127" ordinal="8" offset="129" sl="151" path="0" offsetend="131" fileid="16" />
-                <BranchPoint vc="3971" uspid="1128" ordinal="9" offset="129" sl="151" path="1" offsetend="66" fileid="16" />
+                <BranchPoint vc="3961" uspid="1128" ordinal="9" offset="129" sl="151" path="1" offsetend="66" fileid="16" />
                 <BranchPoint vc="50" uspid="1131" ordinal="12" offset="188" sl="161" path="0" offsetend="193" fileid="16" />
                 <BranchPoint vc="146" uspid="1132" ordinal="13" offset="188" sl="161" path="1" offsetend="676" fileid="16" />
                 <BranchPoint vc="3" uspid="1133" ordinal="14" offset="221" sl="172" path="0" offsetend="223" fileid="16" />
@@ -3502,6 +3538,12 @@
       <ModuleName>Microsoft.Crm.Sdk.Proxy</ModuleName>
       <Classes />
     </Module>
+    <Module skippedDueTo="Filter" hash="C9-90-56-C8-34-0E-96-2A-07-09-EA-81-19-89-AB-9B-B6-6C-C4-D4">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:14.4131837Z</ModuleTime>
+      <ModuleName>System.Xml</ModuleName>
+      <Classes />
+    </Module>
     <Module skippedDueTo="Filter" hash="80-BC-B2-1D-8C-E7-88-AE-05-9E-E3-05-28-66-0E-B0-54-46-BA-9E">
       <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\test\FakeItEasy.dll</ModulePath>
       <ModuleTime>2017-04-04T17:48:36Z</ModuleTime>
@@ -3512,66 +3554,6 @@
       <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Configuration.dll</ModulePath>
       <ModuleTime>2018-07-02T08:15:14.131933Z</ModuleTime>
       <ModuleName>System.Configuration</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="">
-      <ModulePath>RefEmit_InMemoryManifestModule</ModulePath>
-      <ModuleTime>0001-01-01T00:00:00</ModuleTime>
-      <ModuleName>DynamicProxyGenAssembly2</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="BD-94-3B-40-A6-2B-E6-9E-AE-9F-64-E8-AD-A9-EC-18-CE-9D-F0-58">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.ServiceModel\v4.0_4.0.0.0__b77a5c561934e089\System.ServiceModel.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:20.6488187Z</ModuleTime>
-      <ModuleName>System.ServiceModel</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="">
-      <ModulePath>RefEmit_InMemoryManifestModule</ModulePath>
-      <ModuleTime>0001-01-01T00:00:00</ModuleTime>
-      <ModuleName>Anonymously Hosted DynamicMethods Assembly</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="8A-2E-8F-D6-9D-39-02-4A-2F-30-FC-06-42-F7-0F-A8-32-69-07-72">
-      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\packages\nunit.consolerunner\tools\Mono.Cecil.dll</ModulePath>
-      <ModuleTime>2018-01-27T10:27:14Z</ModuleTime>
-      <ModuleName>Mono.Cecil</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="A7-9F-41-2F-47-0F-3E-C7-DD-99-9E-73-7D-AF-41-93-23-DC-2B-18">
-      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\test\nunit.framework.dll</ModulePath>
-      <ModuleTime>2017-11-10T12:00:24Z</ModuleTime>
-      <ModuleName>nunit.framework</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="B1-CB-EC-80-E4-0E-88-DF-36-29-D5-8A-77-95-28-88-F0-FE-F0-9B">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:14.3294592Z</ModuleTime>
-      <ModuleName>System</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="5C-BA-15-81-FF-83-84-F0-50-8F-23-E9-0C-3A-BF-AF-46-07-BE-CF">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Core\v4.0_4.0.0.0__b77a5c561934e089\System.Core.dll</ModulePath>
-      <ModuleTime>2018-11-06T12:49:02.87679Z</ModuleTime>
-      <ModuleName>System.Core</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="EE-88-39-61-68-77-57-72-82-B0-46-D1-FF-33-40-4E-38-C7-5B-5F">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_64\System.Web\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Web.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:17.4146917Z</ModuleTime>
-      <ModuleName>System.Web</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="2D-4D-A8-04-BD-C4-D0-DA-4E-CB-7E-64-38-A3-7B-C5-AA-1C-A2-2F">
-      <ModulePath>C:\Users\kroflo\Entwicklung\Xrm-Templating-Language\test\Xrm.Oss.XTL.Templating.Tests.dll</ModulePath>
-      <ModuleTime>2018-12-03T10:25:30.7168663Z</ModuleTime>
-      <ModuleName>Xrm.Oss.XTL.Templating.Tests</ModuleName>
-      <Classes />
-    </Module>
-    <Module skippedDueTo="Filter" hash="C9-90-56-C8-34-0E-96-2A-07-09-EA-81-19-89-AB-9B-B6-6C-C4-D4">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:14.4131837Z</ModuleTime>
-      <ModuleName>System.Xml</ModuleName>
       <Classes />
     </Module>
     <Module skippedDueTo="Filter" hash="74-AA-64-E8-77-FA-A1-E0-59-74-C6-09-A8-9F-75-82-A5-1C-E0-54">
@@ -3616,12 +3598,6 @@
       <ModuleName>SMDiagnostics</ModuleName>
       <Classes />
     </Module>
-    <Module skippedDueTo="Filter" hash="8B-59-7F-E0-46-94-0E-BD-B7-02-5B-B4-71-52-59-1B-12-6F-C5-90">
-      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Xml.Linq\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.Linq.dll</ModulePath>
-      <ModuleTime>2018-07-02T08:15:17.4923978Z</ModuleTime>
-      <ModuleName>System.Xml.Linq</ModuleName>
-      <Classes />
-    </Module>
     <Module skippedDueTo="Filter" hash="01-DB-B1-53-79-CE-DB-0B-FF-33-DD-01-7D-CE-C8-63-40-41-50-7D">
       <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.ServiceModel.Internals\v4.0_4.0.0.0__31bf3856ad364e35\System.ServiceModel.Internals.dll</ModulePath>
       <ModuleTime>2018-07-02T08:15:14.4342399Z</ModuleTime>
@@ -3632,6 +3608,24 @@
       <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Configuration.dll</ModulePath>
       <ModuleTime>2018-07-02T08:15:14.131933Z</ModuleTime>
       <ModuleName>System.Configuration</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="">
+      <ModulePath>RefEmit_InMemoryManifestModule</ModulePath>
+      <ModuleTime>0001-01-01T00:00:00</ModuleTime>
+      <ModuleName>DynamicProxyGenAssembly2</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="BD-94-3B-40-A6-2B-E6-9E-AE-9F-64-E8-AD-A9-EC-18-CE-9D-F0-58">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.ServiceModel\v4.0_4.0.0.0__b77a5c561934e089\System.ServiceModel.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:20.6488187Z</ModuleTime>
+      <ModuleName>System.ServiceModel</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="">
+      <ModulePath>RefEmit_InMemoryManifestModule</ModulePath>
+      <ModuleTime>0001-01-01T00:00:00</ModuleTime>
+      <ModuleName>Anonymously Hosted DynamicMethods Assembly</ModuleName>
       <Classes />
     </Module>
     <Module skippedDueTo="Filter" hash="80-BC-B2-1D-8C-E7-88-AE-05-9E-E3-05-28-66-0E-B0-54-46-BA-9E">
@@ -3650,6 +3644,12 @@
       <ModulePath>RefEmit_InMemoryManifestModule</ModulePath>
       <ModuleTime>0001-01-01T00:00:00</ModuleTime>
       <ModuleName>Anonymously Hosted DynamicMethods Assembly</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="8B-59-7F-E0-46-94-0E-BD-B7-02-5B-B4-71-52-59-1B-12-6F-C5-90">
+      <ModulePath>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Xml.Linq\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.Linq.dll</ModulePath>
+      <ModuleTime>2018-07-02T08:15:17.4923978Z</ModuleTime>
+      <ModuleName>System.Xml.Linq</ModuleName>
       <Classes />
     </Module>
     <Module skippedDueTo="Filter" hash="BD-94-3B-40-A6-2B-E6-9E-AE-9F-64-E8-AD-A9-EC-18-CE-9D-F0-58">
