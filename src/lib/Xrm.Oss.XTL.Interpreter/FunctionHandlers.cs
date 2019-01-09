@@ -271,10 +271,11 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var config = GetConfig(parameters);
             var linkText = config.GetValue<string>("linkText", "linkText must be a string");
+            var appId = config.GetValue<string>("appId", "appId must be a string");
 
             var urls = string.Join(Environment.NewLine, refs.Select(e =>
             {
-                var url = $"{organizationUrl}main.aspx?etn={e.LogicalName}&id={e.Id}&newWindow=true&pagetype=entityrecord";
+                var url = $"{organizationUrl}main.aspx?etn={e.LogicalName}&id={e.Id}&newWindow=true&pagetype=entityrecord{(string.IsNullOrEmpty(appId) ? string.Empty : $"&appid={appId}")}";
                 return $"<a href=\"{url}\">{(string.IsNullOrEmpty(linkText) ? url : linkText)}</a>";
             }));
 

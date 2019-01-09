@@ -34,7 +34,7 @@ let sha = Git.Information.getCurrentHash()
 
 // version info
 let major = "3"
-let minor = "1"
+let minor = "2"
 let patch = "0"
 
 // Follow SemVer scheme: http://semver.org/

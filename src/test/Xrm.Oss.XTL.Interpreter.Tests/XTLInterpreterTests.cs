@@ -113,6 +113,31 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Insert_AppId_Into_Link()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "RecordUrl ( PrimaryRecord ( ), { appId: \"123456\", linkText: \"Click me\" } )";
+            var result = string.Empty;
+
+            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+
+            Assert.That(result, Is.EqualTo($"<a href=\"https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord&appid=123456\">Click me</a>"));
+        }
+
+        [Test]
         public void It_Should_Retrieve_Related_Entity_Values()
         {
             var context = new XrmFakedContext();
