@@ -120,6 +120,28 @@ namespace Xrm.Oss.XTL.Templating.Tests
         }
 
         [Test]
+        public void It_Should_Not_Fail_On_Empty_Valued_Template_Field()
+        {
+            var context = new XrmFakedContext();
+
+            var email= new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email"
+            };
+
+            context.Initialize(new Entity[] { email });
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"" }";
+            Assert.That(() => context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty), Throws.Nothing);
+        }
+
+        [Test]
         public void It_Should_Fail_If_No_Template_Passed()
         {
             var context = new XrmFakedContext();

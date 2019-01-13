@@ -110,6 +110,13 @@ namespace Xrm.Oss.XTL.Templating
                 }
 
                 var templateText = RetrieveTemplate(config.Template, config.TemplateField, dataSource, service, tracing);
+
+                if (string.IsNullOrEmpty(templateText))
+                {
+                    tracing.Trace("Template is empty, aborting");
+                    return;
+                }
+
                 var output = ProcessTemplate(templateText, dataSource, new OrganizationConfig { OrganizationUrl = config.OrganizationUrl }, service, tracing);
 
                 var result = new ProcessingResult
@@ -179,6 +186,12 @@ namespace Xrm.Oss.XTL.Templating
 
             ValidateConfig(targetField, template, templateField);
             var templateText = RetrieveTemplate(template, templateField, dataSource, service, tracing);
+
+            if (string.IsNullOrEmpty(templateText))
+            {
+                tracing.Trace("Template is empty, aborting");
+                return;
+            }
 
             var output = ProcessTemplate(templateText, dataSource, _organizationConfig, service, tracing);
 
