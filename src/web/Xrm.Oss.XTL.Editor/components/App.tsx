@@ -305,6 +305,27 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         return undefined;
     }
 
+    ensureSdkStepSecureConfig = (step: SdkStep): Promise<string> => {
+        if (this.state.selectedSdkStep._sdkmessageprocessingstepsecureconfigid_value) {
+            return Promise.resolve(this.state.selectedSdkStep._sdkmessageprocessingstepsecureconfigid_value);
+        }
+
+        return this.WebApiClient.Create({
+            entityName: "sdkmessageprocessingstepsecureconfig",
+            entity: {
+                secureconfig: JSON.stringify({
+                    organizationUrl: (window as any).WebApiClient.GetApiUrl().substring(0, (window as any).WebApiClient.GetApiUrl().indexOf("/api/data/v"))
+                })
+            }
+        })
+        .then((result: string) => {
+            const configId = result.substr(result.indexOf("(") + 1, 36);
+
+            (step as any)["sdkmessageprocessingstepsecureconfigid@odata.bind"] = `/sdkmessageprocessingstepsecureconfigs(${configId})`;
+            return configId;
+        });
+    }
+
     saveSelectedSdkStep() {
         this.setState({requestPending: true});
 
@@ -322,66 +343,75 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         config.targetField = this.state.targetField;
         config.isHtmlTemplate = this.state.isHtmlTemplate;
 
-        if (this.state.selectedSdkStep.sdkmessageprocessingstepid) {
-            this.WebApiClient.Update({
-                entityName: "sdkmessageprocessingstep",
-                entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
-                entity: {
-                    name: this.state.sdkStepName,
-                    rank: this.state.rank,
-                    configuration: JSON.stringify(config),
-                    filteringattributes: this.state.selectedEntityAttributes.join(",")
-                }
-            })
-            .then((result: any) => {
-                this.setState({requestPending: false});
-            })
-            .catch(this.reportError);
-        }
-        else {
-            const messageName = (this.state.selectedSdkStep as any).messageName;
-            delete (this.state.selectedSdkStep as any).messageName;
+        const step = {
+            name: this.state.sdkStepName,
+            rank: this.state.rank,
+            configuration: JSON.stringify(config),
+            filteringattributes: this.state.selectedEntityAttributes.join(","),
+        };
 
-            this.WebApiClient.Create({
-                entityName: "sdkmessageprocessingstep",
-                entity: {
-                    ...this.state.selectedSdkStep,
-                    name: this.state.sdkStepName,
-                    rank: this.state.rank,
-                    configuration: JSON.stringify(config),
-                    filteringattributes: this.state.selectedEntityAttributes.join(",")
-                }
-            })
-            .then((result: any) => {
-                // Return in format of https://host/api/data/v8.0/sdkmessageprocessingstep(e74471fd-fa40-e811-a836-000d3ab4d04c)
-                const stepId = result.substr(result.indexOf("(") + 1, 36);
-
-                this.setState({
-                    requestPending: false,
-                    selectedSdkStep: {
-                        ...this.state.selectedSdkStep,
-                        sdkmessageprocessingstepid: stepId
-                    }
-                });
-
-                if (messageName !== "Create") {
-                    const image = {
-                        entityalias: "preimg",
-                        name: "preimg",
-                        imagetype: 0,
-                        messagepropertyname: "Target"
-                    } as any;
-
-                    image["sdkmessageprocessingstepid@odata.bind"] = `/sdkmessageprocessingsteps(${stepId})`;
-
-                    return this.WebApiClient.Create({
-                        entityName: "sdkmessageprocessingstepimage",
-                        entity: image
+        this.ensureSdkStepSecureConfig(step)
+        .then(configId => {
+            if (this.state.selectedSdkStep.sdkmessageprocessingstepid) {
+                this.WebApiClient.Update({
+                    entityName: "sdkmessageprocessingstep",
+                    entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
+                    entity: step
+                })
+                .then((result: any) => {
+                    this.setState({
+                        requestPending: false,
+                        selectedSdkStep: {
+                            ...this.state.selectedSdkStep,
+                            _sdkmessageprocessingstepsecureconfigid_value: configId
+                        }
                     });
-                }
-            })
-            .catch(this.reportError);
-        }
+                })
+                .catch(this.reportError);
+            }
+            else {
+                const messageName = (this.state.selectedSdkStep as any).messageName;
+                delete (this.state.selectedSdkStep as any).messageName;
+
+                this.WebApiClient.Create({
+                    entityName: "sdkmessageprocessingstep",
+                    entity: {
+                        ...this.state.selectedSdkStep,
+                        ...step
+                    }
+                })
+                .then((result: any) => {
+                    // Return in format of https://host/api/data/v8.0/sdkmessageprocessingstep(e74471fd-fa40-e811-a836-000d3ab4d04c)
+                    const stepId = result.substr(result.indexOf("(") + 1, 36);
+
+                    this.setState({
+                        requestPending: false,
+                        selectedSdkStep: {
+                            ...this.state.selectedSdkStep,
+                            sdkmessageprocessingstepid: stepId,
+                            _sdkmessageprocessingstepsecureconfigid_value: configId
+                        }
+                    });
+
+                    if (messageName !== "Create") {
+                        const image = {
+                            entityalias: "preimg",
+                            name: "preimg",
+                            imagetype: 0,
+                            messagepropertyname: "Target"
+                        } as any;
+
+                        image["sdkmessageprocessingstepid@odata.bind"] = `/sdkmessageprocessingsteps(${stepId})`;
+
+                        return this.WebApiClient.Create({
+                            entityName: "sdkmessageprocessingstepimage",
+                            entity: image
+                        });
+                    }
+                })
+                .catch(this.reportError);
+            }
+        });
     }
 
     activateSelectedSdkStep () {

@@ -9,5 +9,6 @@ export class SdkStep {
     sdkmessagefilterid?: string;
     sdkmessageprocessingstepid?: string;
     _sdkmessagefilterid_value?: string;
+    _sdkmessageprocessingstepsecureconfigid_value?: string;
     filteringattributes?: string;
 }
