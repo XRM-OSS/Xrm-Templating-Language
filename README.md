@@ -198,7 +198,11 @@ Returns the record urls of all entities or entity references that are passed as 
 For this to work, you have to set a secure json configuration with property organizationUrl set to your organization's url. When using the XTL editor, this will be done automatically.
 By default, the URL will have the ref as link text as well. You can pass a configuration object with key `linkText` for defining a custom text to show link: `RecordUrl(PrimaryRecord(), { linkText: Value("name") })` (of course a normal string can be passed to linkText as well, the function call should just show the possibilities).
 Similar to the linkText, you can also pass an appId (since v3.2.0) as configuration, which allows you to open the record directly in UCI for example (The configuration object would look something like `{ appId: "deadbeef-b85c-4fda-80da-d2f63baf9d7a" }`.
- 
+
+
+__Important Remark: When using RecordUrl, the organization url is automatically saved to the step secure config. When importing the step into another organization, you will initially have to open the editor in the new organnization, select each new step and save it once, so that the secure configs will be created. This is only necessary once, on the first import of a new step to an organization.__
+
+
 Example:
 ``` JavaScript
 RecordUrl ( Value ( "regardingobjectid") )
