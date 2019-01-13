@@ -15,9 +15,7 @@ It is embedded inside a plugin and does not need any external references, so tha
 
 ## Where to get it
 You can always download the latest release from the [releases page](https://github.com/DigitalFlow/Xrm-Templating-Language/releases).
-Beware that the release solutions only target CRM >= v9.0 currently.
-The code supports CRM v8.0 as well, I just don't have a development organization for creating the solutions there.
-This will be done shortly.
+Beware that the solution only supports CRM >= v8.0, as the XTL Editor makes use of the WebAPI. If you want to use it in CRM <= v7.0, you are able to use the Plugin Assemblies, but will have to configure everything manually.
 
 As alternative:
 Build it yourself by running `build.cmd`, or simply download from [AppVeyor](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language/build/artifacts).
@@ -27,7 +25,6 @@ XTL itself does not use any specific CRM features and is compatible with Dynamic
 Currently the Plugin is built against Dynamics 365 SDK however. Future releases may target specific CRM versions.
 The template editor is only available in CRM 2016 and later, as it uses the Web Api.
 The solution which can be downloaded from the releases supports CRM >= v8.0 starting from XTL v3.0.3 upwards.
-For XTL itself you only need the DLL which you can download on AppVeyor. The solution just adds the template editor.
 
 ## Examples
 Examples of how to use XTL can be found in our [Wiki](https://github.com/DigitalFlow/Xrm-Templating-Language/wiki).
