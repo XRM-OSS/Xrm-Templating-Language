@@ -728,5 +728,32 @@ namespace Xrm.Oss.XTL.Interpreter
 
             return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date.ToString(CultureInfo.InvariantCulture));
         };
+
+        public static FunctionHandler Format = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Format needs a value to format and a config for defining further options");
+            }
+
+            var value = parameters[0].Value;
+            var config = GetConfig(parameters);
+            var format = config.GetValue<string>("format", "format must be a string!");
+
+            var knownTypes = new Dictionary<Type, Func<object, ValueExpression>>
+            {
+                { typeof(Money), (obj) => { var val = obj as Money; var formatted = string.Format(CultureInfo.InvariantCulture, format, val.Value); return new ValueExpression( formatted, formatted ); } }
+            };
+
+            if(knownTypes.ContainsKey(value.GetType()))
+            {
+                return knownTypes[value.GetType()](value);
+            }
+            else
+            {
+                var formatted = string.Format(CultureInfo.InvariantCulture, format, value);
+                return new ValueExpression(formatted, formatted);
+            }
+        };
     }
 }
