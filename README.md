@@ -380,6 +380,21 @@ DateToString(DateTimeUtcNow(), { format: "yyyyMMdd" })
 
 Refer to the .NET style for date formatting.
 
+### Format
+Formats values using .NET string.Format. This way you can format numeric, Money and DateTime values.
+
+Example (Decimal, Double and Money will work the same):
+``` JavaScript
+Format( 123456789.2m,  { format: \"{0:0,0.0}\" } ) // Will print 123,456,789.2
+```
+
+Example Int:
+``` JavaScript
+Format( 1,  { format: \"{0:00000}\" } ) // Will print 00001
+```
+
+Refer to the .NET style for date formatting.
+
 ## Sample
 Consider the following e-mail template content:
 ```
