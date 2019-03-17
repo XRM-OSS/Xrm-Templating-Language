@@ -14,3 +14,4 @@ nuget nunit.consolerunner
 nuget NUnit3TestAdapter 3.11.2 version_in_path: true
 nuget OpenCover
 nuget ReportGenerator
+nuget Xrm.Oss.FluentQuery.Sources

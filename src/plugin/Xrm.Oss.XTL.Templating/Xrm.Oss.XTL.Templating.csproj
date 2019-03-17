@@ -48,6 +48,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FluentQuery.cs">
+      <Paket>True</Paket>
+    </Compile>
     <Compile Include="PersistentTracingService.cs" />
     <Compile Include="ProcessingResult.cs" />
     <Compile Include="ProcessorConfig.cs" />
@@ -57,11 +60,6 @@
   <ItemGroup>
     <None Include="key.snk" />
     <None Include="paket.references" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Xrm.Oss.FluentQuery.Sources">
-      <Version>2.1.1</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="..\..\lib\Xrm.Oss.XTL.Interpreter\Xrm.Oss.XTL.Interpreter.projitems" Label="Shared" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -92,4 +90,9 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <Reference Include="System.Runtime.Caching">
+      <Paket>True</Paket>
+    </Reference>
+  </ItemGroup>
 </Project>
