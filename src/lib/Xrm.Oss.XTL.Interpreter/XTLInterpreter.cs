@@ -29,6 +29,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "And", FunctionHandlers.And },
             { "Array", FunctionHandlers.Array },
             { "Concat", FunctionHandlers.Concat },
+            { "ConvertDateTime", FunctionHandlers.ConvertDateTime },
             { "DateTimeNow", FunctionHandlers.DateTimeNow },
             { "DateTimeUtcNow", FunctionHandlers.DateTimeUtcNow },
             { "DateToString", FunctionHandlers.DateToString },

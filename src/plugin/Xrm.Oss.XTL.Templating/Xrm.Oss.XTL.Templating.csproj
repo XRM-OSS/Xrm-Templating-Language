@@ -58,6 +58,11 @@
     <None Include="key.snk" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Xrm.Oss.FluentQuery.Sources">
+      <Version>2.1.1</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="..\..\lib\Xrm.Oss.XTL.Interpreter\Xrm.Oss.XTL.Interpreter.projitems" Label="Shared" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Choose>

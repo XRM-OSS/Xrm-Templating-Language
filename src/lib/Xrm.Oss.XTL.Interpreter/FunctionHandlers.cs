@@ -6,10 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
+using Xrm.Oss.FluentQuery;
 using static Xrm.Oss.XTL.Interpreter.XTLInterpreter;
 
 namespace Xrm.Oss.XTL.Interpreter
@@ -754,6 +756,55 @@ namespace Xrm.Oss.XTL.Interpreter
                 var formatted = string.Format(CultureInfo.InvariantCulture, format, value);
                 return new ValueExpression(formatted, formatted);
             }
+        };
+
+        public static FunctionHandler ConvertDateTime = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Convert DateTime needs a DateTime and a config for defining further options");
+            }
+
+            var date = CheckedCast<DateTime>(parameters[0].Value, "You need to pass a date");
+            var config = GetConfig(parameters);
+
+            var timeZoneId = config.GetValue<string>("timeZoneId", "timeZoneId must be a string");
+            var userId = config.GetValue<EntityReference>("userId", "userId must be an EntityReference");
+
+            if (userId == null && string.IsNullOrEmpty(timeZoneId))
+            {
+                throw new InvalidPluginExecutionException("You need to either set a userId for converting to a user's configured timezone, or pass a timeZoneId");
+            }
+
+            if (userId != null)
+            {
+                var userSettings = service.Retrieve("usersettings", userId.Id, new ColumnSet("timezonecode"));
+                var timeZoneCode = userSettings.GetAttributeValue<int>("timezonecode");
+
+                timeZoneId = service.Query("timezonedefinition")
+                    .IncludeColumns("standardname")
+                    .Where(e => e
+                        .Attribute(a => a
+                            .Named("timezonecode")
+                            .Is(ConditionOperator.Equal)
+                            .To(timeZoneCode)
+                        )
+                    )
+                    .Retrieve()
+                    .FirstOrDefault()
+                    ?.GetAttributeValue<string>("standardname");
+            }
+
+            if (string.IsNullOrEmpty(timeZoneId))
+            {
+                throw new InvalidPluginExecutionException("Failed to retrieve timeZoneId, can't convert datetime");
+            }
+
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var localTime = TimeZoneInfo.ConvertTime(date, timeZone);
+            var text = localTime.ToString(config.GetValue<string>("format", "format must be a string", "g"), CultureInfo.InvariantCulture);
+
+            return new ValueExpression(text, localTime);
         };
     }
 }

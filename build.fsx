@@ -94,7 +94,7 @@ Target "CodeCoverage" (fun _ ->
                                 ExePath ="packages" @@ "OpenCover" @@ "tools" @@ "OpenCover.Console.exe"
                                 Register = RegisterType.RegisterUser
                                 WorkingDir = (testDir)
-                                Filter = "+[Xrm.Oss*]* -[*.Tests*]*"
+                                Filter = "+[Xrm.Oss*]Xrm.Oss.XTL.* -[*.Tests*]*"
                                 Output = "../coverage.xml"
                         }) "Xrm.Oss.XTL.Interpreter.Tests.dll Xrm.Oss.XTL.Templating.Tests.dll"
 )
