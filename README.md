@@ -380,6 +380,23 @@ DateToString(DateTimeUtcNow(), { format: "yyyyMMdd" })
 
 Refer to the .NET style for date formatting.
 
+### ConvertDateTime
+Converts a UTC DateTime (which is what you'll usually get from CRM) to a timezoned DateTime.
+You can either pass a user reference as userId config property, or a fixed timezone as timeZoneId config property.
+The timeZoneId fixed property is one of the default .NET timezone IDs.
+An optional format config property can directly be set for defining the format of the timezoned DateTime.
+
+Example by userId:
+```JavaScript
+ConvertDateTime(Value("createdon"), { userId: Value("ownerid") })
+```
+
+Example by fixed timezone:
+```JavaScript
+ConvertDateTime(Value("createdon"), { timeZoneId: "Eastern Standard Time" })
+```
+You can use the same format strings as in the DateToString function.
+
 ### Format
 Formats values using .NET string.Format. This way you can format numeric, Money and DateTime values.
 
