@@ -87,6 +87,31 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Directly_Apply_Format_If_Set()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var createdOn = new DateTime(2019, 3, 17, 12, 0, 0, DateTimeKind.Utc);
+
+            var target = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "createdon", createdOn }
+                }
+            };
+
+            var expected = TimeZoneInfo.ConvertTimeFromUtc(createdOn, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")).ToString("yyyyMMdd hh:mm", CultureInfo.InvariantCulture);
+
+            var formula = "ConvertDateTime(Value(\"createdon\"), { timeZoneId: \"Eastern Standard Time\", format: \"yyyyMMdd hh:mm\" })";
+            Assert.That(() => new XTLInterpreter(formula, target, null, service, tracing).Produce(), Is.EqualTo(expected));
+        }
+
+        [Test]
         public void It_Should_Convert_By_User_TimeZone()
         {
             var context = new XrmFakedContext();
