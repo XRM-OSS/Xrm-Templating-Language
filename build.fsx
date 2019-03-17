@@ -101,7 +101,7 @@ Target "CodeCoverage" (fun _ ->
 
 Target "ReportCodeCoverage" (fun _ ->
     ReportGenerator (fun p -> { p with 
-                                    ExePath = "packages" @@ "ReportGenerator" @@ "tools" @@ "ReportGenerator.exe"
+                                    ExePath = "packages" @@ "ReportGenerator" @@ "tools" @@ "net47" @@ "ReportGenerator.exe"
                                     WorkingDir = (testDir)
                                     TargetDir = "../reports"
                                     ReportTypes = [ReportGeneratorReportType.Html; ReportGeneratorReportType.Badges ]
