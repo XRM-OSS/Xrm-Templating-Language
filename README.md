@@ -255,6 +255,36 @@ Example:
 Last ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ) )
 ```
 
+### Union
+Merge multiple arrays into one.
+
+Example:
+``` JavaScript
+Union ( ["This", "will"], ["Be"], ["One", "Array"] )
+```
+
+will result in one array `["This", "will", "Be", "One", "Array"]`.
+
+### Sort
+Sort array, either native values or by property. Ascending by default, descending by setting the config flag
+
+Example:
+``` JavaScript
+Sort ( ["This", "will", "Be", "Sorted"] )
+```
+
+Example descending:
+``` JavaScript
+Sort ( ["This", "will", "Be", "Sorted"], { descending: true } )
+```
+
+Example with property:
+``` JavaScript
+Sort ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='createdon' /><attribute name='subject' /></entity></fetch>"), { property: "createdon" })
+```
+
+will result in one array `["This", "will", "Be", "One", "Array"]`.
+
 ### RecordTable
 Returns a table of records with specified columns and record url if wanted.
 First parameter is a list of records, for displaying inside the table. Consider retrieving them using the Fetch function.
@@ -274,7 +304,10 @@ It will then print the task subject and description, including an url, into the 
 In release v3.0.2 you will also be able to configure each column's style separately.
 This will allow for defining a custom width to each column.
 You can set it by passing the columns not as array of strings, but as array of objects.
-They may containt the keys `name` for the column name, which you previously passed directly as string, `label` as custom label to show in the header, `style` for your style information for this column and `mergeStyle` for defining, whether your style information should be appended to the line (or header) style or not (defaults to true).
+They may contain the keys `name` for the column name, which you previously passed directly as string, `label` as custom label to show in the header, `style` for your style information for this column and `mergeStyle` for defining, whether your style information should be appended to the line (or header) style or not (defaults to true).
+You can also use `nameByEntity` when displaying mixed records in the table and pass a dictionary with logical name as keys and column name per entity as value such as:
+`{ nameByEntity: { contact: "firstname", task: "subject" }, label: "Column Label" }`.
+You might want to override the column label as above to use one that matches all types.
 
 Passing all column names as array of strings is still possible.
  

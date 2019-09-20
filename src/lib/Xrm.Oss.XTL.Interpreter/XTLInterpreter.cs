@@ -52,8 +52,10 @@ namespace Xrm.Oss.XTL.Interpreter
             { "RecordTable", FunctionHandlers.RenderRecordTable },
             { "RecordUrl", FunctionHandlers.GetRecordUrl },
             { "Replace", FunctionHandlers.Replace },
+            { "Sort", FunctionHandlers.Sort },
             { "Static", FunctionHandlers.Static },
             { "Substring", FunctionHandlers.Substring },
+            { "Union", FunctionHandlers.Union },
             { "Value", FunctionHandlers.GetValue }
         };
 

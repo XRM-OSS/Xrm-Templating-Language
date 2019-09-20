@@ -38,7 +38,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First expects a list as only parameter!");
             }
 
-            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, string.Empty, false);
+            var firstParam = CheckedCast<List<ValueExpression>>(parameters.FirstOrDefault().Value, string.Empty, false)?.Select(v => v?.Value).ToList();
             var entityCollection = CheckedCast<EntityCollection>(parameters.FirstOrDefault().Value, string.Empty, false)?.Entities.ToList();
 
             if (firstParam == null && entityCollection == null)
@@ -56,7 +56,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list as only parameter!");
             }
 
-            var firstParam = CheckedCast<List<object>>(parameters.FirstOrDefault().Value, string.Empty, false);
+            var firstParam = CheckedCast<List<ValueExpression>>(parameters.FirstOrDefault().Value, string.Empty, false)?.Select(v => v?.Value).ToList();
             var entityCollection = CheckedCast<EntityCollection>(parameters.FirstOrDefault().Value, string.Empty, false)?.Entities.ToList();
 
             if (firstParam == null && entityCollection == null)
@@ -284,6 +284,72 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(urls, urls);
         };
 
+        public static FunctionHandler Union = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Union function needs at least two parameters: Arrays to union");
+            }
+
+            var union = parameters.Select(p =>
+            {
+                if (p == null)
+                {
+                    return null;
+                }
+
+                return p.Value as List<ValueExpression>;
+            })
+            .Where(p => p != null)
+            .SelectMany(p => p)
+            .ToList();
+
+            return new ValueExpression(null, union);
+        };
+
+        public static FunctionHandler Sort = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 1)
+            {
+                throw new InvalidPluginExecutionException("Sort function needs at least an array to sort and optionally a property for sorting");
+            }
+
+            var config = GetConfig(parameters);
+
+            var values = parameters[0].Value as List<ValueExpression>;
+
+            if (!(values is IEnumerable))
+            {
+                throw new InvalidPluginExecutionException("Sort needs an array as first parameter.");
+            }
+
+            var descending = config.GetValue<bool>("descending", "descending must be a bool");
+            var property = config.GetValue<string>("property", "property must be a string");
+
+            if (string.IsNullOrEmpty(property))
+            {
+                if (descending)
+                {
+                    return new ValueExpression(null, values.OrderByDescending(v => v.Value).ToList());
+                }
+                else
+                {
+                    return new ValueExpression(null, values.OrderBy(v => v.Value).ToList());
+                }
+            }
+            else
+            {
+                if (descending)
+                {
+                    return new ValueExpression(null, values.OrderByDescending(v => (v.Value as Entity)?.GetAttributeValue<object>(property)).ToList());
+                }
+                else
+                {
+                    return new ValueExpression(null, values.OrderBy(v => (v.Value as Entity)?.GetAttributeValue<object>(property)).ToList());
+                }
+            }
+        };
+
         private static Func<string, IOrganizationService, Dictionary<string, string>> RetrieveColumnNames = (entityName, service) =>
         {
             return ((RetrieveEntityResponse)service.Execute(new RetrieveEntityRequest
@@ -306,7 +372,8 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("RecordTable needs at least 3 parameters: Entities, entity name, add url boolean, display columns as separate string constants");
             }
 
-            var records = CheckedCast<List<object>>(parameters[0].Value, "RecordTable requires the first parameter to be a list of entities")
+            var records = CheckedCast<List<ValueExpression>>(parameters[0].Value, "RecordTable requires the first parameter to be a list of entities")
+                .Select(p => (p as ValueExpression)?.Value)
                 .Cast<Entity>()
                 .ToList();
 
@@ -353,7 +420,7 @@ namespace Xrm.Oss.XTL.Interpreter
             foreach (var column in displayColumns)
             {
                 var name = string.Empty;
-                var columnName = column["name"] as string;
+                var columnName = column.ContainsKey("name") ? column["name"] as string : string.Empty;
 
                 if (columnName.Contains(":"))
                 {
@@ -405,8 +472,15 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     foreach (var column in displayColumns)
                     {
-                        var columnName = column["name"] as string;
+                        var columnName = column.ContainsKey("name") ? column["name"] as string : string.Empty;
                         columnName = columnName.Contains(":") ? columnName.Substring(0, columnName.IndexOf(':')) : columnName;
+
+                        var entityConfig = column.ContainsKey("nameByEntity") ? column["nameByEntity"] as Dictionary<string, object> : null;
+
+                        if (entityConfig != null && entityConfig.ContainsKey(record.LogicalName))
+                        {
+                            columnName = entityConfig[record.LogicalName] as string;
+                        }
 
                         if (column.ContainsKey("style"))
                         {
@@ -524,7 +598,7 @@ namespace Xrm.Oss.XTL.Interpreter
             tracing.Trace($"Executing fetch: {query}");
             records.AddRange(service.RetrieveMultiple(new FetchExpression(query)).Entities);
 
-            return new ValueExpression(string.Empty, records);
+            return new ValueExpression(string.Empty, records.Select(r => new ValueExpression(string.Empty, r)).ToList());
         };
 
         public static FunctionHandler GetValue = (primary, service, tracing, organizationConfig, parameters) =>

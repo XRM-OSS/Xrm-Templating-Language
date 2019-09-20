@@ -41,6 +41,52 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Union_Arrays()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Join(\" \", Union ([\"Lord\"], [\"of\", \"the\"], [\"Rings\"]))";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("Lord of the Rings"));
+        }
+
+        [Test]
+        public void It_Should_Sort_Native_Value_Array()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Join(\" \", Sort( Union ([\"Lord\"], [\"of\", \"the\"], [\"Rings\"])))";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("Lord of Rings the"));
+        }
+
+        [Test]
         public void It_Should_Ignore_Whitespace()
         {
             var context = new XrmFakedContext();
