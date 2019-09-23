@@ -212,7 +212,7 @@ var assemblies = [
     "classes": [
       { "name": "Xrm.Oss.XTL.Interpreter.ConfigHandler", "rp": "Xrm.Oss.XTL.Templating_ConfigHandler.htm", "cl": 19, "ucl": 2, "cal": 21, "tl": 44, "ct": "LineCoverage", "mc": "-", "cb": 4, "tb": 6, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.DataRetriever", "rp": "Xrm.Oss.XTL.Templating_DataRetriever.htm", "cl": 22, "ucl": 0, "cal": 22, "tl": 43, "ct": "LineCoverage", "mc": "-", "cb": 11, "tb": 12, "lch": [], "bch": [], "hc": [] },
-      { "name": "Xrm.Oss.XTL.Interpreter.FunctionHandlers", "rp": "Xrm.Oss.XTL.Templating_FunctionHandlers.htm", "cl": 801, "ucl": 8, "cal": 809, "tl": 884, "ct": "LineCoverage", "mc": "-", "cb": 243, "tb": 330, "lch": [], "bch": [], "hc": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.FunctionHandlers", "rp": "Xrm.Oss.XTL.Templating_FunctionHandlers.htm", "cl": 812, "ucl": 8, "cal": 820, "tl": 899, "ct": "LineCoverage", "mc": "-", "cb": 249, "tb": 336, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.OrganizationConfig", "rp": "Xrm.Oss.XTL.Templating_OrganizationConfig.htm", "cl": 13, "ucl": 0, "cal": 13, "tl": 38, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 2, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.PropertyStringifier", "rp": "Xrm.Oss.XTL.Templating_PropertyStringifier.htm", "cl": 49, "ucl": 1, "cal": 50, "tl": 94, "ct": "LineCoverage", "mc": "-", "cb": 19, "tb": 22, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.ValueExpression", "rp": "Xrm.Oss.XTL.Templating_ValueExpression.htm", "cl": 16, "ucl": 0, "cal": 16, "tl": 40, "ct": "LineCoverage", "mc": "-", "cb": 6, "tb": 8, "lch": [], "bch": [], "hc": [] },

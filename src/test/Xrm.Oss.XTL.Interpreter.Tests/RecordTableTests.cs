@@ -478,6 +478,54 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Insert_Static_Values()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            var task = new Entity
+            {
+                LogicalName = "task",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "subject", "Task 1" },
+                }
+            };
+
+            SetupContext(context);
+            context.Initialize(new Entity[] { contact, task });
+
+            var formula = "RecordTable(Union(Fetch(\"<fetch no-lock='true'><entity name='contact'><attribute name='firstname' /></entity></fetch>\"), Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='subject' /></entity></fetch>\")), \"task\", [{ label: \"Combined Column\", staticValueByEntity: { contact: \"staticContact\", task: \"staticTask\" } }])";
+
+            var expected = @"<table>
+<tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Combined Column</th>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px;"">staticContact</td>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px;"">staticTask</td>
+<tr />
+</table>".Replace("\r", "").Replace("\n", "");
+
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
+        }
+
+        [Test]
         public void It_Should_Sort_Sub_Record_Table_Descending()
         {
             var context = new XrmFakedContext();

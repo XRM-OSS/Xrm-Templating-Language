@@ -221,6 +221,43 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Resolve_Link_Text_Formulas()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = new Guid("a99b0170-d463-4f70-8db9-e2d8ee348f5f"),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            var emailWithSubject = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" },
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            context.Initialize(new Entity[] { contact, emailWithSubject });
+
+            var formula = "RecordUrl ( Value(\"regardingobjectid\"), { linkText: Value(\"regardingobjectid.firstname\") })";
+
+            var result1 = new XTLInterpreter(formula, emailWithSubject, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
+
+            Assert.That(result1, Is.EqualTo("<a href=\"https://test.local/main.aspx?etn=contact&id=a99b0170-d463-4f70-8db9-e2d8ee348f5f&newWindow=true&pagetype=entityrecord\">Frodo</a>"));
+        }
+
+        [Test]
         public void It_Should_Use_Additional_References_In_Fetch()
         {
             var context = new XrmFakedContext();

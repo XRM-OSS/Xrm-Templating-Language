@@ -16,6 +16,7 @@ using static Xrm.Oss.XTL.Interpreter.XTLInterpreter;
 
 namespace Xrm.Oss.XTL.Interpreter
 {
+    #pragma warning disable S1104 // Fields should not have public accessibility
     public static class FunctionHandlers
     {
         private static ConfigHandler GetConfig(List<ValueExpression> parameters)
@@ -482,20 +483,33 @@ namespace Xrm.Oss.XTL.Interpreter
                             columnName = entityConfig[record.LogicalName] as string;
                         }
 
+                        var staticValues = column.ContainsKey("staticValueByEntity") ? column["staticValueByEntity"] as Dictionary<string, object> : null;
+
+                        string value;
+
+                        if (staticValues != null && staticValues.ContainsKey(record.LogicalName))
+                        {
+                            value = staticValues[record.LogicalName] as string;
+                        }
+                        else
+                        {
+                            value = PropertyStringifier.Stringify(columnName, record, service, config);
+                        }
+
                         if (column.ContainsKey("style"))
                         {
                             if (!column.ContainsKey("mergeStyle") || (bool)column["mergeStyle"])
                             {
-                                stringBuilder.AppendLine($"<td style=\"{lineStyle}{column["style"]}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                                stringBuilder.AppendLine($"<td style=\"{lineStyle}{column["style"]}\">{value}</td>");
                             }
                             else
                             {
-                                stringBuilder.AppendLine($"<td style=\"{column["style"]}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                                stringBuilder.AppendLine($"<td style=\"{column["style"]}\">{value}</td>");
                             }
                         }
                         else
                         {
-                            stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{PropertyStringifier.Stringify(columnName, record, service, config)}</td>");
+                            stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{value}</td>");
                         }
                     }
 
@@ -882,3 +896,4 @@ namespace Xrm.Oss.XTL.Interpreter
         };
     }
 }
+#pragma warning restore S1104 // Fields should not have public accessibility
