@@ -414,6 +414,17 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         });
     }
 
+    saveAs() {
+        this.setState({
+            selectedSdkStep: {
+                ...this.state.selectedSdkStep,
+                name: `Copy of ${this.state.sdkStepName}`,
+                sdkmessageprocessingstepid: undefined,
+                _sdkmessageprocessingstepsecureconfigid_value: undefined
+            }
+        }, this.saveSelectedSdkStep);
+    }
+
     activateSelectedSdkStep () {
         this.setState({requestPending: true});
 
@@ -737,6 +748,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 <Button bsStyle="default" onClick={ this.copy }>Copy Current Template</Button>
                 <Button bsStyle="default" disabled={!this.state.pluginType} onClick={this.openSdkStepManager}>Manage SDK Steps</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveSelectedSdkStep}>Save</Button>
+                <Button bsStyle="default" disabled={!this.state.selectedSdkStep} onClick={this.saveAs}>Save As</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.activateSelectedSdkStep}>Activate</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deactivateSelectedSdkStep}>Deactivate</Button>
                 <Button bsStyle="default" disabled={!this.state.selectedSdkStep || !this.state.selectedSdkStep.sdkmessageprocessingstepid} onClick={this.deleteSelectedSdkStep}>Delete</Button>

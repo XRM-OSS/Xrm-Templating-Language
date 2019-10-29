@@ -7,7 +7,6 @@
         "moduleResolution": "node",
         "allowJs": true,
         "baseUrl": ".",
-        "module": "es6",
         "target": "es6",
         "jsx": "react",
         "paths": {
