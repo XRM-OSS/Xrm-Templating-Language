@@ -684,7 +684,7 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             var valuesToConcatenate = values
-                .Where(v => !removeEmptyEntries || !string.IsNullOrEmpty(v.Value as string))
+                .Where(v => !removeEmptyEntries || !string.IsNullOrEmpty(v.Text))
                 .Select(v => v.Text);
                 
             var joined = string.Join(separator, valuesToConcatenate);

@@ -64,6 +64,46 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Join_Non_Text_values()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var regardingObject = new Entity
+            {
+                LogicalName = "account",
+                Id = Guid.NewGuid(),
+                ["name"] = "Test"
+            };
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" },
+                    { "oss_optionset", new OptionSetValue(1) },
+                    { "regardingobjectid", regardingObject.ToEntityReference() }
+                }
+            };
+
+            var metadata = new EntityMetadata { LogicalName = "email" };
+            var field = typeof(EntityMetadata).GetField("_attributes", BindingFlags.NonPublic | BindingFlags.Instance);
+            field.SetValue(metadata, new AttributeMetadata[] { new PicklistAttributeMetadata { LogicalName = "oss_optionset", OptionSet = new OptionSetMetadata { Options = { new OptionMetadata { Value = 1, Label = new Label("Value1", 1031) } } } } });
+
+            context.InitializeMetadata(metadata);
+
+            context.Initialize(new[] { regardingObject });
+
+            var formula = "Join(\" \", [ Value(\"subject\"), Value(\"oss_optionset\", { optionSetLcid: 1031 }), Value(\"regardingobjectid.name\") ], true)";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("TestSubject Value1 Test"));
+        }
+
+        [Test]
         public void It_Should_Sort_Native_Value_Array()
         {
             var context = new XrmFakedContext();
