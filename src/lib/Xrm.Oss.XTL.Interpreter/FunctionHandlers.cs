@@ -157,7 +157,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         public static FunctionHandler And = (primary, service, tracing, organizationConfig, parameters) =>
         {
-            if (parameters.Count != 2)
+            if (parameters.Count < 2)
             {
                 throw new InvalidPluginExecutionException("And expects at least 2 conditions!");
             }
@@ -177,7 +177,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         public static FunctionHandler Or = (primary, service, tracing, organizationConfig, parameters) =>
         {
-            if (parameters.Count != 2)
+            if (parameters.Count < 2)
             {
                 throw new InvalidPluginExecutionException("Or expects at least 2 conditions!");
             }
