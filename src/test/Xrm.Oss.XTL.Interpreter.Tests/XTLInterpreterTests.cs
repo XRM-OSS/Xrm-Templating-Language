@@ -198,6 +198,30 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             Assert.That(result, Is.EqualTo($"<a href=\"https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord\">Click me</a>"));
         }
 
+        public void It_Should_Insert_Organization_Url()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "OrganizationUrl ()";
+            var result = string.Empty;
+
+            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+
+            Assert.That(result, Is.EqualTo("https://crm/"));
+        }
+
         [Test]
         public void It_Should_Insert_AppId_Into_Link()
         {

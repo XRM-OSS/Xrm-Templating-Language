@@ -285,6 +285,16 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(urls, urls);
         };
 
+        public static FunctionHandler GetOrganizationUrl = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OrganizationUrl))
+            {
+                throw new InvalidPluginExecutionException("GetOrganizationUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
+            }
+
+            return new ValueExpression(organizationConfig.OrganizationUrl, organizationConfig.OrganizationUrl);
+        };
+
         public static FunctionHandler Union = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count < 2)
@@ -754,6 +764,20 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var subString = length > -1 ? text.Substring(startIndex, length) : text.Substring(startIndex);
             return new ValueExpression(subString, subString);
+        };
+
+        public static FunctionHandler IndexOf = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Substring expects at least two parameters: searchText and searchExpression");
+            }
+
+            var text = parameters[0].Text;
+            var searchExpression = parameters[1].Text;
+
+            var index = text.IndexOf(searchExpression);
+            return new ValueExpression($"{index}", index);
         };
 
         public static FunctionHandler Replace = (primary, service, tracing, organizationConfig, parameters) =>

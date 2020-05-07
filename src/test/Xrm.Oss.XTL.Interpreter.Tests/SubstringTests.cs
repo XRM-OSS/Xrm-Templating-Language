@@ -34,6 +34,27 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Throw_If_Not_Enough_Params_IndexOf()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            var formula = "IndexOf ( Value ( \"firstname\" ) )";
+            Assert.That(() => new XTLInterpreter(formula, contact, null, service, tracing).Produce(), Throws.TypeOf<InvalidPluginExecutionException>());
+        }
+
+        [Test]
         public void It_Should_Throw_If_Index_Is_Not_An_Int()
         {
             var context = new XrmFakedContext();
@@ -98,6 +119,29 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
 
             Assert.That(result, Is.EqualTo("ro"));
+        }
+
+        [Test]
+        public void It_Should_Return_Correct_Index()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "firstname", "Frodo Beutlin" }
+                }
+            };
+
+            var formula = "IndexOf ( Value ( \"firstname\" ), \"Beutlin\")";
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("6"));
         }
     }
 }
