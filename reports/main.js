@@ -212,11 +212,11 @@ var assemblies = [
     "classes": [
       { "name": "Xrm.Oss.XTL.Interpreter.ConfigHandler", "rp": "Xrm.Oss.XTL.Templating_ConfigHandler.htm", "cl": 19, "ucl": 2, "cal": 21, "tl": 44, "ct": "LineCoverage", "mc": "-", "cb": 4, "tb": 6, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.DataRetriever", "rp": "Xrm.Oss.XTL.Templating_DataRetriever.htm", "cl": 22, "ucl": 0, "cal": 22, "tl": 43, "ct": "LineCoverage", "mc": "-", "cb": 11, "tb": 12, "lch": [], "bch": [], "hc": [] },
-      { "name": "Xrm.Oss.XTL.Interpreter.FunctionHandlers", "rp": "Xrm.Oss.XTL.Templating_FunctionHandlers.htm", "cl": 812, "ucl": 8, "cal": 820, "tl": 899, "ct": "LineCoverage", "mc": "-", "cb": 249, "tb": 336, "lch": [], "bch": [], "hc": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.FunctionHandlers", "rp": "Xrm.Oss.XTL.Templating_FunctionHandlers.htm", "cl": 848, "ucl": 8, "cal": 856, "tl": 937, "ct": "LineCoverage", "mc": "-", "cb": 256, "tb": 346, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.OrganizationConfig", "rp": "Xrm.Oss.XTL.Templating_OrganizationConfig.htm", "cl": 13, "ucl": 0, "cal": 13, "tl": 38, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 2, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.PropertyStringifier", "rp": "Xrm.Oss.XTL.Templating_PropertyStringifier.htm", "cl": 49, "ucl": 1, "cal": 50, "tl": 94, "ct": "LineCoverage", "mc": "-", "cb": 19, "tb": 22, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Interpreter.ValueExpression", "rp": "Xrm.Oss.XTL.Templating_ValueExpression.htm", "cl": 16, "ucl": 0, "cal": 16, "tl": 40, "ct": "LineCoverage", "mc": "-", "cb": 6, "tb": 8, "lch": [], "bch": [], "hc": [] },
-      { "name": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "rp": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "cl": 221, "ucl": 2, "cal": 223, "tl": 343, "ct": "LineCoverage", "mc": "-", "cb": 81, "tb": 82, "lch": [], "bch": [], "hc": [] },
+      { "name": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "rp": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "cl": 223, "ucl": 2, "cal": 225, "tl": 345, "ct": "LineCoverage", "mc": "-", "cb": 82, "tb": 84, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Templating.PersistentTracingService", "rp": "Xrm.Oss.XTL.Templating_PersistentTracingService.htm", "cl": 12, "ucl": 0, "cal": 12, "tl": 35, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Templating.ProcessingResult", "rp": "Xrm.Oss.XTL.Templating_ProcessingResult.htm", "cl": 4, "ucl": 0, "cal": 4, "tl": 25, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Xrm.Oss.XTL.Templating.ProcessorConfig", "rp": "Xrm.Oss.XTL.Templating_ProcessorConfig.htm", "cl": 23, "ucl": 0, "cal": 23, "tl": 70, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 2, "lch": [], "bch": [], "hc": [] },
@@ -234,18 +234,18 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "methodName": "System.Collections.Generic.List`1<Xrm.Oss.XTL.Interpreter.ValueExpression> Xrm.Oss.XTL.Interpreter.XTLInterpreter::Expression(System.Char[])", "methodShortName": "Expression(...)", "fileIndex": 0, "line": 139,
+    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "methodName": "System.Collections.Generic.List`1<Xrm.Oss.XTL.Interpreter.ValueExpression> Xrm.Oss.XTL.Interpreter.XTLInterpreter::Expression(System.Char[])", "methodShortName": "Expression(...)", "fileIndex": 0, "line": 141,
     "metrics": [
       { "value": 20, "exceeded": false },
       { "value": 524288, "exceeded": true },
       { "value": 20, "exceeded": true },
     ]},
   {
-    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "methodName": "Xrm.Oss.XTL.Interpreter.ValueExpression Xrm.Oss.XTL.Interpreter.XTLInterpreter::Formula()", "methodShortName": "Formula()", "fileIndex": 0, "line": 258,
+    "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.XTLInterpreter", "reportPath": "Xrm.Oss.XTL.Templating_XTLInterpreter.htm", "methodName": "Xrm.Oss.XTL.Interpreter.ValueExpression Xrm.Oss.XTL.Interpreter.XTLInterpreter::Formula()", "methodShortName": "Formula()", "fileIndex": 0, "line": 260,
     "metrics": [
-      { "value": 12, "exceeded": false },
-      { "value": 2048, "exceeded": true },
-      { "value": 12, "exceeded": false },
+      { "value": 13, "exceeded": false },
+      { "value": 4096, "exceeded": true },
+      { "value": 13, "exceeded": false },
     ]},
   {
     "assembly": "Xrm.Oss.XTL.Templating", "class": "Xrm.Oss.XTL.Interpreter.PropertyStringifier", "reportPath": "Xrm.Oss.XTL.Templating_PropertyStringifier.htm", "methodName": "System.String Xrm.Oss.XTL.Interpreter.PropertyStringifier::StringifyProperty(System.String,System.Object,Microsoft.Xrm.Sdk.Entity,Microsoft.Xrm.Sdk.IOrganizationService,Xrm.Oss.XTL.Interpreter.ConfigHandler)", "methodShortName": "StringifyProperty(...)", "fileIndex": 0, "line": 15,

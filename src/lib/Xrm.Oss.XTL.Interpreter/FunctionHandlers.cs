@@ -292,7 +292,21 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("GetOrganizationUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
             }
 
-            return new ValueExpression(organizationConfig.OrganizationUrl, organizationConfig.OrganizationUrl);
+            var config = GetConfig(parameters);
+            var linkText = config.GetValue<string>("linkText", "linkText must be a string", string.Empty);
+            var urlSuffix = config.GetValue<string>("urlSuffix", "urlSuffix must be a string", string.Empty);
+            var asHtml = config.GetValue<bool>("asHtml", "asHtml must be a boolean");
+
+            if (asHtml)
+            {
+                var url = $"{organizationConfig.OrganizationUrl}{urlSuffix}";
+                var href = $"<a href=\"{url}\">{(string.IsNullOrEmpty(linkText) ? url : linkText)}</a>";
+                return new ValueExpression(href, href);
+            }
+            else
+            {
+                return new ValueExpression(organizationConfig.OrganizationUrl, organizationConfig.OrganizationUrl);
+            }
         };
 
         public static FunctionHandler Union = (primary, service, tracing, organizationConfig, parameters) =>
