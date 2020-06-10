@@ -416,7 +416,7 @@ Refer to the .NET style for date formatting.
 ### ConvertDateTime
 Converts a UTC DateTime (which is what you'll usually get from CRM) to a timezoned DateTime.
 You can either pass a user reference as userId config property, or a fixed timezone as timeZoneId config property.
-The timeZoneId fixed property is one of the default .NET timezone IDs.
+The timeZoneId fixed property is one of the default .NET timezone IDs (a list can be found [here](https://lonewolfonline.net/timezone-information/) for example).
 An optional format config property can directly be set for defining the format of the timezoned DateTime.
 
 Example by userId:
