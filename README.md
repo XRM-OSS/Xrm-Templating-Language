@@ -446,6 +446,8 @@ Format( Value("index"),  { format: "{0:00000}" } ) // Will print 00001 for index
 Refer to the .NET style for date formatting.
 
 ### Snippet
+> Snippets are available in XTL >= v3.7
+
 Snippets are an easy way for storing texts globally, so that they can be referred to from anywhere in the system.
 They are stored in the XTL Snippet entity. You can use them as simple storage for a single (long) XTL expression, or even pass a complete text with embedded XTL expressions in the usual fashion (${{expression}}) inside it.
 When only saving a XTL expression, be sure to set "Contains Plain text" to "No", so that XTL will automatically wrap your expression in ${{ ... }} brackets.
