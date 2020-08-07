@@ -80,7 +80,7 @@ Using XTL provides the following benefits:
 
 ## Types
 Native Types:
-- String Constants (Alpha numeric text inside quotes)
+- String Constants (Alpha numeric text inside double quotes or single quotes)
 - Integers (Digit expression)
 - Doubles (Digits are separated by '.', a 'd' is appended to separate from decimals. E.g: 1.4d)
 - Decimals (Digits are separated by '.', a 'm' is appended to separate from doubles. E.g: 1.4m)
@@ -343,7 +343,7 @@ Above example could return something like 'Baggins, Frodo'.
 Takes the substring of your input starting from a given index. Length of substring can be passed optionally as well.
 
 Example:
-```
+``` JavaScript
 Substring(Value("firstname"), 1, 2 )
 ```
 Above example returns 'ro' when input is 'Frodo'.
@@ -444,6 +444,66 @@ Format( Value("index"),  { format: "{0:00000}" } ) // Will print 00001 for index
 ```
 
 Refer to the .NET style for date formatting.
+
+### Snippet
+Snippets are an easy way for storing texts globally, so that they can be referred to from anywhere in the system.
+They are stored in the XTL Snippet entity. You can use them as simple storage for a single (long) XTL expression, or even pass a complete text with embedded XTL expressions in the usual fashion (${{expression}}) inside it.
+When only saving a XTL expression, be sure to set "Contains Plain text" to "No", so that XTL will automatically wrap your expression in ${{ ... }} brackets.
+When saving a complete text with embedded XTL expressions, set "Contains Plain Text" to "Yes", so that XTL will do no automatic wrapping.
+
+You can use the unique name inside the XTL snippet record for referring to it, or you can use the normal name and refer to it using its name and a custom fetchXml filter.
+The second parameter is especially useful, as you can create custom fields on the snippet entity, for example a language field, and use the filter for fetching the correct language dynamically.
+
+For the following examples, lets define some XTL snippets that we can imagine to be existent in our organization:
+
+Snippet 1 (used for fetching the owner's name on any entity)
+- oss_uniquename: "OwnerName"
+- oss_containsplaintext: false
+- oss_xtlexpression: Value("ownerid.name")
+> Remember: We must not wrap the expression in the usual ${{...}} brackets in this case, this will be done automatically, when "Contains Plain Text" is false
+
+Snippet 2 (used for generating a contact's salutation)
+- oss_uniquename: "Salutation_EN"
+- oss_containsplaintext: true
+- oss_xtlexpression: Dear ${{If(IsEqual(Value("gendercode"), 1), "Mr.", "Ms.")}} ${{Value("lastname")}}
+
+Snippet 3 (used for generating a contact's salutation)
+- oss_name: "salutation"
+- oss_containsplaintext: true
+- new_customlanguage: "EN"
+- oss_xtlexpression: Dear ${{If(IsEqual(Value("gendercode"), 1), "Mr.", "Ms.")}} ${{Value("lastname")}}
+
+#### Example - Refer to Snippet using unique name
+Refers to Snippet 1, which will be matched by the following expression:
+
+```JS
+Snippet("OwnerName")
+```
+
+#### Example - Refer to snippet with dynamic name
+Refers to Snippet 2, which will be matched by the following expression:
+
+``` JavaScript
+Snippet(Concat("Salutation_", Value("new_languageisocode"))
+```
+
+When running this on a contact with "new_languageisocode" equal to "EN", this will resolve to snippet name "Salutation_EN" and snippet 2 will thus be found.
+
+#### Example - Refer to snippet with simple filter
+Refers to Snippet 3, which will be matched by the following expression:
+
+``` JavaScript
+Snippet("salutation", { filter: '<filter><condition attribute="new_customlanguage" operator="eq" value="EN" /></filter>' })
+```
+
+#### Example - Refer to snippet with dynamic filter
+Refers to Snippet 3, which will be matched by the following expression:
+
+``` JavaScript
+Snippet("salutation", { filter: '<filter><condition attribute="new_customlanguage" operator="eq" value="${{Value("new_languageisocode")}}" /></filter>' })
+```
+
+Before using the custom filter, all XTL tokens will be processed, so for a contact with "new_languageisocode" equal to "EN", the expression inside the filter value would be exchanged for "EN" and the correct snippet found and applied.
 
 ## Sample
 Consider the following e-mail template content:
