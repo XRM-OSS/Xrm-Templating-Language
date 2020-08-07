@@ -1,7 +1,7 @@
 import * as React from "react";
 import { EntityDefinition } from "../domain/EntityDefinition";
 import { Attribute } from "../domain/Attribute";
-import WebApiClient from "xrm-webapi-client";
+import * as WebApiClient from "xrm-webapi-client";
 import { SdkStepManager } from "./SdkStepManager";
 import { SdkStep } from "../domain/SdkStep";
 import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl, ListGroup, ListGroupItem, Checkbox } from "react-bootstrap";
@@ -38,8 +38,6 @@ interface XtlEditorState {
 }
 
 export default class XtlEditor extends React.PureComponent<any, XtlEditorState> {
-    private WebApiClient: typeof WebApiClient;
-
     constructor(props: any) {
         super(props);
 
@@ -66,9 +64,6 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
           rank: 1,
           selectedEntityAttributes: []
         };
-
-        // Webpack should import WebApiClient from global itself, but somehow it doesn"t
-        this.WebApiClient = (window as any).WebApiClient;
 
         this.criteriaChanged = this.criteriaChanged.bind(this);
         this.preview = this.preview.bind(this);
@@ -102,7 +97,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             requestPending: true
         });
 
-        this.WebApiClient.Promise.all([
+        WebApiClient.Promise.all([
             this.retrieveEntities(),
             this.retrievePluginType()
         ])
@@ -114,7 +109,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     }
 
     retrieveEntities (): Promise<any> {
-        return this.WebApiClient.Retrieve({entityName: "EntityDefinition", queryParams: "?$select=ObjectTypeCode,SchemaName,LogicalName&$filter=IsValidForAdvancedFind eq true"})
+        return WebApiClient.Retrieve({entityName: "EntityDefinition", queryParams: "?$select=ObjectTypeCode,SchemaName,LogicalName&$filter=IsValidForAdvancedFind eq true"})
             .then((result: any) => {
                 this.setState({
                     entities: (result.value as Array<any>).filter(e => e.SchemaName).sort((e1, e2) => e1.SchemaName >= e2.SchemaName ? 1 : -1)
@@ -124,8 +119,8 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     }
 
     retrievePluginType (): Promise<any> {
-        return this.WebApiClient.Retrieve({entityName: "plugintype", queryParams: "?$filter=assemblyname eq 'Xrm.Oss.XTL.Templating'&$expand=plugintype_sdkmessageprocessingstep"})
-        .then((result: any) => this.WebApiClient.Expand({records: result.value}))
+        return WebApiClient.Retrieve({entityName: "plugintype", queryParams: "?$filter=assemblyname eq 'Xrm.Oss.XTL.Templating'&$expand=plugintype_sdkmessageprocessingstep", })
+        .then((result: any) => (WebApiClient as any).Expand({records: result.value}))
         .then((result: any) => {
             if (!result.length) {
                 return;
@@ -143,7 +138,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             requestPending: true
         });
 
-        const request = this.WebApiClient.Requests.Request.prototype.with({
+        const request = WebApiClient.Requests.Request.prototype.with({
             method: "POST",
             name: "oss_XTLApplyTemplate",
             bound: false
@@ -157,14 +152,14 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             template = template.replace(/\n/g, "<br />");
         }
 
-        this.WebApiClient.Execute(request.with({
+        WebApiClient.Execute(request.with({
             payload: {
                 jsonInput: JSON.stringify({
                     target: {
                         Id: this.state.selectedEntityId,
                         LogicalName: this.state.selectedEntityLogicalName
                     },
-                    organizationUrl: this.WebApiClient.GetApiUrl().substring(0, this.WebApiClient.GetApiUrl().indexOf("/api/data/v")),
+                    organizationUrl: WebApiClient.GetApiUrl().substring(0, WebApiClient.GetApiUrl().indexOf("/api/data/v")),
                     template: template,
                     templateField: this.state.templateField,
                     executionCriteria: this.state.executionCriteria
@@ -189,7 +184,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     }
 
     selectTarget(e: any) {
-        const url = this.WebApiClient.GetApiUrl().replace("/api/data/v8.0/", "") + `/_controls/lookup/lookupinfo.aspx?AllowFilterOff=1&DisableQuickFind=0&DisableViewPicker=0&LookupStyle=single&ShowNewButton=0&ShowPropButton=0&browse=false&objecttypes=${this.state.selectedTypeCode}`;
+        const url = WebApiClient.GetApiUrl().replace("/api/data/v8.0/", "") + `/_controls/lookup/lookupinfo.aspx?AllowFilterOff=1&DisableQuickFind=0&DisableViewPicker=0&LookupStyle=single&ShowNewButton=0&ShowPropButton=0&browse=false&objecttypes=${this.state.selectedTypeCode}`;
         const Xrm: any = (window as any).Xrm;
         const options = new Xrm.DialogOptions();
         options.width = 500;
@@ -280,7 +275,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                queryParams: "/Attributes?$select=LogicalName,DisplayName"
             };
 
-            return this.WebApiClient.Retrieve(request)
+            return WebApiClient.Retrieve(request)
                .then((response: any) => {
                    const attributes = (response.value as Array<Attribute>);
 
@@ -310,7 +305,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             return Promise.resolve(this.state.selectedSdkStep._sdkmessageprocessingstepsecureconfigid_value);
         }
 
-        return this.WebApiClient.Create({
+        return WebApiClient.Create({
             entityName: "sdkmessageprocessingstepsecureconfig",
             entity: {
                 secureconfig: JSON.stringify({
@@ -353,7 +348,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
         this.ensureSdkStepSecureConfig(step)
         .then(configId => {
             if (this.state.selectedSdkStep.sdkmessageprocessingstepid) {
-                this.WebApiClient.Update({
+                WebApiClient.Update({
                     entityName: "sdkmessageprocessingstep",
                     entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
                     entity: step
@@ -373,7 +368,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                 const messageName = (this.state.selectedSdkStep as any).messageName;
                 delete (this.state.selectedSdkStep as any).messageName;
 
-                this.WebApiClient.Create({
+                WebApiClient.Create({
                     entityName: "sdkmessageprocessingstep",
                     entity: {
                         ...this.state.selectedSdkStep,
@@ -403,7 +398,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
 
                         image["sdkmessageprocessingstepid@odata.bind"] = `/sdkmessageprocessingsteps(${stepId})`;
 
-                        return this.WebApiClient.Create({
+                        return WebApiClient.Create({
                             entityName: "sdkmessageprocessingstepimage",
                             entity: image
                         });
@@ -428,7 +423,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     activateSelectedSdkStep () {
         this.setState({requestPending: true});
 
-        this.WebApiClient.Update({
+        WebApiClient.Update({
             entityName: "sdkmessageprocessingstep",
             entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
             entity: {
@@ -446,7 +441,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     deactivateSelectedSdkStep () {
         this.setState({requestPending: true});
 
-        this.WebApiClient.Update({
+        WebApiClient.Update({
             entityName: "sdkmessageprocessingstep",
             entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid,
             entity: {
@@ -464,7 +459,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
     deleteSelectedSdkStep () {
         this.setState({requestPending: true});
 
-        (this.WebApiClient.Delete({
+        (WebApiClient.Delete({
             entityName: "sdkmessageprocessingstep",
             entityId: this.state.selectedSdkStep.sdkmessageprocessingstepid
         }) as Promise<string>)
@@ -588,13 +583,10 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
           [/[;,.]/, "delimiter"],
 
           // strings
-          [/"([^"\\]|\\.)*$/, "string.invalid" ],  // non-teminated string
-          [/"/,  { token: "string.quote", bracket: "@open", next: "@string" } ],
-
-          // characters
-          [/'[^\\']'/, "string"],
-          [/(')(@escapes)(')/, ["string", "string.escape", "string"]],
-          [/'/, "string.invalid"]
+          [/"([^"\\]|\\.)*$/, "string.invalid"],  // non-teminated string
+          [/'([^'\\]|\\.)*$/, "string.invalid"],  // non-teminated string
+          [/"/, "string", "@string_double"],
+          [/'/, "string", "@string_single"]
         ];
 
         const id = isTemplateEditor ? "XTL_Template" : "XTL";
@@ -657,11 +649,18 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                   [/[\/*]/,   "comment" ]
                 ],
 
-                string: [
-                  [/[^\\"]+/,  "string"],
-                  [/@escapes/, "string.escape"],
-                  [/\\./,      "string.escape.invalid"],
-                  [/"/,        { token: "string.quote", bracket: "@close", next: "@pop" } ]
+                string_double: [
+                    [/[^\\"]+/, "string"],
+                    [/@escapes/, "string.escape"],
+                    [/\\./, "string.escape.invalid"],
+                    [/"/, "string", "@pop"]
+                ],
+
+                string_single: [
+                    [/[^\\']+/, "string"],
+                    [/@escapes/, "string.escape"],
+                    [/\\./, "string.escape.invalid"],
+                    [/'/, "string", "@pop"]
                 ],
 
                 whitespace: [

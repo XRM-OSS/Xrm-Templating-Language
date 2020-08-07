@@ -18,8 +18,7 @@
     "react-dom": "^15.6.1",
     "react-markdown": "^3.1.0",
     "react-monaco-editor": "^0.18.0",
-    "style-loader": "^0.23.0",
-    "xrm-webapi-client": "^3.6.11"
+    "style-loader": "^0.23.0"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.20",
@@ -35,6 +34,7 @@
     "tslint": "^5.9.1",
     "typescript": "^2.7.2",
     "webpack": "^4.17.1",
-    "webpack-command": "^0.4.1"
+    "webpack-command": "^0.4.1",
+    "xrm-webapi-client": "^4.0.0"
   }
 }

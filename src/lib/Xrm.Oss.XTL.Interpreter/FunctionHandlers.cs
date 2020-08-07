@@ -884,6 +884,98 @@ namespace Xrm.Oss.XTL.Interpreter
             }
         };
 
+        private static Entity FetchSnippetByUniqueName(string uniqueName, IOrganizationService service)
+        {
+            var fetch = $@"<fetch no-lock=""true"">
+                <entity name=""oss_xtlsnippet"">
+                    <attribute name=""oss_xtlexpression"" />
+                    <attribute name=""oss_containsplaintext"" />
+                    <filter operator=""and"">
+                        <condition attribute=""oss_uniquename"" operator=""eq"" value=""{uniqueName}"" />
+                    </filter>
+                </entity>
+            </fetch>";
+
+            var snippet = service.RetrieveMultiple(new FetchExpression(fetch))
+                .Entities
+                .FirstOrDefault();
+
+            return snippet;
+        }
+
+        private static Entity FetchSnippet(string name, string filter, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
+        {
+            var uniqueNameSnippet = FetchSnippetByUniqueName(name, service);
+
+            if (uniqueNameSnippet != null)
+            {
+                tracing.Trace("Found snippet by unique name");
+                return uniqueNameSnippet;
+            }
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                tracing.Trace("Processing tokens in custom snippet filter");
+            }
+
+            var fetch = $@"<fetch no-lock=""true"">
+                <entity name=""oss_xtlsnippet"">
+                    <attribute name=""oss_xtlexpression"" />
+                    <attribute name=""oss_containsplaintext"" />
+                    <filter operator=""and"">
+                        <condition attribute=""oss_name"" operator=""eq"" value=""{name}"" />
+                        { (!string.IsNullOrEmpty(filter) ? TokenMatcher.ProcessTokens(filter, primary, organizationConfig, service, tracing) : string.Empty) }
+                    </filter>
+                </entity>
+            </fetch>";
+            
+            if (!string.IsNullOrEmpty(filter))
+            {
+                tracing.Trace("Done processing tokens in custom snippet filter");
+            }
+
+            var snippet = service.RetrieveMultiple(new FetchExpression(fetch))
+                .Entities
+                .FirstOrDefault();
+
+            return snippet;
+        }
+
+        public static FunctionHandler Snippet = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 1)
+            {
+                throw new InvalidPluginExecutionException("Snippet needs at least a name as first parameter and optionally a config for defining further options");
+            }
+
+            var name = CheckedCast<string>(parameters[0].Value, "Name must be a string!");
+            var config = GetConfig(parameters);
+
+            var filter = config?.GetValue<string>("filter", "filter must be a string containing your fetchXml filter, which may contain XTL expressions on its own");
+
+            var snippet = FetchSnippet(name, filter, primary, organizationConfig, service, tracing);
+
+            if (snippet == null)
+            {
+                tracing.Trace("Failed to find a snippet matching the input");
+                return new ValueExpression(string.Empty, null);
+            }
+
+            var containsPlainText = snippet.GetAttributeValue<bool>("oss_containsplaintext");
+            var value = snippet.GetAttributeValue<string>("oss_xtlexpression");
+
+            // Wrap it in ${{ ... }} block
+            var processedValue = containsPlainText ? value : $"${{{{ {value} }}}}";
+
+            tracing.Trace("Processing snippet tokens");
+
+            var result = TokenMatcher.ProcessTokens(processedValue, primary, organizationConfig, service, tracing);
+
+            tracing.Trace("Done processing snippet tokens");
+
+            return new ValueExpression(result, result);
+        };
+
         public static FunctionHandler ConvertDateTime = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count < 2)

@@ -117,7 +117,7 @@ namespace Xrm.Oss.XTL.Templating
                     return;
                 }
 
-                var output = ProcessTemplate(templateText, dataSource, new OrganizationConfig { OrganizationUrl = config.OrganizationUrl }, service, tracing);
+                var output = TokenMatcher.ProcessTokens(templateText, dataSource, new OrganizationConfig { OrganizationUrl = config.OrganizationUrl }, service, tracing);
 
                 var result = new ProcessingResult
                 {
@@ -193,42 +193,10 @@ namespace Xrm.Oss.XTL.Templating
                 return;
             }
 
-            var output = ProcessTemplate(templateText, dataSource, _organizationConfig, service, tracing);
+            var output = TokenMatcher.ProcessTokens(templateText, dataSource, _organizationConfig, service, tracing);
 
             target[targetField] = output;
             TriggerUpdateConditionally(output, dataSource, _config, service);
-        }
-
-        private string ProcessTemplate(string templateText, Entity dataSource, OrganizationConfig config, IOrganizationService service, ITracingService tracing)
-        {
-            var tokenRegex = new Regex(@"\${{([\s\S]*?(?=}}))}}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
-
-            var tokens = tokenRegex.Matches(templateText)
-                .Cast<Match>()
-                .Select(m => m.Groups[1].Value)
-                .Distinct()
-                .ToList();
-
-            tokens.ForEach(token =>
-            {
-                tracing.Trace($"Processing token '{token}'");
-
-                var processor = new XTLInterpreter(token, dataSource, config, service, tracing);
-                var processed = string.Empty;
-
-                try
-                {
-                    processed = processor.Produce();
-                }
-                catch (Exception ex)
-                {
-                    tracing.Trace($"Exception while processing token {token}, replacing by empty string. Message: {ex.Message}");
-                }
-
-                templateText = templateText.Replace($"${{{{{token}}}}}", processed);
-                tracing.Trace($"Replacing token with '{processed}'");
-            });
-            return templateText;
         }
 
         private static string RetrieveTemplate(string template, string templateField, Entity dataSource, IOrganizationService service, ITracingService tracing)

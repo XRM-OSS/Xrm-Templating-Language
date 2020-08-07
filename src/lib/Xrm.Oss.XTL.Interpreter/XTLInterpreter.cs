@@ -54,6 +54,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "RecordTable", FunctionHandlers.RenderRecordTable },
             { "RecordUrl", FunctionHandlers.GetRecordUrl },
             { "Replace", FunctionHandlers.Replace },
+            { "Snippet", FunctionHandlers.Snippet },
             { "Sort", FunctionHandlers.Sort },
             { "Static", FunctionHandlers.Static },
             { "Substring", FunctionHandlers.Substring },
@@ -146,15 +147,16 @@ namespace Xrm.Oss.XTL.Interpreter
                 if (_current == ',') {
                     GetChar();
                 }
-                else if (_current == '"')
+                else if (_current == '"' || _current == '\'')
                 {
+                    var delimiter = _current;
                     var stringConstant = string.Empty;
                     
                     // Skip opening quote
                     GetChar();
 
                     // Allow to escape quotes by backslashes
-                    while ((_current != '"' || _previous == '\\') && !_eof)
+                    while ((_current != delimiter || _previous == '\\') && !_eof)
                     {
                         stringConstant += _current;
                         GetChar();
@@ -302,7 +304,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 return new ValueExpression(string.Join(", ", dictionary.Select(p => $"{p.Key}: {p.Value}")), dictionary);
             }
-            else if (char.IsDigit(_current) || _current == '"' || _current == '-')
+            else if (char.IsDigit(_current) || _current == '"' || _current == '\'' || _current == '-')
             {
                 // This is only called in object initializers / dictionaries. Only one value should be entered here
                 return Expression(new[] { '}', ',' }).First();

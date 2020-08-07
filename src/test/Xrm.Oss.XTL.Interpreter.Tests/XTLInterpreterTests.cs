@@ -41,6 +41,29 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void Strings_Should_Also_Be_Possible_With_Single_Quotes()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Concat(Value ('subject'), '\"', Value(\"subject\"), \"'\")";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("TestSubject\"TestSubject'"));
+        }
+
+        [Test]
         public void It_Should_Union_Arrays()
         {
             var context = new XrmFakedContext();

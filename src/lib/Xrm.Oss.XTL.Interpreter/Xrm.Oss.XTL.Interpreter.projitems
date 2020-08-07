@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OrganizationConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyStringifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TokenMatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValueExpression.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)XTLInterpreter.cs" />
   </ItemGroup>
