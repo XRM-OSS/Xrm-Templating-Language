@@ -694,6 +694,41 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Not_Fail_On_Complex_Template_Field()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = @"If (
+    IsNull(Value(""oss_htmltemplate"")),
+    Value(""oss_subject"", { explicitTarget: First(Fetch(""<fetch no-lock='true'><entity name='oss_htmltemplate'><attribute name='oss_subject' /><filter><condition attribute='oss_uniquename' operator='eq' value='{1}' /></filter></entity></fetch>"", [Value(""oss_htmltemplateuniquename"")])) }),
+    Value(""oss_htmltemplate.oss_subject"")
+)";
+
+            var template = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "oss_htmltemplate",
+                ["oss_uniquename"] = "tst",
+                ["oss_subject"] = "Test",
+                ["oss_html"] = "<html />"
+            };
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                ["oss_htmltemplate"] = template.ToEntityReference()
+            };
+
+            context.Initialize(template);
+
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("Test"));
+        }
+
+        [Test]
         public void First_Should_Work_On_Entity_Collection()
         {
             var context = new XrmFakedContext();

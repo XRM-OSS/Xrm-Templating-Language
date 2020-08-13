@@ -626,10 +626,10 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 if (referenceNumber >= references.Count)
                 {
-                    throw new InvalidPluginExecutionException($"You tried using reference {referenceNumber} in fetch, but there are less reference inputs than that. You should probably wrap this fetch inside an if condition and only execute it, if your reference is non-null.");
+                    throw new InvalidPluginExecutionException($"You tried using reference {referenceNumber} in fetch, but there are less reference inputs than that. Please check your reference number or your reference input array.");
                 }
 
-                return references[referenceNumber].ToString();
+                return references[referenceNumber]?.ToString();
             });
 
             tracing.Trace("References replaced");
