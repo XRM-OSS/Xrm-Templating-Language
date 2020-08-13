@@ -309,7 +309,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
             entityName: "sdkmessageprocessingstepsecureconfig",
             entity: {
                 secureconfig: JSON.stringify({
-                    organizationUrl: (window as any).WebApiClient.GetApiUrl().substring(0, (window as any).WebApiClient.GetApiUrl().indexOf("/api/data/v"))
+                    organizationUrl: WebApiClient.GetApiUrl().substring(0, WebApiClient.GetApiUrl().indexOf("/api/data/v"))
                 })
             }
         })
