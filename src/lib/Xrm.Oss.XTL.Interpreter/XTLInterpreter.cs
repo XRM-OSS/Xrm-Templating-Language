@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using Xrm.Oss.XTL.Templating;
 
 namespace Xrm.Oss.XTL.Interpreter
 {
