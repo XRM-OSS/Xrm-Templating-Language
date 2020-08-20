@@ -21,6 +21,7 @@ files
     src\lib\Xrm.Oss.XTL.Interpreter\ConfigHandler.cs        ==> contentFiles\cs\net452\lib
     src\lib\Xrm.Oss.XTL.Interpreter\OrganizationConfig.cs   ==> contentFiles\cs\net452\lib
     src\lib\Xrm.Oss.XTL.Interpreter\IConfig.cs              ==> contentFiles\cs\net452\lib
+    src\lib\Xrm.Oss.XTL.Interpreter\TokenMatcher.cs         ==> contentFiles\cs\net452\lib
     src\lib\Xrm.Oss.XTL.Interpreter\DataRetriever.cs        ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\FunctionHandlers.cs     ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\PropertyStringifier.cs  ==> content
@@ -29,3 +30,4 @@ files
     src\lib\Xrm.Oss.XTL.Interpreter\ConfigHandler.cs        ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\OrganizationConfig.cs   ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\IConfig.cs              ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\TokenMatcher.cs              ==> content
