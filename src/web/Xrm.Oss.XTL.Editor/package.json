@@ -26,7 +26,7 @@
     "@types/react-bootstrap": "^0.31.9",
     "@types/react-dom": "^15.5.7",
     "awesome-typescript-loader": "^3.5.0",
-    "bestzip": "^1.1.4",
+    "bestzip": "^2.1.7",
     "bluebird": "^3.5.1",
     "cpx": "^1.5.0",
     "react-bootstrap": "^0.31.5",
