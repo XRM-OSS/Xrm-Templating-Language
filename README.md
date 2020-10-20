@@ -328,7 +328,7 @@ Example:
 Join(" ", Map(["Lord", "of", "the", "Rings"], (s) => Substring(s, 0, 1)))
 ```
 
-will result in `["L", "o", "t", "R"]`.
+will result in `"L o t R"`.
 
 ### Sort
 Sort array, either native values or by property. Ascending by default, descending by setting the config flag
