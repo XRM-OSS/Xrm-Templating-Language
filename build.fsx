@@ -34,8 +34,8 @@ let sha = Git.Information.getCurrentHash()
 
 // version info
 let major = "3"
-let minor = "7"
-let patch = "4"
+let minor = "8"
+let patch = "0"
 
 // Follow SemVer scheme: http://semver.org/
 let asmVersion = major + "." + minor + "." + patch
