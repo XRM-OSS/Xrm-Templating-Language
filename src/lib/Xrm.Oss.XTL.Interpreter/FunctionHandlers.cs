@@ -525,7 +525,8 @@ namespace Xrm.Oss.XTL.Interpreter
                     {
                         var columnName = column.ContainsKey("name") ? column["name"] as string : string.Empty;
                         columnName = columnName.Contains(":") ? columnName.Substring(0, columnName.IndexOf(':')) : columnName;
-
+                        
+                        var renderFunction = column.ContainsKey("renderFunction") ? column["renderFunction"] as Func<ValueExpression, ValueExpression> : null;
                         var entityConfig = column.ContainsKey("nameByEntity") ? column["nameByEntity"] as Dictionary<string, object> : null;
 
                         if (entityConfig != null && entityConfig.ContainsKey(record.LogicalName))
@@ -540,6 +541,12 @@ namespace Xrm.Oss.XTL.Interpreter
                         if (staticValues != null && staticValues.ContainsKey(record.LogicalName))
                         {
                             value = staticValues[record.LogicalName] as string;
+                        }
+                        else if (renderFunction != null)
+                        {
+                            var rawValue = record.GetAttributeValue<object>(columnName);
+                            var valueExpression = new ValueExpression(rawValue?.ToString(), rawValue);
+                            value = renderFunction(valueExpression)?.Text;
                         }
                         else
                         {

@@ -526,6 +526,41 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Use_Render_Functions()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            SetupContext(context);
+            context.Initialize(new Entity[] { contact });
+
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='contact'><attribute name='firstname' /></entity></fetch>\"), \"contact\", [{ name: \"firstname\", label: \"Custom Column\", renderFunction: (r) => Substring(r, 0, 1) }])";
+
+            var expected = @"<table>
+<tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Custom Column</th>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px;"">F</td>
+<tr />
+</table>".Replace("\r", "").Replace("\n", "");
+
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
+        }
+
+        [Test]
         public void It_Should_Sort_Sub_Record_Table_Descending()
         {
             var context = new XrmFakedContext();
