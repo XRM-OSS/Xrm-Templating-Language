@@ -526,6 +526,167 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Use_Simple_Render_Functions()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "firstname", "Frodo" }
+                }
+            };
+
+            SetupContext(context);
+            context.Initialize(new Entity[] { contact });
+
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='contact'><attribute name='firstname' /></entity></fetch>\"), \"contact\", [{ name: \"firstname\", label: \"Custom Column\", renderFunction: (record, column) => Substring(Value(column, { explicitTarget: record }), 0, 1) }])";
+
+            var expected = @"<table>
+<tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Custom Column</th>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px;"">F</td>
+<tr />
+</table>".Replace("\r", "").Replace("\n", "");
+
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void It_Should_Use_MultiValued_Render_Functions_With_Primary_Fields()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var userId = Guid.NewGuid();
+
+            var userSettings = new Entity
+            {
+                LogicalName = "usersettings",
+                Id = userId,
+                ["timezonecode"] = 1
+            };
+
+            var timeZoneDefinition = new Entity
+            {
+                LogicalName = "timezonedefinition",
+                Id = Guid.NewGuid(),
+                ["standardname"] = "Eastern Standard Time",
+                ["timezonecode"] = 1
+            };
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "createdon", new DateTime(2020, 02, 27, 8, 0, 0, DateTimeKind.Utc) }
+                }
+            };
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "regardingobjectid", contact.ToEntityReference() },
+                    { "ownerid", new EntityReference("systemuser", userId) }
+                }
+            };
+
+            SetupContext(context);
+            context.Initialize(new Entity[] { contact, email, userSettings, timeZoneDefinition });
+
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='contact'><attribute name='createdon' /></entity></fetch>\"), \"contact\", [{ name: \"createdon\", label: \"Date\", renderFunction: (record, column) => DateToString(ConvertDateTime(Value(column, { explicitTarget: record }), { userId: Value(\"ownerid\") }), { format: \"yyyy-MM-dd hh:mm:ss\" }) }])";
+
+            var expected = @"<table>
+<tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Date</th>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px;"">2020-02-27 03:00:00</td>
+<tr />
+</table>".Replace("\r", "").Replace("\n", "");
+
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void It_Should_Use_MultiValued_Render_Functions_With_Per_Row_Fields()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var userId = Guid.NewGuid();
+
+            var userSettings = new Entity
+            {
+                LogicalName = "usersettings",
+                Id = userId,
+                ["timezonecode"] = 1
+            };
+
+            var timeZoneDefinition = new Entity
+            {
+                LogicalName = "timezonedefinition",
+                Id = Guid.NewGuid(),
+                ["standardname"] = "Eastern Standard Time",
+                ["timezonecode"] = 1
+            };
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "createdon", new DateTime(2020, 02, 27, 8, 0, 0, DateTimeKind.Utc) },
+                    { "ownerid", new EntityReference("systemuser", userId) }
+                }
+            };
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes =
+                {
+                    { "regardingobjectid", contact.ToEntityReference() }
+                }
+            };
+
+            SetupContext(context);
+            context.Initialize(new Entity[] { contact, email, userSettings, timeZoneDefinition });
+
+            var formula = "RecordTable(Fetch(\"<fetch no-lock='true'><entity name='contact'><attribute name='ownerid' /> <attribute name='createdon' /></entity></fetch>\"), \"contact\", [{ name: \"createdon\", label: \"Date\", renderFunction: (record, column) => DateToString(ConvertDateTime(Value(column, { explicitTarget: record }), { userId: Value(\"ownerid\", { explicitTarget: record }) }), { format: \"yyyy-MM-dd hh:mm:ss\" }) }])";
+
+            var expected = @"<table>
+<tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Date</th>
+<tr />
+<tr>
+<td style=""border:1px solid black;padding:1px 15px 1px 5px;"">2020-02-27 03:00:00</td>
+<tr />
+</table>".Replace("\r", "").Replace("\n", "");
+
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
+        }
+
+        [Test]
         public void It_Should_Sort_Sub_Record_Table_Descending()
         {
             var context = new XrmFakedContext();

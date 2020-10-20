@@ -22,8 +22,6 @@ interface SdkStepManagerState {
 }
 
 export class SdkStepManager extends React.PureComponent<SdkStepManagerProps, SdkStepManagerState> {
-    private WebApiClient: typeof WebApiClient;
-
     constructor(props: SdkStepManagerProps) {
         super(props);
 

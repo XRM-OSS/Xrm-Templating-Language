@@ -5,7 +5,7 @@ import * as WebApiClient from "xrm-webapi-client";
 import { SdkStepManager } from "./SdkStepManager";
 import { SdkStep } from "../domain/SdkStep";
 import { Well, ButtonToolbar, ButtonGroup, Button, DropdownButton, MenuItem, Panel, InputGroup, Modal, FormGroup, ControlLabel, FormControl, ListGroup, ListGroupItem, Checkbox } from "react-bootstrap";
-import * as Parser from "html-react-parser";
+import parse from "html-react-parser";
 import MonacoEditor from "react-monaco-editor";
 import * as monacoEditor from "monaco-editor";
 
@@ -803,7 +803,7 @@ export default class XtlEditor extends React.PureComponent<any, XtlEditorState> 
                   </FormGroup>
                   <div className="col-xs-6">
                     <ControlLabel>Result</ControlLabel>
-                    <div style={ { "height": "50vh", "border": "1px solid lightgray", "overflow": "auto" } }>{Parser(this.state.resultText)}</div>
+                    <div style={ { "height": "50vh", "border": "1px solid lightgray", "overflow": "auto" } }>{parse(this.state.resultText)}</div>
                     <FormGroup controlId="output">
                       <ControlLabel style={{"padding-top": "10px"}}>Interpreter Trace</ControlLabel>
                       <FormControl style={ { "height": "50vh", "overflow": "auto" } } componentClass="textarea" value={ this.state.traceLog } disabled />
