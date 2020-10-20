@@ -297,13 +297,32 @@ namespace Xrm.Oss.XTL.Interpreter
             {
                 // Match arrow functions in style of (param) => Convert(param)
                 Match('(');
-                var variableName = GetName();
-                var formulaArgs = new Dictionary<string, ValueExpression> { { variableName, null } };
+
+                var variableNames = new List<string>();
+
+                do
+                {
+                    SkipWhiteSpace();
+                    variableNames.Add(GetName());
+                    SkipWhiteSpace();
+
+                    if (_current == ',')
+                    {
+                        GetChar();
+                    }
+                } while (_current != ')');
+
+                // Initialize variables as null
+                var formulaArgs = variableNames.ToDictionary(n => n, v => (ValueExpression) null);
                 Match(')');
 
-                if (new List<string> { "true", "false", "null"}.Concat(_handlers.Keys).Contains(variableName))
+                var usedReservedWords = variableNames
+                    .Where(n => new List<string> { "true", "false", "null" }.Concat(_handlers.Keys).Contains(n))
+                    .ToList();
+
+                if (usedReservedWords.Count > 0)
                 {
-                    throw new InvalidPluginExecutionException($"Your variable name '{variableName} is a reserved word, please choose a different name");
+                    throw new InvalidPluginExecutionException($"Your variable names {string.Join(", ", usedReservedWords.Select(w => $"'{w}'"))} is a reserved word, please choose a different name");
                 }
 
                 SkipWhiteSpace();
@@ -313,12 +332,19 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 var lambdaPosition = this._position - 1;
 
-                var lazyExecution = new Func<ValueExpression, ValueExpression>((v) =>
+                var lazyExecution = new Func<List<ValueExpression>, ValueExpression>((lambdaArgs) =>
                 {
                     var currentIndex = this._position;
                     GetChar(lambdaPosition);
 
-                    formulaArgs[variableName] = v;
+                    var arguments = formulaArgs.ToList();
+                    for (var i = 0; i < lambdaArgs.Count; i++) {
+                        if (i < formulaArgs.Count)
+                        {
+                            var parameterName = arguments[i].Key;
+                            formulaArgs[parameterName] = lambdaArgs[i];
+                        }
+                    }
 
                     var result = Formula(formulaArgs);
                     GetChar(currentIndex - 1);
@@ -357,7 +383,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     Match(':');
                     SkipWhiteSpace();
 
-                    dictionary[name] = Formula(args).Value;
+                    dictionary[name] = Formula(args)?.Value;
                     
                     SkipWhiteSpace();
                 } while (_current != '}');

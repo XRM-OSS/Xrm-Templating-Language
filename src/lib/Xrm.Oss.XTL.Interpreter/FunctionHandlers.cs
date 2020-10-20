@@ -348,14 +348,14 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Map needs an array as first parameter.");
             }
 
-            var lambda = parameters[1].Value as Func<ValueExpression, ValueExpression>;
+            var lambda = parameters[1].Value as Func<List<ValueExpression>, ValueExpression>;
 
             if (lambda == null)
             {
                 throw new InvalidPluginExecutionException("Lambda function must be a proper arrow function");
             }
 
-            return new ValueExpression(null, values.Select(v => lambda(v)).ToList());
+            return new ValueExpression(null, values.Select(v => lambda(new List<ValueExpression> { v })).ToList());
         };
 
         public static FunctionHandler Sort = (primary, service, tracing, organizationConfig, parameters) =>
@@ -526,7 +526,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         var columnName = column.ContainsKey("name") ? column["name"] as string : string.Empty;
                         columnName = columnName.Contains(":") ? columnName.Substring(0, columnName.IndexOf(':')) : columnName;
                         
-                        var renderFunction = column.ContainsKey("renderFunction") ? column["renderFunction"] as Func<ValueExpression, ValueExpression> : null;
+                        var renderFunction = column.ContainsKey("renderFunction") ? column["renderFunction"] as Func<List<ValueExpression>, ValueExpression> : null;
                         var entityConfig = column.ContainsKey("nameByEntity") ? column["nameByEntity"] as Dictionary<string, object> : null;
 
                         if (entityConfig != null && entityConfig.ContainsKey(record.LogicalName))
@@ -544,9 +544,10 @@ namespace Xrm.Oss.XTL.Interpreter
                         }
                         else if (renderFunction != null)
                         {
-                            var rawValue = record.GetAttributeValue<object>(columnName);
-                            var valueExpression = new ValueExpression(rawValue?.ToString(), rawValue);
-                            value = renderFunction(valueExpression)?.Text;
+                            var rowRecord = new ValueExpression(null, record);
+                            var rowColumnName = new ValueExpression(columnName, columnName);
+
+                            value = renderFunction(new List<ValueExpression> { rowRecord, rowColumnName })?.Text;
                         }
                         else
                         {

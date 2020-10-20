@@ -37,7 +37,7 @@ namespace Xrm.Oss.XTL.Interpreter
             _value = new Lazy<object>(() => expression?.Value?.Value);
         }
 
-        public ValueExpression(Func<ValueExpression, ValueExpression> expression, Dictionary<string, ValueExpression> args)
+        public ValueExpression(Func<List<ValueExpression>, ValueExpression> expression, Dictionary<string, ValueExpression> args)
         {
             _text = new Lazy<string>(() => string.Empty);
             _value = new Lazy<object>(() => expression);
