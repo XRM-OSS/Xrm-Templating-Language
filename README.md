@@ -1,10 +1,64 @@
-# XTL - Xrm Templating Language [![Build status](https://ci.appveyor.com/api/projects/status/skqv53ykh62587qp?svg=true)](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language) [![NuGet Badge](https://buildstats.info/nuget/Xrm.Oss.TemplatingLanguage.Sources)](https://www.nuget.org/packages/Xrm.Oss.TemplatingLanguage.Sources)
+# XTL - Xrm Templating Language
+[![Build status](https://ci.appveyor.com/api/projects/status/skqv53ykh62587qp?svg=true)](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language) [![NuGet Badge](https://buildstats.info/nuget/Xrm.Oss.TemplatingLanguage.Sources)](https://www.nuget.org/packages/Xrm.Oss.TemplatingLanguage.Sources)
 
 |Line Coverage|Branch Coverage|
 |-----|-----------------|
 |[![Line coverage](https://cdn.rawgit.com/digitalflow/xrm-templating-language/master/reports/badge_linecoverage.svg)](https://cdn.rawgit.com/digitalflow/xrm-templating-language/master/reports/index.htm)|[![Branch coverage](https://cdn.rawgit.com/digitalflow/xrm-templating-language/master/reports/badge_branchcoverage.svg)](https://cdn.rawgit.com/digitalflow/xrm-templating-language/master/reports/index.htm)|
 
 A domain specific language for Dynamics CRM allowing for easy text template processing
+
+- [XTL - Xrm Templating Language](#xtl---xrm-templating-language)
+  - [Purpose](#purpose)
+  - [Where to get it](#where-to-get-it)
+  - [Requirements](#requirements)
+  - [Examples](#examples)
+  - [How To Register](#how-to-register)
+    - [Using XTL Editor](#using-xtl-editor)
+    - [Manual Way](#manual-way)
+  - [Benefits](#benefits)
+  - [General Information](#general-information)
+  - [Types](#types)
+  - [Functions](#functions)
+    - [If](#if)
+    - [Or](#or)
+    - [And](#and)
+    - [Not](#not)
+    - [IsNull](#isnull)
+    - [IsEqual](#isequal)
+    - [IsLess](#isless)
+    - [IsLessEqual](#islessequal)
+    - [IsGreater](#isgreater)
+    - [IsGreaterEqual](#isgreaterequal)
+    - [Value](#value)
+    - [RecordUrl](#recordurl)
+    - [Fetch](#fetch)
+    - [First](#first)
+    - [Last](#last)
+    - [Union](#union)
+    - [Map](#map)
+    - [Sort](#sort)
+    - [RecordTable](#recordtable)
+    - [PrimaryRecord](#primaryrecord)
+    - [Concat](#concat)
+    - [Substring](#substring)
+    - [Replace](#replace)
+    - [Array](#array)
+    - [Join](#join)
+    - [NewLine](#newline)
+    - [DateTimeNow](#datetimenow)
+    - [DateTimeUtcNow](#datetimeutcnow)
+    - [DateToString](#datetostring)
+    - [ConvertDateTime](#convertdatetime)
+    - [Format](#format)
+    - [Snippet](#snippet)
+      - [Example - Refer to Snippet using unique name](#example---refer-to-snippet-using-unique-name)
+      - [Example - Refer to snippet with dynamic name](#example---refer-to-snippet-with-dynamic-name)
+      - [Example - Refer to snippet with simple filter](#example---refer-to-snippet-with-simple-filter)
+      - [Example - Refer to snippet with dynamic filter](#example---refer-to-snippet-with-dynamic-filter)
+  - [Sample](#sample)
+  - [Template Editor](#template-editor)
+  - [License](#license)
+  - [Credits](#credits)
 
 ## Purpose
 XTL is a domain specific language created for easing text processing inside Dynamics CRM.
@@ -87,6 +141,7 @@ Native Types:
 - Booleans (true or false)
 - Functions (Identifiers without quotes followed by parenthesis with parameters)
 - Dictionaries (JS style objects, such as { propertyName: value }. Value can be a constant or another expression.
+- Arrow functions (As function handlers for usage in some places. JS Style arrow functions such as (name) => Substring(name, 0, 1) for getting the first char of the value. Parameter names can be chosen by yourself, but they may not be named after an existing XTL function or a reserved word such as true, false, null) *Available starting with v3.8.0*
 
 In addition, null is also a reserved keyword.
 
@@ -265,6 +320,16 @@ Union ( ["This", "will"], ["Be"], ["One", "Array"] )
 
 will result in one array `["This", "will", "Be", "One", "Array"]`.
 
+### Map
+Maps values inside an array to a new array while mutating every value with the provided function.
+
+Example:
+``` JavaScript
+Join(" ", Map(["Lord", "of", "the", "Rings"], (s) => Substring(s, 0, 1)))
+```
+
+will result in `"L o t R"`.
+
 ### Sort
 Sort array, either native values or by property. Ascending by default, descending by setting the config flag
 
@@ -320,6 +385,18 @@ Example of objects as columns:
 ``` JavaScript
 RecordTable ( Fetch ( "<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>", Value ( "regardingobjectid" ) ), "task", [ { name: "subject", label: "Overridden Subject Label", style: "width:70%" }, {name: "description"} ], { addRecordUrl: true })
 ```
+
+Starting with v3.8.0, you can also pass your own render function for values. This can be used for mutating values before inserting them into the table.
+Example:
+
+```JavaScript
+RecordTable(Fetch("<fetch no-lock='true'><entity name='contact'><attribute name='ownerid' /><attribute name='createdon' /></entity></fetch>"), "contact", [{ name: "createdon", label: "Date", renderFunction: (record, column) => DateToString(ConvertDateTime(Value(column, { explicitTarget: record }), { userId: Value("ownerid", { explicitTarget: record }) }), { format: "yyyy-MM-dd hh:mm" }) }])
+```
+
+Above example fetches all contacts with their owner and createdon date.
+Before rendering them into a HTML table, each date is converted to the time zone of its owner.
+When accessing values from the row record, you need to pass the record parameter of the renderFunction as explicitTarget to the Value function.
+By leaving the explicitTarget out, you can still access values from the current primary record (for example the email record where you are going to insert this RecordTable).
 
 ### PrimaryRecord
 Returns the current primary entity as Entity object.
