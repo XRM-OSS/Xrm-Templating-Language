@@ -1,4 +1,5 @@
-# XTL - Xrm Templating Language [![Build status](https://ci.appveyor.com/api/projects/status/skqv53ykh62587qp?svg=true)](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language) [![NuGet Badge](https://buildstats.info/nuget/Xrm.Oss.TemplatingLanguage.Sources)](https://www.nuget.org/packages/Xrm.Oss.TemplatingLanguage.Sources)
+# XTL - Xrm Templating Language
+[![Build status](https://ci.appveyor.com/api/projects/status/skqv53ykh62587qp?svg=true)](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language) [![NuGet Badge](https://buildstats.info/nuget/Xrm.Oss.TemplatingLanguage.Sources)](https://www.nuget.org/packages/Xrm.Oss.TemplatingLanguage.Sources)
 
 |Line Coverage|Branch Coverage|
 |-----|-----------------|
@@ -6,7 +7,7 @@
 
 A domain specific language for Dynamics CRM allowing for easy text template processing
 
-- [XTL - Xrm Templating Language ![Build status](https://ci.appveyor.com/project/DigitalFlow/xrm-templating-language) [![NuGet Badge](https://buildstats.info/nuget/Xrm.Oss.TemplatingLanguage.Sources)](https://www.nuget.org/packages/Xrm.Oss.TemplatingLanguage.Sources)](#xtl---xrm-templating-language-img-srchttpsciappveyorcomapiprojectsstatusskqv53ykh62587qpsvgtrue-altbuild-status-img-srchttpsbuildstatsinfonugetxrmosstemplatinglanguagesources-altnuget-badge)
+- [XTL - Xrm Templating Language](#xtl---xrm-templating-language)
   - [Purpose](#purpose)
   - [Where to get it](#where-to-get-it)
   - [Requirements](#requirements)
