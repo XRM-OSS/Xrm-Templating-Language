@@ -127,6 +127,29 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Execute_Lambdas_On_Map()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Join(\" \", Map([\"Lord\", \"of\", \"the\", \"Rings\"], (e) => Substring(e, 0, 1)))";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("L o t R"));
+        }
+
+        [Test]
         public void It_Should_Sort_Native_Value_Array()
         {
             var context = new XrmFakedContext();

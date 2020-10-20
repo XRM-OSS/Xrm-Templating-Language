@@ -14,7 +14,6 @@ namespace Xrm.Oss.XTL.Interpreter
         private string _input;
         private char _previous;
         private char _current;
-        private bool _eof;
 
         private Entity _primary;
         private IOrganizationService _service;
@@ -45,6 +44,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "IsNull", FunctionHandlers.IsNull },
             { "Join", FunctionHandlers.Join },
             { "Last", FunctionHandlers.Last},
+            { "Map", FunctionHandlers.Map },
             { "NewLine", FunctionHandlers.NewLine },
             { "Not", FunctionHandlers.Not },
             { "Or", FunctionHandlers.Or },
@@ -79,17 +79,26 @@ namespace Xrm.Oss.XTL.Interpreter
         /// Reads the next character and sets it as current. Old current char becomes previous.
         /// </summary>
         /// <returns>True if read succeeded, false if end of input</returns>
-        private void GetChar()
+        private void GetChar(int? index = null)
         {
+            if (index != null)
+            {
+                // Initialize a new reader to move back to the beginning
+                _reader = new StringReader(_input);
+                _position = index.Value;
+
+                // Skip to searched index
+                for (var i = 0; i < index; i++)
+                {
+                    _reader.Read();
+                }
+            }
+
             _previous = _current;
             var character = _reader.Read();
             _current = (char)character;
             
-            if (character == -1)
-            {
-                _eof = true;
-            }
-            else
+            if (character != -1)
             {
                 _position++;
             }
@@ -100,9 +109,14 @@ namespace Xrm.Oss.XTL.Interpreter
             throw new InvalidPluginExecutionException($"{expected} expected after '{_previous}' at position {_position}, but encountered '{_current}'");
         }
 
+        private bool IsEof()
+        {
+            return _current == '\uffff';
+        }
+
         private void SkipWhiteSpace() 
         {
-            while(char.IsWhiteSpace(_current) && !_eof) {
+            while(char.IsWhiteSpace(_current) && !IsEof()) {
                 GetChar();
             }
         }
@@ -128,7 +142,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var name = string.Empty;
 
-            while (char.IsLetterOrDigit(_current) && !_eof) {
+            while (char.IsLetterOrDigit(_current) && !IsEof()) {
                 name += _current;
                 GetChar();
             }
@@ -137,7 +151,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return name;
         }
 
-        private List<ValueExpression> Expression(char[] terminators)
+        private List<ValueExpression> Expression(char[] terminators, Dictionary<string, ValueExpression> formulaArgs)
         {
             var returnValue = new List<ValueExpression>();
 
@@ -155,7 +169,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     GetChar();
 
                     // Allow to escape quotes by backslashes
-                    while ((_current != delimiter || _previous == '\\') && !_eof)
+                    while ((_current != delimiter || _previous == '\\') && !IsEof())
                     {
                         stringConstant += _current;
                         GetChar();
@@ -197,7 +211,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         }
 
                         GetChar();
-                    } while ((char.IsDigit(_current) || _current == '.') && !_eof);
+                    } while ((char.IsDigit(_current) || _current == '.') && !IsEof());
 
                     switch(_current)
                     {
@@ -230,19 +244,30 @@ namespace Xrm.Oss.XTL.Interpreter
                 // The first char of a function must not be a digit
                 else
                 {
-                    returnValue.Add(Formula());
+                    var value = Formula(formulaArgs);
+
+                    if (value != null)
+                    {
+                        returnValue.Add(value);
+                    }
                 }
 
                 SkipWhiteSpace();
-            } while (!terminators.Contains(_current) && !_eof);
+            } while (!terminators.Contains(_current) && !IsEof());
 
             return returnValue;
         }
 
-        private ValueExpression ApplyExpression (string name, List<ValueExpression> parameters) 
+        private ValueExpression ApplyExpression (string name, List<ValueExpression> parameters, Dictionary<string, ValueExpression> formulaArgs = null) 
         {
             if (!_handlers.ContainsKey(name)) {
                 throw new InvalidPluginExecutionException($"Function {name} is not known!");
+            }
+
+            // In this case we're only stepping through in the initial interpreting of the lambda
+            if (formulaArgs != null && formulaArgs.Any(a => a.Value == null))
+            {
+                return new ValueExpression(null);
             }
 
             var lazyExecution = new Lazy<ValueExpression>(() =>
@@ -257,16 +282,54 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(lazyExecution);
         }
 
-        private ValueExpression Formula()
+        private ValueExpression Formula(Dictionary<string, ValueExpression> args)
         {
             SkipWhiteSpace();
 
             if (_current == '[') {
                 Match('[');
-                var arrayParameters = Expression(new[] { ']' });
+                var arrayParameters = Expression(new[] { ']' }, args);
                 Match(']');
 
                 return ApplyExpression("Array", arrayParameters);
+            }
+            else if(_current == '(')
+            {
+                // Match arrow functions in style of (param) => Convert(param)
+                Match('(');
+                var variableName = GetName();
+                var formulaArgs = new Dictionary<string, ValueExpression> { { variableName, null } };
+                Match(')');
+
+                if (new List<string> { "true", "false", "null"}.Concat(_handlers.Keys).Contains(variableName))
+                {
+                    throw new InvalidPluginExecutionException($"Your variable name '{variableName} is a reserved word, please choose a different name");
+                }
+
+                SkipWhiteSpace();
+                Match('=');
+                Match('>');
+                SkipWhiteSpace();
+
+                var lambdaPosition = this._position - 1;
+
+                var lazyExecution = new Func<ValueExpression, ValueExpression>((v) =>
+                {
+                    var currentIndex = this._position;
+                    GetChar(lambdaPosition);
+
+                    formulaArgs[variableName] = v;
+
+                    var result = Formula(formulaArgs);
+                    GetChar(currentIndex - 1);
+
+                    return result;
+                });
+
+                // Run only for skipping the formula part
+                Formula(formulaArgs);
+
+                return new ValueExpression(lazyExecution, formulaArgs);
             }
             else if (_current == '{')
             {
@@ -294,7 +357,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     Match(':');
                     SkipWhiteSpace();
 
-                    dictionary[name] = Formula().Value;
+                    dictionary[name] = Formula(args).Value;
                     
                     SkipWhiteSpace();
                 } while (_current != '}');
@@ -306,10 +369,15 @@ namespace Xrm.Oss.XTL.Interpreter
             else if (char.IsDigit(_current) || _current == '"' || _current == '\'' || _current == '-')
             {
                 // This is only called in object initializers / dictionaries. Only one value should be entered here
-                return Expression(new[] { '}', ',' }).First();
+                return Expression(new[] { '}', ',' }, args).First();
             }
             else {
                 var name = GetName();
+
+                if (args != null && args.ContainsKey(name))
+                {
+                    return args[name];
+                }
 
                 switch(name)
                 {
@@ -321,10 +389,10 @@ namespace Xrm.Oss.XTL.Interpreter
                         return new ValueExpression( null );
                     default:
                         Match('(');
-                        var parameters = Expression(new[] { ')' });
+                        var parameters = Expression(new[] { ')' }, args);
                         Match(')');
 
-                        return ApplyExpression(name, parameters);
+                        return ApplyExpression(name, parameters, args);
                 }
             }
         }
@@ -338,7 +406,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 return string.Empty;
             }
 
-            var output = Formula();
+            var output = Formula(new Dictionary<string, ValueExpression> { });
 
             return output?.Text;
         }

@@ -332,6 +332,32 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(null, union);
         };
 
+        public static FunctionHandler Map = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Map function needs at least an array with data and a function for mutating the data");
+            }
+
+            var config = GetConfig(parameters);
+
+            var values = parameters[0].Value as List<ValueExpression>;
+
+            if (!(values is IEnumerable))
+            {
+                throw new InvalidPluginExecutionException("Map needs an array as first parameter.");
+            }
+
+            var lambda = parameters[1].Value as Func<ValueExpression, ValueExpression>;
+
+            if (lambda == null)
+            {
+                throw new InvalidPluginExecutionException("Lambda function must be a proper arrow function");
+            }
+
+            return new ValueExpression(null, values.Select(v => lambda(v)).ToList());
+        };
+
         public static FunctionHandler Sort = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count < 1)

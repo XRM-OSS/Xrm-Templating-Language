@@ -12,10 +12,10 @@
   "license": "MIT",
   "dependencies": {
     "css-loader": "^1.0.0",
-    "html-react-parser": "^0.4.7",
+    "html-react-parser": "^0.14.0",
     "monaco-editor-webpack-plugin": "^1.5.1",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-markdown": "^3.1.0",
     "react-monaco-editor": "^0.18.0",
     "style-loader": "^0.23.0"
@@ -26,14 +26,14 @@
     "@types/react-bootstrap": "^0.31.9",
     "@types/react-dom": "^15.5.7",
     "awesome-typescript-loader": "^3.5.0",
-    "bestzip": "^1.1.4",
+    "bestzip": "^2.1.7",
     "bluebird": "^3.5.1",
     "cpx": "^1.5.0",
-    "react-bootstrap": "^0.31.5",
+    "react-bootstrap": "^0.33.1",
     "source-map-loader": "^0.2.3",
     "tslint": "^5.9.1",
-    "typescript": "^2.7.2",
-    "webpack": "^4.17.1",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
     "webpack-command": "^0.4.1",
     "xrm-webapi-client": "^4.0.0"
   }
