@@ -41,6 +41,58 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Be_True_When_All_Conditions_In_And_Are_True()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+            
+            var formula = "And(true, true, true, true)";
+            var result = new XTLInterpreter(formula, new Entity(), null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo(bool.TrueString));
+        }
+
+        [Test]
+        public void It_Should_Be_False_When_One_Condition_In_And_Is_False()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "And(true, true, true, false)";
+            var result = new XTLInterpreter(formula, new Entity(), null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo(bool.FalseString));
+        }
+
+        [Test]
+        public void It_Should_Be_True_When_One_Condition_In_Or_Is_True()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "Or(false, false, true, true, true)";
+            var result = new XTLInterpreter(formula, new Entity(), null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo(bool.TrueString));
+        }
+
+        [Test]
+        public void It_Should_Be_False_When_All_Conditions_In_Or_Are_False()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "And(false, false, true, false)";
+            var result = new XTLInterpreter(formula, new Entity(), null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo(bool.FalseString));
+        }
+
+        [Test]
         public void Strings_Should_Also_Be_Possible_With_Single_Quotes()
         {
             var context = new XrmFakedContext();
