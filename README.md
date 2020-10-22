@@ -333,8 +333,10 @@ will result in `"L o t R"`.
 Your input does not need to be an array of strings, you can even loop over records fetched using Fetch:
 
 ``` JavaScript
-Join(" ", Map(Fetch("<fetch no-lock='true'><entity name='contact'><attribute name='ownerid' /><attribute name='createdon' /></entity></fetch>"), (record) => DateToString(ConvertDateTime(Value("createdon", { explicitTarget: record }), { userId: Value("ownerid", { explicitTarget: record }) }), { format: "yyyy-MM-dd hh:mm" })))
+Join(", ", Map(Fetch("<fetch no-lock='true'><entity name='contact'><attribute name='ownerid' /><attribute name='createdon' /></entity></fetch>"), (record) => DateToString(ConvertDateTime(Value("createdon", { explicitTarget: record }), { userId: Value("ownerid", { explicitTarget: record }) }), { format: "yyyy-MM-dd hh:mm" })))
 ```
+
+will result in something like this: `"2018-10-27 05:39, 2019-04-24 10:24"`
 
 ### Sort
 Sort array, either native values or by property. Ascending by default, descending by setting the config flag
