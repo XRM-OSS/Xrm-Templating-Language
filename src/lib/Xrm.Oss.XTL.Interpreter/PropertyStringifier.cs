@@ -42,7 +42,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 };
 
                 var response = service.Execute(request) as RetrieveAttributeResponse;
-                var metadata = (PicklistAttributeMetadata)response.AttributeMetadata;
+                var metadata = (EnumAttributeMetadata)response.AttributeMetadata;
 
                 var fieldMetadata = metadata.OptionSet.Options.First(f => f.Value == optionSet.Value);
 

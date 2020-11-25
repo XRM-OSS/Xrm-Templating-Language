@@ -1058,6 +1058,47 @@ namespace Xrm.Oss.XTL.Interpreter
 
             return new ValueExpression(text, localTime);
         };
+
+        public static FunctionHandler RetrieveAudit = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var firstParam = parameters.FirstOrDefault()?.Value;
+            var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
+
+            if (firstParam != null && reference == null)
+            {
+                throw new InvalidPluginExecutionException("RetrieveAudit: First Parameter must be an Entity or EntityReference");
+            }
+
+            if (reference == null)
+            {
+                return new ValueExpression(string.Empty, null);
+            }
+
+            var field = CheckedCast<string>(parameters[1]?.Value, "RetrieveAudit: fieldName must be a string");
+
+            var request = new RetrieveRecordChangeHistoryRequest
+            {
+                Target = reference
+            };
+            var audit = service.Execute(request) as RetrieveRecordChangeHistoryResponse;
+
+            var auditValue = audit.AuditDetailCollection.AuditDetails.Select(d =>
+            {
+                var detail = d as AttributeAuditDetail;
+
+                if (detail == null)
+                {
+                    return null;
+                }
+
+                var oldValue = detail.OldValue.GetAttributeValue<object>(field);
+                
+                return Tuple.Create(PropertyStringifier.Stringify(field, detail.OldValue, service), oldValue);
+            })
+            .FirstOrDefault(t => t != null);
+            
+            return new ValueExpression(auditValue?.Item1 ?? string.Empty, auditValue?.Item2);
+        };
     }
 }
 #pragma warning restore S1104 // Fields should not have public accessibility

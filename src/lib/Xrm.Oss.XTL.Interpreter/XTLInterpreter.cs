@@ -53,6 +53,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "RecordTable", FunctionHandlers.RenderRecordTable },
             { "RecordUrl", FunctionHandlers.GetRecordUrl },
             { "Replace", FunctionHandlers.Replace },
+            { "RetrieveAudit", FunctionHandlers.RetrieveAudit },
             { "Snippet", FunctionHandlers.Snippet },
             { "Sort", FunctionHandlers.Sort },
             { "Static", FunctionHandlers.Static },

@@ -80,6 +80,37 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Stringify_Status_OptionSet_Using_Formatted_Value_If_Available()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "oss_OptionSet", new OptionSetValue(1) }
+                }
+            };
+
+            var config = new ConfigHandler(new Dictionary<string, object>
+            {
+                { "optionSetLcid", 1031 }
+            });
+
+            var metadata = new EntityMetadata { LogicalName = "email" };
+            var field = typeof(EntityMetadata).GetField("_attributes", BindingFlags.NonPublic | BindingFlags.Instance);
+            field.SetValue(metadata, new AttributeMetadata[] { new StatusAttributeMetadata { LogicalName = "oss_OptionSet", OptionSet = new OptionSetMetadata { Options = { new OptionMetadata { Value = 1, Label = new Label("Value1", 1031) } } } } });
+
+            context.InitializeMetadata(metadata);
+
+            var text = PropertyStringifier.Stringify("oss_OptionSet", email, service, config);
+            Assert.That(text, Is.EqualTo("Value1"));
+        }
+
+        [Test]
         public void It_Should_Stringify_EntityReference_Using_Id_Without_Formatted_Value()
         {
             var reference = new EntityReference("account", Guid.NewGuid());

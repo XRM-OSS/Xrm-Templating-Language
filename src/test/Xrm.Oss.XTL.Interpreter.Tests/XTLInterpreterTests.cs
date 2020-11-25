@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using FakeItEasy;
 using FakeXrmEasy;
+using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
@@ -113,6 +114,53 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
 
             Assert.That(result, Is.EqualTo("TestSubject\"TestSubject'"));
+        }
+
+        [Test]
+        public void It_Should_Retrieve_Old_Values_From_Audit()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "newName" }
+                }
+            };
+
+            context.AddExecutionMock<RetrieveRecordChangeHistoryRequest>((OrganizationRequest req) =>
+            {
+                var auditDetail = new AttributeAuditDetail
+                {
+                    OldValue = new Entity
+                    {
+                        LogicalName = "contact",
+                        Id = Guid.NewGuid(),
+                        ["name"] = "oldName"
+                    }
+                };
+
+                var collection = new AuditDetailCollection();
+                collection.AuditDetails.Add(auditDetail);
+
+                return new RetrieveRecordChangeHistoryResponse
+                {
+                    Results = new ParameterCollection
+                    {
+                        { "AuditDetailCollection", collection }
+                    }
+                };
+            });
+
+            var formula = "RetrieveAudit (PrimaryRecord(), \"name\")";
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("oldName"));
         }
 
         [Test]
