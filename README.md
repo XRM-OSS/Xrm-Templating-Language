@@ -50,6 +50,7 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
     - [DateToString](#datetostring)
     - [ConvertDateTime](#convertdatetime)
     - [Format](#format)
+    - [RetrieveAudit](#retrieveaudit)
     - [Snippet](#snippet)
       - [Example - Refer to Snippet using unique name](#example---refer-to-snippet-using-unique-name)
       - [Example - Refer to snippet with dynamic name](#example---refer-to-snippet-with-dynamic-name)
@@ -529,6 +530,20 @@ Format( Value("index"),  { format: "{0:00000}" } ) // Will print 00001 for index
 ```
 
 Refer to the .NET style for date formatting.
+
+### RetrieveAudit
+Can be used for retrieving the previous value for a given field of a record. Auditing has to be enabled for the specific entity for this to work.
+Receives the record as Entity (PrimaryRecord function) or EntityReference as first parameter, field name as second.
+
+Example Entity:
+``` JavaScript
+RetrieveAudit(PrimaryRecord, "statuscode")
+```
+
+Example EntityReference:
+``` JavaScript
+RetrieveAudit(Value("regardingobjectid"), "statuscode")
+```
 
 ### Snippet
 > Snippets are available in XTL >= v3.7
