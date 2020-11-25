@@ -1063,6 +1063,7 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             var firstParam = parameters.FirstOrDefault()?.Value;
             var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
+            var config = GetConfig(parameters);
 
             if (firstParam != null && reference == null)
             {
@@ -1093,7 +1094,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                 var oldValue = detail.OldValue.GetAttributeValue<object>(field);
                 
-                return Tuple.Create(PropertyStringifier.Stringify(field, detail.OldValue, service), oldValue);
+                return Tuple.Create(PropertyStringifier.Stringify(field, detail.OldValue, service, config), oldValue);
             })
             .FirstOrDefault(t => t != null);
             
