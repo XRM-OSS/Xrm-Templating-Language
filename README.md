@@ -532,6 +532,8 @@ Format( Value("index"),  { format: "{0:00000}" } ) // Will print 00001 for index
 Refer to the .NET style for date formatting.
 
 ### RetrieveAudit
+> Function is available in XTL >= v3.8.1
+
 Can be used for retrieving the previous value for a given field of a record. Auditing has to be enabled for the specific entity for this to work.
 Receives the record as Entity (PrimaryRecord function) or EntityReference as first parameter, field name as second.
 
