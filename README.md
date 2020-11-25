@@ -537,7 +537,7 @@ Receives the record as Entity (PrimaryRecord function) or EntityReference as fir
 
 Example Entity:
 ``` JavaScript
-RetrieveAudit(PrimaryRecord, "statuscode")
+RetrieveAudit(PrimaryRecord(), "statuscode")
 ```
 
 Example EntityReference:
