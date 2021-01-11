@@ -79,7 +79,10 @@ Build it yourself by running `build.cmd`, or simply download from [AppVeyor](htt
 XTL itself does not use any specific CRM features and is compatible with Dynamics CRM 2011 and higher.
 Currently the Plugin is built against Dynamics 365 SDK however. Future releases may target specific CRM versions.
 The template editor is only available in CRM 2016 and later, as it uses the Web Api.
-The solution which can be downloaded from the releases supports CRM >= v8.0 starting from XTL v3.0.3 upwards.
+
+The solutions which can be downloaded from the releases support the following CRM versions:
+- XTL v3.0.3 to 3.8.1: CRM v8 and later
+- XTL v3.8.2 upwards: CRM v9 (since we use the rich text pcf control for snippet expressions if "Is HTML" is true)
 
 ## Examples
 Examples of how to use XTL can be found in our [Wiki](https://github.com/DigitalFlow/Xrm-Templating-Language/wiki).
@@ -549,6 +552,7 @@ RetrieveAudit(Value("regardingobjectid"), "statuscode")
 
 ### Snippet
 > Snippets are available in XTL >= v3.7
+> In XTL >= v3.8.2, you can set "Contains Plain text" and "Is HTML" to true, for getting a rich text editor for expressions. This allows for advanced formatting in snippets and for uploading images as well.
 
 Snippets are an easy way for storing texts globally, so that they can be referred to from anywhere in the system.
 They are stored in the XTL Snippet entity. You can use them as simple storage for a single (long) XTL expression, or even pass a complete text with embedded XTL expressions in the usual fashion (${{expression}}) inside it.
