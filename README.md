@@ -630,6 +630,89 @@ a new case was associated with your account TheShire Limited, you can open it us
 https://imagine-creative-url.local
 ```
 
+## Templating on not yet existing records
+Sometimes you might want to preset values on records that are not yet created. For this you can call the `oss_XTLApplyTemplate` custom action and provide the current values of your current entity directly as JSON.
+
+For example if you want to process a template on the email entity and your templates need data only from the regardingobject of your entity:
+
+```JS
+const payload = {
+            jsonInput: JSON.stringify({
+                targetEntity: {
+                    Attributes: [
+                        {
+                            "key": "regardingobjectid",
+                            "value": {
+                                "__type": "EntityReference:http://schemas.microsoft.com/xrm/2011/Contracts",
+                                "Id": regardingObjectRef[0].id,
+                                "KeyAttributes": [],
+                                "LogicalName": regardingObjectRef[0].entityType,
+                                "Name": null,
+                                "RowVersion": null
+                            }
+                        }
+                    ]
+                },
+                template: snippet
+            })
+        };
+```
+
+You can then send this payload when executing the custom action.
+
+A json representation of an entity that can be deserialized in Dynamics looks something like this:
+
+```JSON
+{
+    "Attributes": [
+        {
+            "key": "createdon",
+            "value": "/Date(1615542774000)/"
+        },
+        {
+            "key": "customersatisfactioncode",
+            "value": {
+                "__type": "OptionSetValue:http://schemas.microsoft.com/xrm/2011/Contracts",
+                "Value": 3
+            }
+        },
+        {
+            "key": "oss_someflag",
+            "value": false
+        },
+        {
+            "key": "ticketnumber",
+            "value": "123"
+        },
+        {
+            "key": "ownerid",
+            "value": {
+                "__type": "EntityReference:http://schemas.microsoft.com/xrm/2011/Contracts",
+                "Id": "deadbeef-dead-dead-dead-deadbeefdead",
+                "KeyAttributes": [],
+                "LogicalName": "systemuser",
+                "Name": null,
+                "RowVersion": null
+            }
+        },
+        {
+            "key": "processid",
+            "value": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+            "key": "incidentid",
+            "value": "b4d7965c-b7d8-4c6b-a498-905eeedf6bf1"
+        },
+    ],
+    "EntityState": null,
+    "Id": "deadbeef-dead-dead-dead-deadbeefdead",
+    "KeyAttributes": [],
+    "LogicalName": "incident",
+    "RelatedEntities": [],
+    "RowVersion": null
+}
+```
+
 ## Template Editor
 The solution that you can find inside the releases section also contains a live editor that can be used for creating, testing and serializing configurations for XTL. In addition to that, existing XTL plugin execution steps can be loaded, tested and updated.
 You just need to import the xtl solution, open it and select the configuration page.
