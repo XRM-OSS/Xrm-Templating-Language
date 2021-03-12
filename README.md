@@ -57,6 +57,7 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
       - [Example - Refer to snippet with simple filter](#example---refer-to-snippet-with-simple-filter)
       - [Example - Refer to snippet with dynamic filter](#example---refer-to-snippet-with-dynamic-filter)
   - [Sample](#sample)
+  - [Templating on not yet existing records](#templating-on-not-yet-existing-records)
   - [Template Editor](#template-editor)
   - [License](#license)
   - [Credits](#credits)
