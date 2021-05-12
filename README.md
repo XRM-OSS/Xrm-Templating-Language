@@ -39,7 +39,10 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
     - [Sort](#sort)
     - [RecordTable](#recordtable)
     - [PrimaryRecord](#primaryrecord)
+    - [RecordId](#recordid)
+    - [RecordLogicalName](#recordlogicalname)
     - [Concat](#concat)
+    - [IndexOf](#indexof)
     - [Substring](#substring)
     - [Replace](#replace)
     - [Array](#array)
@@ -265,6 +268,25 @@ Example:
 RecordUrl ( Value ( "regardingobjectid") )
 ```
 
+### OrganizationUrl
+**Available since: v3.6.2**
+
+Returns the URL of your organization with an additional suffix and link text.
+When passing the configuration property "asHtml" as "false", it will only print the URL, otherwise it will be an HTML <a> tag.
+
+__Important Remark: When using it, the organization url is automatically saved to the step secure config. When importing the step into another organization, you will initially have to open the editor in the new organnization, select each new step and save it once, so that the secure configs will be created. This is only necessary once, on the first import of a new step to an organization.__
+
+
+Example:
+``` JavaScript
+OrganizationUrl ( { urlSuffix: "/WebResources/oss_/somepage.html", asHtml: true, linkText: "Click me" } )
+
+OrganizationUrl ( { urlSuffix: "/WebResources/oss_/somepage.html" } )
+```
+
+If the organization URL was xosstest.crm4.dynamics.com, the output for the first example would be `<a href="https://xosstest.crm4.dynamics.com/WebResources/oss_/somepage.html">Click me</a>`.
+For the second example the output would simply be `https://xosstest.crm4.dynamics.com/WebResources/oss_/somepage.html`.
+
 ### Fetch
 Returns a list of records, which were retrieved using supplied query.
 First parameter is the fetch xml. You can optionally pass a list of further parameters, such as entity references, entities or option set values as references.
@@ -326,6 +348,7 @@ Union ( ["This", "will"], ["Be"], ["One", "Array"] )
 will result in one array `["This", "will", "Be", "One", "Array"]`.
 
 ### Map
+**Available since: v3.8.0**
 Maps values inside an array to a new array while mutating every value with the provided function.
 
 Example:
@@ -420,6 +443,34 @@ Example:
 PrimaryRecord ()
 ```
 
+### RecordId
+**Available since: v3.9.0**
+
+Returns the GUID of an Entity or Entity Reference object.
+
+Example:
+``` JavaScript
+RecordId( PrimaryRecord () )
+
+RecordId( Value("primarycontactid") )
+```
+
+Returns the GUID of the primary record, or in the second example the GUID of the primarycontactid lookup.
+
+### RecordLogicalName
+**Available since: v3.9.0**
+
+Returns the logical name of an Entity or Entity Reference object.
+
+Example:
+``` JavaScript
+RecordLogicalName ( PrimaryRecord () )
+
+RecordLogicalName ( Value("primarycontactid") )
+```
+
+Returns the GUID of the primary record, or in the second example the GUID of the primarycontactid lookup.
+
 ### Concat
 Concatenates all parameters that were passed into one string.
 
@@ -428,6 +479,16 @@ Example:
 Concat(Value("lastname"), ", ", Value("firstname"))
 ```
 Above example could return something like 'Baggins, Frodo'.
+
+### IndexOf
+**Available since: v3.6.2**
+Takes a string input where a substring should be searched and the substring to search for as parameters. Returns the index where the substring was found inside the search text, or -1 if not found.
+
+Example:
+``` JavaScript
+IndexOf ( Value("fullname"), "Baggins")
+```
+Above example returns '6' when input is 'Frodo Beaggins'.
 
 ### Substring
 Takes the substring of your input starting from a given index. Length of substring can be passed optionally as well.
@@ -536,7 +597,7 @@ Format( Value("index"),  { format: "{0:00000}" } ) // Will print 00001 for index
 Refer to the .NET style for date formatting.
 
 ### RetrieveAudit
-> Function is available in XTL >= v3.8.1
+**Available since: v3.8.1**
 
 Can be used for retrieving the previous value for a given field of a record. Auditing has to be enabled for the specific entity for this to work.
 Receives the record as Entity (PrimaryRecord function) or EntityReference as first parameter, field name as second.
@@ -552,7 +613,7 @@ RetrieveAudit(Value("regardingobjectid"), "statuscode")
 ```
 
 ### Snippet
-> Snippets are available in XTL >= v3.7
+**Available since: v3.7.0**
 > In XTL >= v3.8.2, you can set "Contains Plain text" and "Is HTML" to true, for getting a rich text editor for expressions. This allows for advanced formatting in snippets and for uploading images as well.
 
 Snippets are an easy way for storing texts globally, so that they can be referred to from anywhere in the system.

@@ -50,6 +50,8 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Or", FunctionHandlers.Or },
             { "OrganizationUrl", FunctionHandlers.GetOrganizationUrl },
             { "PrimaryRecord", FunctionHandlers.GetPrimaryRecord },
+            { "RecordId", FunctionHandlers.GetRecordId },
+            { "RecordLogicalName", FunctionHandlers.GetRecordLogicalName },
             { "RecordTable", FunctionHandlers.RenderRecordTable },
             { "RecordUrl", FunctionHandlers.GetRecordUrl },
             { "Replace", FunctionHandlers.Replace },

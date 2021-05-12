@@ -164,6 +164,118 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Get_Id_From_Entity()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = new Guid("a99b0170-d463-4f70-8db9-e2d8ee348f5f"),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "newName" }
+                }
+            };
+
+            var formula = "RecordId (PrimaryRecord())";
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("a99b0170-d463-4f70-8db9-e2d8ee348f5f"));
+        }
+
+        [Test]
+        public void It_Should_Get_LogicalName_From_Entity()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = new Guid("a99b0170-d463-4f70-8db9-e2d8ee348f5f"),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "newName" }
+                }
+            };
+
+            var formula = "RecordLogicalName (PrimaryRecord())";
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("contact"));
+        }
+
+        [Test]
+        public void It_Should_Get_Id_From_Entity_Reference()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = new Guid("a99b0170-d463-4f70-8db9-e2d8ee348f5f"),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "newName" }
+                }
+            };
+
+            var account = new Entity
+            {
+                LogicalName = "account",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "primarycontactid", contact.ToEntityReference() }
+                }
+            };
+
+            var formula = "RecordId (Value(\"primarycontactid\"))";
+            var result = new XTLInterpreter(formula, account, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("a99b0170-d463-4f70-8db9-e2d8ee348f5f"));
+        }
+
+        [Test]
+        public void It_Should_Get_LogicalName_From_Entity_Reference()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = new Guid("a99b0170-d463-4f70-8db9-e2d8ee348f5f"),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "newName" }
+                }
+            };
+
+            var account = new Entity
+            {
+                LogicalName = "account",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "primarycontactid", contact.ToEntityReference() }
+                }
+            };
+
+            var formula = "RecordLogicalName (Value(\"primarycontactid\"))";
+            var result = new XTLInterpreter(formula, account, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("contact"));
+        }
+
+        [Test]
         public void It_Should_Union_Arrays()
         {
             var context = new XrmFakedContext();

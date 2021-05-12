@@ -818,14 +818,18 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             if (parameters.Count < 2)
             {
-                throw new InvalidPluginExecutionException("Substring expects at least two parameters: searchText and searchExpression");
+                throw new InvalidPluginExecutionException("IndexOf needs a source string and a string to search for");
             }
 
-            var text = parameters[0].Text;
-            var searchExpression = parameters[1].Text;
+            var value = CheckedCast<string>(parameters[0].Value, "Source must be a string");
+            var searchText = CheckedCast<string>(parameters[1].Value, "Search text must be a string");
 
-            var index = text.IndexOf(searchExpression);
-            return new ValueExpression($"{index}", index);
+            var config = GetConfig(parameters);
+            var ignoreCase = config.GetValue<bool>("ignoreCase", "ignoreCase must be a boolean!");
+
+            var index = value.IndexOf(searchText, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
+
+            return new ValueExpression(index.ToString(), index);
         };
 
         public static FunctionHandler Replace = (primary, service, tracing, organizationConfig, parameters) =>
@@ -1099,6 +1103,42 @@ namespace Xrm.Oss.XTL.Interpreter
             .FirstOrDefault(t => t != null);
             
             return new ValueExpression(auditValue?.Item1 ?? string.Empty, auditValue?.Item2);
+        };
+
+        public static FunctionHandler GetRecordId = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var firstParam = parameters.FirstOrDefault()?.Value;
+            var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
+
+            if (firstParam != null && reference == null)
+            {
+                throw new InvalidPluginExecutionException("RecordId: First Parameter must be an Entity or EntityReference");
+            }
+
+            if (reference == null)
+            {
+                return new ValueExpression(string.Empty, null);
+            }
+
+            return new ValueExpression(reference.Id.ToString(), reference.Id);
+        };
+
+        public static FunctionHandler GetRecordLogicalName = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var firstParam = parameters.FirstOrDefault()?.Value;
+            var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
+
+            if (firstParam != null && reference == null)
+            {
+                throw new InvalidPluginExecutionException("RecordLogicalName: First Parameter must be an Entity or EntityReference");
+            }
+
+            if (reference == null)
+            {
+                return new ValueExpression(string.Empty, null);
+            }
+
+            return new ValueExpression(reference.LogicalName, reference.LogicalName);
         };
     }
 }
