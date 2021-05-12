@@ -243,6 +243,67 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Get_Id_From_Entity_Reference_With_Format()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = new Guid("a99b0170-d463-4f70-8db9-e2d8ee348f5f"),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "newName" }
+                }
+            };
+
+            var account = new Entity
+            {
+                LogicalName = "account",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "primarycontactid", contact.ToEntityReference() }
+                }
+            };
+
+            var formula = "RecordId (Value(\"primarycontactid\"), { format: \"N\" })";
+            var result = new XTLInterpreter(formula, account, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("a99b0170d4634f708db9e2d8ee348f5f"));
+        }
+
+        [Test]
+        public void It_Should_Compare_Ids_In_IsEqual()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var contact = new Entity
+            {
+                LogicalName = "contact",
+                Id = new Guid("a99b0170-d463-4f70-8db9-e2d8ee348f5f"),
+                Attributes = new AttributeCollection
+                {
+                    { "name", "newName" }
+                }
+            };
+
+            var formula = "If ( IsEqual ( RecordId ( PrimaryRecord() ), \"a99b0170-d463-4f70-8db9-e2d8ee348f5f\"), \"Match\", \"No Match\")";
+            var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("Match"));
+
+            formula = "If ( IsEqual ( RecordId ( PrimaryRecord() ), \"b99b0170-d463-4f70-8db9-e2d8ee348f5f\"), \"Match\", \"No Match\")";
+            result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("No Match"));
+        }
+
+        [Test]
         public void It_Should_Get_LogicalName_From_Entity_Reference()
         {
             var context = new XrmFakedContext();

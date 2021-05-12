@@ -147,6 +147,38 @@ namespace Xrm.Oss.XTL.Interpreter
                 var optionSetResult = values[0].Equals(values[1]);
                 return new ValueExpression(optionSetResult.ToString(CultureInfo.InvariantCulture), optionSetResult);
             }
+            else if (new[] { expected.Value, actual.Value }.All(v => v is Guid || (v is string && Guid.TryParse((string) v, out var tryGuid)) || v is EntityReference || v is Entity))
+            {
+                var values = new[] { expected.Value, actual.Value }
+                    .Select(v =>
+                    {
+                        if (v is Guid)
+                        {
+                            return (Guid) v;
+                        }
+
+                        if (v is string)
+                        {
+                            return new Guid((string) v);
+                        }
+
+                        if (v is EntityReference)
+                        {
+                            return ((EntityReference) v).Id;
+                        }
+
+                        if (v is Entity)
+                        {
+                            return ((Entity) v).Id;
+                        }
+
+                        return Guid.Empty;
+                    })
+                    .ToList();
+
+                var guidResult = values[0].Equals(values[1]);
+                return new ValueExpression(guidResult.ToString(CultureInfo.InvariantCulture), guidResult);
+            }
             else
             {
                 var result = expected.Value.Equals(actual.Value);
@@ -1109,6 +1141,7 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             var firstParam = parameters.FirstOrDefault()?.Value;
             var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
+            var config = GetConfig(parameters);
 
             if (firstParam != null && reference == null)
             {
@@ -1120,7 +1153,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 return new ValueExpression(string.Empty, null);
             }
 
-            return new ValueExpression(reference.Id.ToString(), reference.Id);
+            var textValue = reference.Id.ToString(config.GetValue<string>("format", "format must be a string", "D"));
+
+            return new ValueExpression(textValue, reference.Id);
         };
 
         public static FunctionHandler GetRecordLogicalName = (primary, service, tracing, organizationConfig, parameters) =>
