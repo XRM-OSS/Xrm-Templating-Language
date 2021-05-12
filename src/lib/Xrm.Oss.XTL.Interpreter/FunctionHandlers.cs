@@ -119,6 +119,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var expected = parameters[0];
             var actual = parameters[1];
+            var tempGuid = Guid.Empty;
 
             var falseReturn = new ValueExpression(bool.FalseString, false);
             var trueReturn = new ValueExpression(bool.TrueString, true);
@@ -147,7 +148,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 var optionSetResult = values[0].Equals(values[1]);
                 return new ValueExpression(optionSetResult.ToString(CultureInfo.InvariantCulture), optionSetResult);
             }
-            else if (new[] { expected.Value, actual.Value }.All(v => v is Guid || (v is string && Guid.TryParse((string) v, out var tryGuid)) || v is EntityReference || v is Entity))
+            else if (new[] { expected.Value, actual.Value }.All(v => v is Guid || (v is string && Guid.TryParse((string) v, out tempGuid)) || v is EntityReference || v is Entity))
             {
                 var values = new[] { expected.Value, actual.Value }
                     .Select(v =>
@@ -159,7 +160,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                         if (v is string)
                         {
-                            return new Guid((string) v);
+                            return tempGuid;
                         }
 
                         if (v is EntityReference)
