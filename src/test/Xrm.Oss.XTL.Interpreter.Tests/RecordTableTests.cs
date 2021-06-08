@@ -89,15 +89,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             Assert.That(() => new XTLInterpreter(formula, contact, null, service, tracing).Produce(), Throws.Nothing);
@@ -152,15 +152,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table style=""border:1px solid green;"">
 <tr><th style=""border:1px solid orange;"">Subject Label</th>
 <th style=""border:1px solid orange;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid red;"">Task 1</td>
 <td style=""border:1px solid red;"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid red;"">Task 2</td>
 <td style=""border:1px solid red;"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -216,15 +216,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table style=""border:1px solid green;"">
 <tr><th style=""border:1px solid orange;"">Subject Label</th>
 <th style=""border:1px solid orange;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid white;"">Task 1</td>
 <td style=""border:1px solid white;"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid blue;"">Task 2</td>
 <td style=""border:1px solid blue;"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -280,15 +280,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Overridden Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -345,15 +345,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -395,13 +395,13 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Combined Column</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Frodo</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -461,15 +461,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -511,13 +511,13 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Combined Column</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">staticContact</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">staticTask</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -549,10 +549,10 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Custom Column</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">F</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -612,10 +612,10 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Date</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">2020-02-27 03:00:00</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
@@ -675,10 +675,10 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Date</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">2020-02-27 03:00:00</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
@@ -738,15 +738,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -805,15 +805,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -870,15 +870,15 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var expected = @"<table>
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;width:70%"">Custom Label</th>
 <th style=""width:30%"">Description Label</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;width:70%"">Task 1</td>
 <td style=""width:30%"">Description 1</td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;width:70%"">Task 2</td>
 <td style=""width:30%"">Description 2</td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, null, service, tracing).Produce();
@@ -936,17 +936,17 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;width:70%"">Custom Label</th>
 <th style=""width:30%"">Description Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">URL</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;width:70%"">Task 1</td>
 <td style=""width:30%"">Description 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;""><a href=""https://test.local/main.aspx?etn=task&id=76f167d6-35b3-44ae-b2a0-9373dee13e82&newWindow=true&pagetype=entityrecord"">https://test.local/main.aspx?etn=task&id=76f167d6-35b3-44ae-b2a0-9373dee13e82&newWindow=true&pagetype=entityrecord</a></td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;width:70%"">Task 2</td>
 <td style=""width:30%"">Description 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;""><a href=""https://test.local/main.aspx?etn=task&id=5c0370f2-9b79-4abc-86d6-09260d5bbfed&newWindow=true&pagetype=entityrecord"">https://test.local/main.aspx?etn=task&id=5c0370f2-9b79-4abc-86d6-09260d5bbfed&newWindow=true&pagetype=entityrecord</a></td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
@@ -1004,17 +1004,17 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">URL</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;""><a href=""https://test.local/main.aspx?etn=task&id=76f167d6-35b3-44ae-b2a0-9373dee13e82&newWindow=true&pagetype=entityrecord"">https://test.local/main.aspx?etn=task&id=76f167d6-35b3-44ae-b2a0-9373dee13e82&newWindow=true&pagetype=entityrecord</a></td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;""><a href=""https://test.local/main.aspx?etn=task&id=5c0370f2-9b79-4abc-86d6-09260d5bbfed&newWindow=true&pagetype=entityrecord"">https://test.local/main.aspx?etn=task&id=5c0370f2-9b79-4abc-86d6-09260d5bbfed&newWindow=true&pagetype=entityrecord</a></td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
@@ -1072,17 +1072,17 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 <tr><th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Subject Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">Description Label</th>
 <th style=""border:1px solid black;text-align:left;padding:1px 15px 1px 5px;"">URL</th>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 1</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;""><a href=""https://test.local/main.aspx?etn=task&id=76f167d6-35b3-44ae-b2a0-9373dee13e82&newWindow=true&pagetype=entityrecord"">Link</a></td>
-<tr />
+</tr>
 <tr>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Task 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;"">Description 2</td>
 <td style=""border:1px solid black;padding:1px 15px 1px 5px;""><a href=""https://test.local/main.aspx?etn=task&id=5c0370f2-9b79-4abc-86d6-09260d5bbfed&newWindow=true&pagetype=entityrecord"">Link</a></td>
-<tr />
+</tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
             var result = new XTLInterpreter(formula, contact, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();

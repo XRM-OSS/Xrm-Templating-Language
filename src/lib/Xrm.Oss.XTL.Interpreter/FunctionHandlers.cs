@@ -542,7 +542,7 @@ namespace Xrm.Oss.XTL.Interpreter
             {
                 stringBuilder.AppendLine($"<th style=\"{tableHeadStyle}\">URL</th>");
             }
-            stringBuilder.AppendLine("<tr />");
+            stringBuilder.AppendLine("</tr>");
 
             if (records != null)
             {
@@ -609,7 +609,7 @@ namespace Xrm.Oss.XTL.Interpreter
                         stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record), new ValueExpression(string.Empty, config.Dictionary) }).Value}</td>");
                     }
 
-                    stringBuilder.AppendLine("<tr />");
+                    stringBuilder.AppendLine("</tr>");
                 }
             }
 
