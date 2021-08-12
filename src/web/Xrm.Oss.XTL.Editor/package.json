@@ -12,13 +12,13 @@
   "license": "MIT",
   "dependencies": {
     "css-loader": "^1.0.0",
-    "html-react-parser": "^0.14.0",
     "monaco-editor-webpack-plugin": "^1.9.1",
+    "html-react-parser": "^0.14.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-markdown": "^3.1.0",
+    "react-markdown": "^3.6.0",
     "react-monaco-editor": "^0.18.0",
-    "style-loader": "^0.23.0"
+    "style-loader": "^0.23.1"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.20",
