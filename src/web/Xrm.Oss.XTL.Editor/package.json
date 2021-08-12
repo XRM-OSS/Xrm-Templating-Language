@@ -12,8 +12,8 @@
   "license": "MIT",
   "dependencies": {
     "css-loader": "^1.0.0",
+    "monaco-editor-webpack-plugin": "^1.9.1",
     "html-react-parser": "^0.14.3",
-    "monaco-editor-webpack-plugin": "^1.5.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-markdown": "^3.6.0",
