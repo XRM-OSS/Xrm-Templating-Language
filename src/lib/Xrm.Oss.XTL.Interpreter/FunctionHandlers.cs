@@ -47,7 +47,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First expects a list or EntityCollection as input");
             }
 
-            return new ValueExpression(string.Empty, firstParam?.FirstOrDefault() ?? entityCollection?.FirstOrDefault());
+            var output = firstParam?.FirstOrDefault() ?? entityCollection?.FirstOrDefault();
+            
+            return new ValueExpression(output?.Text, output?.Value);
         };
 
         public static FunctionHandler Last = (primary, service, tracing, organizationConfig, parameters) =>
@@ -65,7 +67,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list or EntityCollection as input");
             }
 
-            return new ValueExpression(string.Empty, firstParam?.LastOrDefault() ?? entityCollection?.LastOrDefault());
+            var output = firstParam?.LastOrDefault() ?? entityCollection?.LastOrDefault();
+            
+            return new ValueExpression(output?.Text, output?.Value);
         };
 
         public static FunctionHandler IsLess = (primary, service, tracing, organizationConfig, parameters) =>
