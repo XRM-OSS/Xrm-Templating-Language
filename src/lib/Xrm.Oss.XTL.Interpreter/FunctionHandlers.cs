@@ -39,7 +39,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First expects a list as only parameter!");
             }
 
-            var firstParam = CheckedCast<List<ValueExpression>>(parameters.FirstOrDefault().Value, string.Empty, false)?.Select(v => v?.Value).ToList();
+            var firstParam = CheckedCast<List<ValueExpression>>(parameters.FirstOrDefault().Value, string.Empty, false)?.ToList();
             var entityCollection = CheckedCast<EntityCollection>(parameters.FirstOrDefault().Value, string.Empty, false)?.Entities.ToList();
 
             if (firstParam == null && entityCollection == null)
@@ -47,9 +47,10 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First expects a list or EntityCollection as input");
             }
 
-            var output = firstParam?.FirstOrDefault() ?? entityCollection?.FirstOrDefault();
+            var outputValue = firstParam?.FirstOrDefault()?.Value ?? entityCollection?.FirstOrDefault();
+            var outputText = firstParam?.FirstOrDefault()?.Text ?? entityCollection?.FirstOrDefault()?.LogicalName;
             
-            return new ValueExpression(output?.Text, output?.Value);
+            return new ValueExpression(outputText, outputValue);
         };
 
         public static FunctionHandler Last = (primary, service, tracing, organizationConfig, parameters) =>
@@ -59,7 +60,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list as only parameter!");
             }
 
-            var firstParam = CheckedCast<List<ValueExpression>>(parameters.FirstOrDefault().Value, string.Empty, false)?.Select(v => v?.Value).ToList();
+            var firstParam = CheckedCast<List<ValueExpression>>(parameters.FirstOrDefault().Value, string.Empty, false)?.ToList();
             var entityCollection = CheckedCast<EntityCollection>(parameters.FirstOrDefault().Value, string.Empty, false)?.Entities.ToList();
 
             if (firstParam == null && entityCollection == null)
@@ -67,9 +68,10 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list or EntityCollection as input");
             }
 
-            var output = firstParam?.LastOrDefault() ?? entityCollection?.LastOrDefault();
+            var outputValue = firstParam?.LastOrDefault() ?? entityCollection?.LastOrDefault();
+            var outputText = firstParam?.LastOrDefault()?.Text ?? entityCollection?.LastOrDefault()?.LogicalName;
             
-            return new ValueExpression(output?.Text, output?.Value);
+            return new ValueExpression(outputText, outputValue);
         };
 
         public static FunctionHandler IsLess = (primary, service, tracing, organizationConfig, parameters) =>
