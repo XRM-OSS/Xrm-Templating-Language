@@ -437,7 +437,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var output = Formula(new Dictionary<string, ValueExpression> { });
 
-            return output?.Text;
+            return output?.Text ?? string.Empty;
         }
     }
 }
