@@ -68,7 +68,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Last expects a list or EntityCollection as input");
             }
 
-            var outputValue = firstParam?.LastOrDefault() ?? entityCollection?.LastOrDefault();
+            var outputValue = firstParam?.LastOrDefault()?.Value ?? entityCollection?.LastOrDefault();
             var outputText = firstParam?.LastOrDefault()?.Text ?? entityCollection?.LastOrDefault()?.LogicalName;
             
             return new ValueExpression(outputText, outputValue);
