@@ -641,7 +641,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("First parameter of Fetch function needs to be a fetchXml string");
             }
 
-            var references = new List<object> { primary.Id };
+            var references = new List<object> { primary?.Id };
 
             if (parameters.Count > 1)
             {
