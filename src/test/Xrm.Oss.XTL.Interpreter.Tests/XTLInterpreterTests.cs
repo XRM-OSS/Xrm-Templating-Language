@@ -880,6 +880,20 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             Assert.That(() => result = new XTLInterpreter("Array(\"This\", null, \"is\", \"a\", \"test\")", email, null, service, tracing).Produce(), Throws.Nothing);
             Assert.That(result, Is.EqualTo("This, , is, a, test"));
         }
+        
+        [Test]
+        public void It_Should_Not_Fail_If_No_Primary_Entity_Available_In_Fetch()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter>\", \"</filter></entity></fetch>\")";
+
+            var interpreter = new XTLInterpreter(formula, null, null, service, tracing);
+
+            Assert.That(() => interpreter.Produce()). ("<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>"));
+        }
 
         [Test]
         public void It_Should_Allow_To_Use_Concat_In_Fetch()
@@ -888,11 +902,9 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var service = context.GetFakedOrganizationService();
             var tracing = context.GetFakeTracingService();
 
-            var formula = "Concat(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter>\", If( IsEqual ( true, true ), \"<condition attribute='regardingobjectid' operator='eq' value='{1}' />\", \"<condition attribute='regardingobjectid' operator='eq-null' />\"), \"</filter></entity></fetch>\")";
+            var formula = "Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq-null' /></filter></entity></fetch>\")";
 
-            var result1 = new XTLInterpreter(formula, null, null, service, tracing).Produce();
-
-            Assert.That(result1, Is.EqualTo("<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq' value='{1}' /></filter></entity></fetch>"));
+            Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Throws.Nothing);
         }
 
         [Test]
