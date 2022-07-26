@@ -896,7 +896,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             context.Initialize(task);
             
-            var formula = "Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /><filter><condition attribute='regardingobjectid' operator='eq-null' /></filter></entity></fetch>\")";
+            var formula = "Fetch(\"<fetch no-lock='true'><entity name='task'><attribute name='description' /><attribute name='subject' /></entity></fetch>\")";
 
             Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Throws.Nothing);
         }
