@@ -206,7 +206,17 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("And: All conditions must be booleans!");
             }
 
-            if (parameters.All(p => (bool)p.Value))
+            var conditions = parameters.All(p =>
+            {
+                if (p.Value is bool)
+                {
+                    return (bool)p.Value;   
+                }
+               
+                throw new InvalidPluginExecutionException("And: All conditions must be booleans!");
+            });
+            
+            if (conditions)
             {
                 return new ValueExpression(bool.TrueString, true);
             }
@@ -221,12 +231,17 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Or expects at least 2 conditions!");
             }
 
-            if (parameters.Any(p => !(p.Value is bool)))
+            var conditions = parameters.Any(p =>
             {
+                if (p.Value is bool)
+                {
+                    return (bool)p.Value;   
+                }
+               
                 throw new InvalidPluginExecutionException("Or: All conditions must be booleans!");
-            }
-
-            if (parameters.Any(p => (bool)p.Value))
+            });
+            
+            if (conditions)
             {
                 return new ValueExpression(bool.TrueString, true);
             }
