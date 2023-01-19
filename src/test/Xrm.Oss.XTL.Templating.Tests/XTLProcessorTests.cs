@@ -886,5 +886,34 @@ namespace Xrm.Oss.XTL.Templating.Tests
 
             Assert.That(() => context.ExecutePluginWith<XTLProcessor>(pluginContext), Throws.Nothing);
         }
+
+        [Test]
+        public void It_Should_Not_Break_HTML_Encoded_Stuff()
+        {
+            var context = new XrmFakedContext();
+            var dynamicsFromText = "<b>From:</b> Microsoft Power Platform &lt;powerplat-noreply@microsoft.com&gt;; <br><b>";
+
+            var email = new Entity
+            {
+                Id = Guid.NewGuid(),
+                LogicalName = "email",
+                Attributes =
+                {
+                    { "subject", "Demo" },
+                    { "description", dynamicsFromText }
+                }
+            };
+
+            var pluginContext = context.GetDefaultPluginContext();
+            pluginContext.InputParameters = new ParameterCollection
+            {
+                { "Target", email }
+            };
+
+            var config = @"{ ""targetField"": ""description"",  ""templateField"": ""description"" }";
+            context.ExecutePluginWithConfigurations<XTLProcessor>(pluginContext, config, string.Empty);
+
+            Assert.That(email.GetAttributeValue<string>("description"), Is.EqualTo(dynamicsFromText));
+        }
     }
 }
