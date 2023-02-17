@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
@@ -19,6 +20,17 @@ namespace Xrm.Oss.XTL.Interpreter
     #pragma warning disable S1104 // Fields should not have public accessibility
     public static class FunctionHandlers
     {
+        private static Lazy<HttpClient> _httpClient = new Lazy<HttpClient>(() => 
+        {
+            var client = new HttpClient();
+            
+            client.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            return client;
+        });
+        
         private static ConfigHandler GetConfig(List<ValueExpression> parameters)
         {
             return new ConfigHandler((Dictionary<string, object>) parameters.LastOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>());
@@ -1198,6 +1210,54 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             return new ValueExpression(reference.LogicalName, reference.LogicalName);
+        };
+
+        public static FunctionHandler GptPrompt = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OpenAIAccessToken))
+            {
+                throw new InvalidPluginExecutionException("GptPrompt can't find the OpenAI access token inside the plugin step secure configuration. Please add it.");
+            }
+
+            if (parameters.Count < 1)
+            {
+                throw new InvalidPluginExecutionException("GptPrompt needs an input string and optionally a config for defining further options");
+            }
+
+            var prompt = CheckedCast<string>(parameters.FirstOrDefault()?.Value, "You need to pass a prompt text (string) for GPT!");
+
+            var config = GetConfig(parameters);
+            var temperature = config.GetValue<int>("temperature", "temperature must be an int!");
+            var maxTokens = config.GetValue<int>("max_tokens", "max_tokens must be an int!");
+
+            var request = new GptRequest
+            {
+                Model = "text-davinci-003",
+                Temperature = temperature,
+                MaxTokens = maxTokens,
+                Prompt = prompt
+            };
+
+            var httpClient = _httpClient.Value;
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/completions");
+            request.Content = new StringContent(GenericJsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+
+            var response = httpClient.Send(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsString();
+                var gptResponse = GenericJsonSerializer.Deserialize<GptResponse>(content);
+
+                var choice = gptResponse.Choices?.FirstOrDefault();
+
+                return new ValueExpression(choice?.Text, choice?.Text);
+            }
+            else
+            {
+                return new ValueExpression(string.Empty, string.Empty);
+            }
         };
     }
 }

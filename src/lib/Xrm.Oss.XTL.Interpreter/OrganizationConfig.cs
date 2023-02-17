@@ -17,6 +17,9 @@ namespace Xrm.Oss.XTL.Interpreter
         [DataMember(Name = "organizationUrl")]
         public string OrganizationUrl { get; set; }
 
+        [DataMember(Name = "openAIAccessToken")]
+        public string OpenAIAccessToken { get; set; }
+
         public static OrganizationConfig Parse(string json)
         {
             if (string.IsNullOrEmpty(json))
