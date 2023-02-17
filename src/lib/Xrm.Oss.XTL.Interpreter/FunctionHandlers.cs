@@ -1242,7 +1242,7 @@ namespace Xrm.Oss.XTL.Interpreter
             var httpClient = _httpClient.Value;
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/completions");
-            request.Content = new StringContent(GenericJsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+            request.Content = new StringContent(GenericJsonSerializer.Serialize(gptRequest), Encoding.UTF8, "application/json");
 
             var response = httpClient.SendAsync(request).Result;
 
