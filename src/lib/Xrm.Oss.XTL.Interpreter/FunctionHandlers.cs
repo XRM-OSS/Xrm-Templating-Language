@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
@@ -1230,7 +1231,7 @@ namespace Xrm.Oss.XTL.Interpreter
             var temperature = config.GetValue<int>("temperature", "temperature must be an int!");
             var maxTokens = config.GetValue<int>("max_tokens", "max_tokens must be an int!");
 
-            var request = new GptRequest
+            var gptRequest = new GptRequest
             {
                 Model = "text-davinci-003",
                 Temperature = temperature,
@@ -1243,11 +1244,11 @@ namespace Xrm.Oss.XTL.Interpreter
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/completions");
             request.Content = new StringContent(GenericJsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-            var response = httpClient.Send(request);
+            var response = httpClient.SendAsync(request).Result;
 
             if (response.IsSuccessStatusCode)
             {
-                var content = response.Content.ReadAsString();
+                var content = response.Content.ReadAsStringAsync().Result;
                 var gptResponse = GenericJsonSerializer.Deserialize<GptResponse>(content);
 
                 var choice = gptResponse.Choices?.FirstOrDefault();
