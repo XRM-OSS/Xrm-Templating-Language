@@ -1242,13 +1242,20 @@ namespace Xrm.Oss.XTL.Interpreter
             var httpClient = _httpClient.Value;
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/completions");
-            request.Content = new StringContent(GenericJsonSerializer.Serialize(gptRequest), Encoding.UTF8, "application/json");
+            var jsonRequest = GenericJsonSerializer.Serialize(gptRequest);
+
+            tracing.Trace("Sending request to GPT: " + jsonRequest);
+
+            request.Content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
             var response = httpClient.SendAsync(request).Result;
 
             if (response.IsSuccessStatusCode)
             {
                 var content = response.Content.ReadAsStringAsync().Result;
+
+                tracing.Trace("Response from GPT: " + content);
+
                 var gptResponse = GenericJsonSerializer.Deserialize<GptResponse>(content);
 
                 var choice = gptResponse.Choices?.FirstOrDefault();
@@ -1257,6 +1264,7 @@ namespace Xrm.Oss.XTL.Interpreter
             }
             else
             {
+                tracing.Trace("Request not successful");
                 return new ValueExpression(string.Empty, string.Empty);
             }
         };
