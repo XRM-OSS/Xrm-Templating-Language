@@ -1229,7 +1229,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var config = GetConfig(parameters);
             var temperature = config.GetValue<int>("temperature", "temperature must be an int!");
-            var maxTokens = config.GetValue<int>("max_tokens", "max_tokens must be an int!");
+            var maxTokens = config.GetValue<int>("maxTokens", "max_tokens must be an int!");
 
             var gptRequest = new GptRequest
             {
