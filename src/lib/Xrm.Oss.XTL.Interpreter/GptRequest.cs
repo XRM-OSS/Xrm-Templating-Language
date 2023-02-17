@@ -1,5 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+
 namespace Xrm.Oss.XTL.Interpreter
 {
+    [DataContract]
     public class GptRequest
     {
         [DataMember(Name = "model")]

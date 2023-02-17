@@ -19,7 +19,7 @@ namespace Xrm.Oss.XTL.Templating
             {
                 var serializer = new DataContractJsonSerializer(typeof(T));
 
-                var json = serializer.WriteObject(memoryStream, input);
+                serializer.WriteObject(memoryStream, input);
 
                 return Encoding.UTF8.GetString(memoryStream.ToArray());
             }
@@ -29,16 +29,16 @@ namespace Xrm.Oss.XTL.Templating
         {
             if (string.IsNullOrEmpty(json))
             {
-                return null;
+                return default(T);
             }
 
             using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
             {
                 var serializer = new DataContractJsonSerializer(typeof(T));
 
-                var output = serializer.ReadObject(memoryStream) as T;
+                var output = serializer.ReadObject(memoryStream);
 
-                return output;
+                return (T) output;
             }
         }
     }
