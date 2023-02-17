@@ -1242,6 +1242,8 @@ namespace Xrm.Oss.XTL.Interpreter
             var httpClient = _httpClient.Value;
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/completions");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", organizationConfig.OpenAIAccessToken);
+
             var jsonRequest = GenericJsonSerializer.Serialize(gptRequest);
 
             tracing.Trace("Sending request to GPT: " + jsonRequest);
@@ -1264,7 +1266,7 @@ namespace Xrm.Oss.XTL.Interpreter
             }
             else
             {
-                tracing.Trace("Request not successful");
+                tracing.Trace($"Request not successful: {response.StatusCode}. Message: {response.Content.ReadAsStringAsync().Result}");
                 return new ValueExpression(string.Empty, string.Empty);
             }
         };
