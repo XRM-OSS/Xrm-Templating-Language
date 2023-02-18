@@ -1228,12 +1228,13 @@ namespace Xrm.Oss.XTL.Interpreter
             var prompt = CheckedCast<string>(parameters.FirstOrDefault()?.Value, "You need to pass a prompt text (string) for GPT!");
 
             var config = GetConfig(parameters);
+            var model = config.GetValue<string>("model", "model must be a string!");
             var temperature = config.GetValue<int>("temperature", "temperature must be an int!");
-            var maxTokens = config.GetValue<int>("maxTokens", "max_tokens must be an int!");
+            var maxTokens = config.GetValue<int>("max_tokens", "maxTokens must be an int!");
 
             var gptRequest = new GptRequest
             {
-                Model = "text-davinci-003",
+                Model = model ?? "text-davinci-003",
                 Temperature = temperature,
                 MaxTokens = maxTokens,
                 Prompt = prompt
