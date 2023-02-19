@@ -20,5 +20,8 @@ namespace Xrm.Oss.XTL.Interpreter
 
         [DataMember(Name = "max_tokens")]
         public int MaxTokens { get; set; }
+
+        [DataMember(Name = "stop")]
+        public List<string> Stop { get; set; }
     }
 }

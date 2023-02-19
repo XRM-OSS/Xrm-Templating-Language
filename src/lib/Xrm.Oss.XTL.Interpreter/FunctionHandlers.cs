@@ -1230,14 +1230,26 @@ namespace Xrm.Oss.XTL.Interpreter
             var config = GetConfig(parameters);
             var model = config.GetValue<string>("model", "model must be a string!");
             var temperature = config.GetValue<int>("temperature", "temperature must be an int!");
-            var maxTokens = config.GetValue<int>("max_tokens", "maxTokens must be an int!");
+            var maxTokens = config.GetValue<int>("maxTokens", "maxTokens must be an int!");
+            var stopErrorMessage = "stop must be an array!";
+            var stop = config.GetValue<ValueExpression>("stop", stopErrorMessage);
+
+            var stopArray = stop?.Value as List<ValueExpression>;
+
+            if (stop != null && stopArray == null)
+            {
+                throw new InvalidDataException(stopErrorMessage);
+            }
+
+            var stopSequences = stopArray?.Select(i => i.Text)?.ToList();
 
             var gptRequest = new GptRequest
             {
                 Model = model ?? "text-davinci-003",
                 Temperature = temperature,
                 MaxTokens = maxTokens,
-                Prompt = prompt
+                Prompt = prompt,
+                Stop = stopSequences
             };
 
             var httpClient = _httpClient.Value;
