@@ -1231,17 +1231,9 @@ namespace Xrm.Oss.XTL.Interpreter
             var model = config.GetValue<string>("model", "model must be a string!");
             var temperature = config.GetValue<int>("temperature", "temperature must be an int!");
             var maxTokens = config.GetValue<int>("maxTokens", "maxTokens must be an int!");
-            var stopErrorMessage = "stop must be an array!";
-            var stop = config.GetValue<ValueExpression>("stop", stopErrorMessage);
+            var stop = config.GetValue<List<ValueExpression>>("stop", "stop must be an array!");
 
-            var stopArray = stop?.Value as List<ValueExpression>;
-
-            if (stop != null && stopArray == null)
-            {
-                throw new InvalidDataException(stopErrorMessage);
-            }
-
-            var stopSequences = stopArray?.Select(i => i.Text)?.ToList();
+            var stopSequences = stop?.Select(i => i.Text)?.ToList();
 
             var gptRequest = new GptRequest
             {
