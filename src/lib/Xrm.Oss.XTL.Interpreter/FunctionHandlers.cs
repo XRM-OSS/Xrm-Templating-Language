@@ -1199,6 +1199,117 @@ namespace Xrm.Oss.XTL.Interpreter
 
             return new ValueExpression(reference.LogicalName, reference.LogicalName);
         };
+        public static FunctionHandler RenderRecordList = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            tracing.Trace("Parsing parameters");
+
+            if (parameters.Count < 3)
+            {
+                throw new InvalidPluginExecutionException("RecordTable needs at least 3 parameters: Entities, entity name, add url boolean, display columns as separate string constants");
+            }
+
+            var records = CheckedCast<List<ValueExpression>>(parameters[0].Value, "RecordTable requires the first parameter to be a list of entities")
+                .Select(p => (p as ValueExpression)?.Value)
+                .Cast<Entity>()
+                .ToList();
+
+            tracing.Trace($"Records: {records.Count}");
+
+            // We need the entity name although it should be set in the record. If no records are passed, we would fail to display the grid with proper columns otherwise
+            var entityName = CheckedCast<string>(parameters[1]?.Value, "Second parameter of the RecordTable function needs to be the entity name as string");
+
+            if (string.IsNullOrEmpty(entityName))
+            {
+                throw new InvalidPluginExecutionException("Second parameter of the RecordTable function needs to be the entity name as string");
+            }
+
+            // We need the column names explicitly, since CRM does not return new ValueExpression(null)-valued columns, so that we can't rely on the column union of all records. In addition to that, the order can be set this way
+            var displayColumns = CheckedCast<List<ValueExpression>>(parameters[2]?.Value, "List of column names for record table must be an array expression")
+                .Select(p => p.Value)
+                .Select(p => p is Dictionary<string, object> ? (Dictionary<string, object>) p : new Dictionary<string, object> { { "name", p } })
+                .ToList();
+
+            tracing.Trace("Retrieving column names");
+            var columnNames = RetrieveColumnNames(entityName, service);
+            tracing.Trace($"Column names done");
+
+            var config = GetConfig(parameters);
+            var addRecordUrl = config.GetValue<bool>("addRecordUrl", "When setting addRecordUrl, value must be a boolean");
+
+            var ulClassName = CheckedCast<string>(parameters[4]?.Value,  "ulClassName must be a string!");
+            //var ulClassName = config.GetValue("ulClassName", "ulClassName must be a string!", string.Empty);
+
+            if (!string.IsNullOrEmpty(ulClassName))
+            {
+                ulClassName = $" style=\"{ulClassName}\"";
+            }
+
+            var liClassName = CheckedCast<string>(parameters[5]?.Value,  "liClassName must be a string!");
+            if (!string.IsNullOrEmpty(liClassName))
+            {
+                liClassName = $" style=\"{liClassName}\"";
+            }
+
+            var template = CheckedCast<string>(parameters[3]?.Value,  "template must be a string!");
+            if (string.IsNullOrEmpty(template))
+            {
+                throw new InvalidPluginExecutionException("Template of the RenderRecordList function needs to be");
+            }
+
+            tracing.Trace("Parsed parameters");
+
+            // Create table header
+            var stringBuilder = new StringBuilder($"<ul {ulClassName}>\n");
+
+            if (records != null)
+            {
+                for (var i = 0; i < records.Count; i++)
+                {
+                    var record = records[i];
+
+                    stringBuilder.AppendLine($"<li {liClassName}>");
+
+                    string temp = $"{template}";
+
+                    foreach (var column in displayColumns)
+                    {
+                        var columnName = column.ContainsKey("name") ? column["name"] as string : string.Empty;
+                        columnName = columnName.Contains(":") ? columnName.Substring(0, columnName.IndexOf(':')) : columnName;
+
+                        var entityConfig = column.ContainsKey("nameByEntity") ? column["nameByEntity"] as Dictionary<string, object> : null;
+
+                        if (entityConfig != null && entityConfig.ContainsKey(record.LogicalName))
+                        {
+                            columnName = entityConfig[record.LogicalName] as string;
+                        }
+
+                        var staticValues = column.ContainsKey("staticValueByEntity") ? column["staticValueByEntity"] as Dictionary<string, object> : null;
+
+                        string value;
+
+                        if (staticValues != null && staticValues.ContainsKey(record.LogicalName))
+                        {
+                            value = staticValues[record.LogicalName] as string;
+                        }
+                        else
+                        {
+                            value = PropertyStringifier.Stringify(columnName, record, service, config);
+                        }
+
+
+                        temp = temp.Replace("{"+columnName+"}", value);
+                    }
+                    stringBuilder.AppendLine($"{temp}");
+
+                    stringBuilder.AppendLine("</li>");
+                }
+            }
+
+            stringBuilder.AppendLine("</ul>");
+            var table = stringBuilder.ToString();
+
+            return new ValueExpression(table, table);
+        };
     }
 }
 #pragma warning restore S1104 // Fields should not have public accessibility
