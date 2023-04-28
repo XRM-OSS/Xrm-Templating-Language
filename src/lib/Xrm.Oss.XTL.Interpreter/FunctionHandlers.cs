@@ -5,6 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
@@ -19,6 +21,17 @@ namespace Xrm.Oss.XTL.Interpreter
     #pragma warning disable S1104 // Fields should not have public accessibility
     public static class FunctionHandlers
     {
+        private static Lazy<HttpClient> _httpClient = new Lazy<HttpClient>(() => 
+        {
+            var client = new HttpClient();
+            
+            client.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            return client;
+        });
+        
         private static ConfigHandler GetConfig(List<ValueExpression> parameters)
         {
             return new ConfigHandler((Dictionary<string, object>) parameters.LastOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>());
@@ -1198,6 +1211,69 @@ namespace Xrm.Oss.XTL.Interpreter
             }
 
             return new ValueExpression(reference.LogicalName, reference.LogicalName);
+        };
+
+        public static FunctionHandler GptPrompt = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OpenAIAccessToken))
+            {
+                throw new InvalidPluginExecutionException("GptPrompt can't find the OpenAI access token inside the plugin step secure configuration. Please add it.");
+            }
+
+            if (parameters.Count < 1)
+            {
+                throw new InvalidPluginExecutionException("GptPrompt needs an input string and optionally a config for defining further options");
+            }
+
+            var prompt = CheckedCast<string>(parameters.FirstOrDefault()?.Value, "You need to pass a prompt text (string) for GPT!");
+
+            var config = GetConfig(parameters);
+            var model = config.GetValue<string>("model", "model must be a string!");
+            var temperature = config.GetValue<int>("temperature", "temperature must be an int!");
+            var maxTokens = config.GetValue<int>("maxTokens", "maxTokens must be an int!");
+            var stop = config.GetValue<List<ValueExpression>>("stop", "stop must be an array!");
+
+            var stopSequences = stop?.Select(i => i.Text)?.ToList();
+
+            var gptRequest = new GptRequest
+            {
+                Model = model ?? "text-davinci-003",
+                Temperature = temperature,
+                MaxTokens = maxTokens,
+                Prompt = prompt,
+                Stop = stopSequences
+            };
+
+            var httpClient = _httpClient.Value;
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/completions");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", organizationConfig.OpenAIAccessToken);
+
+            var jsonRequest = GenericJsonSerializer.Serialize(gptRequest);
+
+            tracing.Trace("Sending request to GPT: " + jsonRequest);
+
+            request.Content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = httpClient.SendAsync(request).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+
+                tracing.Trace("Response from GPT: " + content);
+
+                var gptResponse = GenericJsonSerializer.Deserialize<GptResponse>(content);
+
+                var choice = gptResponse.Choices?.FirstOrDefault();
+
+                return new ValueExpression(choice?.Text, choice?.Text);
+            }
+            else
+            {
+                tracing.Trace($"Request not successful: {response.StatusCode}. Message: {response.Content.ReadAsStringAsync().Result}");
+                return new ValueExpression(string.Empty, string.Empty);
+            }
         };
     }
 }

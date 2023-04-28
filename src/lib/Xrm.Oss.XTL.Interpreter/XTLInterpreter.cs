@@ -34,6 +34,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Fetch", FunctionHandlers.Fetch },
             { "First", FunctionHandlers.First },
             { "Format", FunctionHandlers.Format },
+            { "GptPrompt", FunctionHandlers.GptPrompt },
             { "If", FunctionHandlers.If },
             { "IndexOf", FunctionHandlers.IndexOf },
             { "IsEqual", FunctionHandlers.IsEqual },
