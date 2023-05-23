@@ -32,6 +32,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "DateTimeUtcNow", FunctionHandlers.DateTimeUtcNow },
             { "DateToString", FunctionHandlers.DateToString },
             { "Fetch", FunctionHandlers.Fetch },
+            { "Filter", FunctionHandlers.Filter },
             { "First", FunctionHandlers.First },
             { "Format", FunctionHandlers.Format },
             { "GptPrompt", FunctionHandlers.GptPrompt },

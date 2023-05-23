@@ -423,6 +423,29 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Execute_Lambdas_On_Filter()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Join(\" \", Filter([\"Lord\", \"of\", \"the\", \"Rings\"], (e) => Not(IsEqual(IndexOf(e, \"o\"), -1))))";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("Lord of"));
+        }
+
+        [Test]
         public void It_Should_Sort_Native_Value_Array()
         {
             var context = new XrmFakedContext();

@@ -427,6 +427,34 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Join(", ", mappedValues.Select(p => p.Text)), mappedValues);
         };
 
+        public static FunctionHandler Filter = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("Filter function needs at least an array with data and a function for filtering the data");
+            }
+
+            var config = GetConfig(parameters);
+
+            var values = parameters[0].Value as List<ValueExpression>;
+
+            if (!(values is IEnumerable))
+            {
+                throw new InvalidPluginExecutionException("Filter needs an array as first parameter.");
+            }
+
+            var lambda = parameters[1].Value as Func<List<ValueExpression>, ValueExpression>;
+
+            if (lambda == null)
+            {
+                throw new InvalidPluginExecutionException("Lambda function must be a proper arrow function");
+            }
+
+            var filteredValues = values.Where(v => lambda(new List<ValueExpression> { v }).Value as bool? ?? false).ToList();
+
+            return new ValueExpression(string.Join(", ", filteredValues.Select(p => p.Text)), filteredValues);
+        };
+
         public static FunctionHandler Sort = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count < 1)
