@@ -409,7 +409,7 @@ If the provided function returns true, the value will be kept, otherwise it will
 
 Example:
 ``` JavaScript
-Join(\" \", Filter([\"Lord\", \"of\", \"the\", \"Rings\"], (e) => Not(IsEqual(IndexOf(e, \"o\"), -1))))
+Join(" ", Filter(["Lord", "of", "the", "Rings"], (e) => Not(IsEqual(IndexOf(e, "o"), -1))))
 ```
 
 will filter out all words that don't contain the character 'o', resulting in "Lord of".
@@ -417,7 +417,7 @@ will filter out all words that don't contain the character 'o', resulting in "Lo
 Your input does not need to be an array of strings, you can even loop over records fetched using Fetch:
 
 ``` JavaScript
-Join(", ", Map(Filter(Fetch("<fetch no-lock='true'><entity name='contact'><attribute name='ownerid' /><attribute name='createdon' /></entity></fetch>"), (recordInFilter) => Not(IsNull(Value("createdon", { explicitTarget: recordInFilter }))), (record) => DateToString(ConvertDateTime(Value("createdon", { explicitTarget: record }), { userId: Value("ownerid", { explicitTarget: record }) }), { format: "yyyy-MM-dd hh:mm" })))
+Join(", ", Map(Filter(Fetch("<fetch no-lock='true'><entity name='contact'><attribute name='ownerid' /><attribute name='createdon' /></entity></fetch>"), (recordInFilter) => Not(IsNull(Value("createdon", { explicitTarget: recordInFilter })))), (record) => DateToString(ConvertDateTime(Value("createdon", { explicitTarget: record }), { userId: Value("ownerid", { explicitTarget: record }) }), { format: "yyyy-MM-dd hh:mm" })))
 ```
 
 will result in something like this: `"2018-10-27 05:39, 2019-04-24 10:24"`, where `createdon` is not null.
