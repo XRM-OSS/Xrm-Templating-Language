@@ -462,6 +462,25 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(firstNonNullValue?.Text, firstNonNullValue?.Value);
         };
 
+        public static FunctionHandler Case = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count % 2 == 0)
+            {
+                throw new InvalidPluginExecutionException("Case function expects an odd number of parameters, as it consists of if-then tuples followed by a final 'else'");
+            }
+
+            var match = parameters
+                .Select((parameter, index) => new { parameter, index })
+                .SkipWhile(tuple => !(tuple.index % 2 == 0 && (tuple.parameter?.Value as bool? ?? false)))
+                // If match was found, use next value as match is the condition and next value is the corresponding result to use
+                .Skip(1)
+                .FirstOrDefault();
+
+            var result = match?.parameter ?? parameters.Last(); 
+
+            return new ValueExpression(result?.Text, result?.Value);
+        };
+
         public static FunctionHandler Sort = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count < 1)

@@ -177,5 +177,102 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             Assert.That(result2, Is.EqualTo("Both null"));
             Assert.That(result3, Is.EqualTo("Not both null"));
         }
+
+        [Test]
+        public void It_Should_Throw_If_Case_Has_Non_Odd_Number_Of_Arguments()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Case (true, \"Yes\", false, \"No\")";
+
+            Assert.Throws<InvalidPluginExecutionException>(() => new XTLInterpreter(formula, email, null, service, tracing).Produce());
+        }
+
+        [Test]
+        public void It_Should_Use_Value_After_First_Matching_Entry()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            // https://thedailywtf.com/articles/what_is_truth_0x3f_
+            var formula = "Case (true, \"Yes\", false, \"No\", \"File not found\")";
+
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("Yes"));
+        }
+
+        [Test]
+        public void It_Should_Use_Value_After_First_Matching_Entry_If_Not_First()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            // https://thedailywtf.com/articles/what_is_truth_0x3f_
+            var formula = "Case (false, \"No\", true, \"Yes\", \"File not found\")";
+
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("Yes"));
+        }
+
+        [Test]
+        public void It_Should_Use_Default_Value_If_No_Match()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            // https://thedailywtf.com/articles/what_is_truth_0x3f_
+            var formula = "Case (false, \"No\", false, \"Yes\", \"File not found\")";
+
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("File not found"));
+        }
     }
 }
