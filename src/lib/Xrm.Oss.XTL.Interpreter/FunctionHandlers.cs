@@ -455,6 +455,13 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Join(", ", filteredValues.Select(p => p.Text)), filteredValues);
         };
 
+        public static FunctionHandler Coalesce = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            var firstNonNullValue = parameters.FirstOrDefault(p => p?.Value != null);
+
+            return new ValueExpression(firstNonNullValue?.Text, firstNonNullValue?.Value);
+        };
+
         public static FunctionHandler Sort = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count < 1)

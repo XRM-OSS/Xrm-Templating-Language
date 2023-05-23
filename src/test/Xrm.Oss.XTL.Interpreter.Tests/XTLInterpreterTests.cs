@@ -446,6 +446,29 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void Coalesce_Should_Return_First_Non_Null_Value()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var email = new Entity
+            {
+                LogicalName = "email",
+                Id = Guid.NewGuid(),
+                Attributes = new AttributeCollection
+                {
+                    { "subject", "TestSubject" }
+                }
+            };
+
+            var formula = "Coalesce(Value(\"subject2\"), Value(\"subject\"))";
+            var result = new XTLInterpreter(formula, email, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("TestSubject"));
+        }
+
+        [Test]
         public void It_Should_Sort_Native_Value_Array()
         {
             var context = new XrmFakedContext();
