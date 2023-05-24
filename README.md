@@ -49,6 +49,7 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
     - [Substring](#substring)
     - [Replace](#replace)
     - [Array](#array)
+    - [Length](#length)
     - [Join](#join)
     - [NewLine](#newline)
     - [DateTimeNow](#datetimenow)
@@ -576,6 +577,21 @@ Array("those", "are", "test", "parameters")
 ```
 Info: Arrays have a default textual representation, which is all of the array value text representations delimited by ", ". Above examples textual representation would therefore be "those, are, test, parameters". Null values are not removed, but show up as empty string.
 
+### Length
+Gets the length of an array or a string that is passed as first parameter.
+
+Example:
+``` JavaScript
+Length( [ "A", "B", "C" ] )
+```
+  
+or 
+``` JavaScript
+Length( "ABC" )
+```
+  
+Both executions will return 3.
+  
 ### Join
 Joins multiple strings together using the separator that you passed. You can pass dynamic expressions whose text representations will be used. The first parameter is the separator, the second one is the array of values to concatenate.
 You can pass a boolean as third parameter, stating whether empty parameters should be left out when concatenating (defaults to false).
