@@ -24,6 +24,8 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
     - [And](#and)
     - [Not](#not)
     - [IsNull](#isnull)
+    - [Coalesce](#coalesce)
+    - [Case](#case)
     - [IsEqual](#isequal)
     - [IsLess](#isless)
     - [IsLessEqual](#islessequal)
@@ -36,6 +38,7 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
     - [Last](#last)
     - [Union](#union)
     - [Map](#map)
+    - [Filter](#filter)
     - [Sort](#sort)
     - [RecordTable](#recordtable)
     - [PrimaryRecord](#primaryrecord)
@@ -196,6 +199,39 @@ Example:
 ``` JavaScript
 IsNull( Value ("parentaccountid") )  
 ```
+
+### Coalesce
+**Available since: v3.9.6**
+
+Uses the first non-null value of all parameters passed.
+
+Example:
+``` JavaScript
+Coalesce ( Value ( "parentaccountid" ), Value ( "parentcontactid" ), "None" )
+```
+
+If parentaccountid is not null, it will be used.
+Otherwise, if parentcontactid is not null, it will be used.
+If none of these two are not null, the static "None" will be used.
+
+### Case
+**Available since: v3.9.6**
+
+Checks a list of conditions followed by their values and uses the first true condition's value as result.
+If none matches, the last value is used as default result.
+
+Because of this, the list of parameters has to be odd ( 2 * n + 1, where n is the number of conditions, where each condition has one check followed by one result plus the last value as default).
+
+Example:
+``` JavaScript
+Case ( IsLess ( Value ("creditlimit"), 1000 ), "Low", IsLess ( Value ("creditlimit"), 50000 ), "Medium", IsLess ( Value ("credilimit"), 100000 ), "High", "None" )
+```
+
+In above example, if credit limit is below 1000, it will return "Low".
+Otherwise, if it is less than 50.000, it will return "Medium".
+Otherwise, if it is less than 100.000, it will return "High".
+
+If none matches, for example if creditlimit is null, it will return "None".
 
 ### IsEqual
 Checks if two parameters are equal. If yes, true is returned, otherwise false.
@@ -365,6 +401,26 @@ Join(", ", Map(Fetch("<fetch no-lock='true'><entity name='contact'><attribute na
 ```
 
 will result in something like this: `"2018-10-27 05:39, 2019-04-24 10:24"`
+  
+### Filter
+**Available since: v3.9.6**
+Filters values inside an array by checking every value using the provided function.
+If the provided function returns true, the value will be kept, otherwise it will be filtered out.
+
+Example:
+``` JavaScript
+Join(" ", Filter(["Lord", "of", "the", "Rings"], (e) => Not(IsEqual(IndexOf(e, "o"), -1))))
+```
+
+will filter out all words that don't contain the character 'o', resulting in "Lord of".
+
+Your input does not need to be an array of strings, you can even loop over records fetched using Fetch:
+
+``` JavaScript
+Join(", ", Map(Filter(Fetch("<fetch no-lock='true'><entity name='contact'><attribute name='ownerid' /><attribute name='createdon' /></entity></fetch>"), (recordInFilter) => Not(IsNull(Value("createdon", { explicitTarget: recordInFilter })))), (record) => DateToString(ConvertDateTime(Value("createdon", { explicitTarget: record }), { userId: Value("ownerid", { explicitTarget: record }) }), { format: "yyyy-MM-dd hh:mm" })))
+```
+
+will result in something like this: `"2018-10-27 05:39, 2019-04-24 10:24"`, where `createdon` is not null.
 
 ### Sort
 Sort array, either native values or by property. Ascending by default, descending by setting the config flag
