@@ -427,6 +427,27 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Join(", ", mappedValues.Select(p => p.Text)), mappedValues);
         };
 
+        public static FunctionHandler Length = (primary, service, tracing, organizationConfig, parameters) =>
+        {
+            if (parameters.Count < 1)
+            {
+                throw new InvalidPluginExecutionException("Length function needs at least an array or a string as input");
+            }
+
+            var config = GetConfig(parameters);
+
+            var values = parameters[0]?.Value as List<ValueExpression>;
+
+            if (values is IEnumerable)
+            {
+                return new ValueExpression(values.Count.ToString(), values.Count);
+            }
+
+            var stringValue = CheckedCast<string>(parameters[0]?.Value, "Parameter of length function must be either an array or a string");
+
+            return new ValueExpression(stringValue.Length.ToString(), stringValue.Length.ToString());
+        };
+
         public static FunctionHandler Filter = (primary, service, tracing, organizationConfig, parameters) =>
         {
             if (parameters.Count < 2)

@@ -1056,6 +1056,34 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Count_Length_Of_Arrays()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "Length( [ \"A\", \"B\", \"C\" ] )";
+
+            var result = new XTLInterpreter(formula, null, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("3"));
+        }
+
+        [Test]
+        public void It_Should_Count_Length_Of_String()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "Length( \"ABC\" )";
+
+            var result = new XTLInterpreter(formula, null, null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("3"));
+        }
+
+        [Test]
         public void It_Should_Not_Fail_On_Complex_Template_Field()
         {
             var context = new XrmFakedContext();

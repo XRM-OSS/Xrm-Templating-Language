@@ -48,6 +48,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "IsNull", FunctionHandlers.IsNull },
             { "Join", FunctionHandlers.Join },
             { "Last", FunctionHandlers.Last},
+            { "Length", FunctionHandlers.Length },
             { "Map", FunctionHandlers.Map },
             { "NewLine", FunctionHandlers.NewLine },
             { "Not", FunctionHandlers.Not },
