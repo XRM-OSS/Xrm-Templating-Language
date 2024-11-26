@@ -17,7 +17,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-markdown": "^3.6.0",
-    "react-monaco-editor": "^0.43.0",
+    "react-monaco-editor": "^0.44.0",
     "style-loader": "^0.23.1"
   },
   "devDependencies": {
