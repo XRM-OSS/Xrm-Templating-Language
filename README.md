@@ -911,17 +911,10 @@ integer ::= digit { digit }
 float_suffix ::= "d" | "m"
 
 string
-    ::= '"' { double_quote_character } '"'
-     | "'"  { single_quote_character }  "'"
+    ::= double_string | single_string
 
-double_quote_character
-    ::= ? any Unicode scalar value except '"' or '\' unless escaped ?
-
-single_quote_character
-    ::= ? any Unicode scalar value except "'" or '\' unless escaped ?
-
-escaped_double_quote ::= "\"'"
-escaped_single_quote ::= "\"'"
+double_string ::= #'"[^"\\]*(?:\\.[^"\\]*)*"'
+single_string ::= #"\'[^'\\]*(?:\\.[^'\\]*)*\'"
 
 boolean ::= "true" | "false"
 
@@ -934,9 +927,8 @@ null ::= "null"
 identifier
     ::= letter { letter | digit }
 
-letter ::= ? UnicodeLetter ?
-
-digit ::= ? UnicodeDigit ?
+letter ::= #"[A-Za-z]"
+digit  ::= #"[0-9]"
 
 (* --------------------------- *)
 (*  Lists                      *)
@@ -989,7 +981,7 @@ parameter ::= identifier
 (*  Whitespace                 *)
 (* --------------------------- *)
 
-whitespace ::= { " " | "\t" | "\n" }
+whitespace ::= #"[ \t\n]*"
 ```
 You can also validate your calls on this website: https://mdkrajnak.github.io/ebnftest/ 
 
