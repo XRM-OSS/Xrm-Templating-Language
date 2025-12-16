@@ -10,6 +10,22 @@ using System.Threading.Tasks;
 namespace Xrm.Oss.XTL.Interpreter
 {
     [DataContract]
+    public class SnippetConfig
+    {
+        [DataMember(Name = "tableLogicalName")]
+        public string TableLogicalName { get; set; }
+
+        [DataMember(Name = "searchColumnLogicalName")]
+        public string SearchColumnLogicalName { get; set; }
+
+        [DataMember(Name = "nameColumnLogicalName")]
+        public string NameColumnLogicalName { get; set; }
+
+        [DataMember(Name = "valueColumnLogicalName")]
+        public string ValueColumnLogicalName { get; set; }
+    }
+
+    [DataContract]
     public class OrganizationConfig : IConfig
     {
         public string Raw { get; set; }
@@ -19,6 +35,9 @@ namespace Xrm.Oss.XTL.Interpreter
 
         [DataMember(Name = "openAIAccessToken")]
         public string OpenAIAccessToken { get; set; }
+
+        [DataMember(Name = "snippetConfig")]
+        public SnippetConfig SnippetConfig { get; set; }
 
         public static OrganizationConfig Parse(string json)
         {

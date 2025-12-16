@@ -1066,14 +1066,60 @@ namespace Xrm.Oss.XTL.Interpreter
             }
         };
 
-        private static Entity FetchSnippetByUniqueName(string uniqueName, IOrganizationService service)
+        private static Entity FetchSnippetByUniqueName(string uniqueName, OrganizationConfig organizationConfig, IOrganizationService service)
         {
+            var tableLogicalName = "oss_xtlsnippet";
+            var searchColumnLogicalName = "oss_uniquename";
+            var valueColumnLogicalName = "oss_xtlexpression";
+            var containsPlainTextColumnLogicalName = "oss_containsplaintext";
+
+            if (organizationConfig?.SnippetConfig != null)
+            {
+                tableLogicalName = organizationConfig.SnippetConfig.TableLogicalName ?? string.Empty;
+                searchColumnLogicalName = organizationConfig.SnippetConfig.SearchColumnLogicalName ?? string.Empty;
+                valueColumnLogicalName = organizationConfig.SnippetConfig.ValueColumnLogicalName ?? string.Empty;
+                containsPlainTextColumnLogicalName = string.Empty;
+            }
+
             var fetch = $@"<fetch no-lock=""true"">
-                <entity name=""oss_xtlsnippet"">
-                    <attribute name=""oss_xtlexpression"" />
-                    <attribute name=""oss_containsplaintext"" />
+                <entity name=""{tableLogicalName}"">
+                    <attribute name=""{valueColumnLogicalName}"" />
+                    {( string.IsNullOrEmpty(containsPlainTextColumnLogicalName) ? string.Empty : $@"<attribute name=""{containsPlainTextColumnLogicalName}"" />")}
                     <filter operator=""and"">
-                        <condition attribute=""oss_uniquename"" operator=""eq"" value=""{uniqueName}"" />
+                        <condition attribute=""{searchColumnLogicalName}"" operator=""eq"" value=""{uniqueName}"" />
+                    </filter>
+                </entity>
+            </fetch>";
+
+            var snippet = service.RetrieveMultiple(new FetchExpression(fetch))
+                .Entities
+                .FirstOrDefault();
+
+            return snippet;
+        }
+
+        private static Entity FetchSnippetByName(string name, string filter, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
+        {
+            var tableLogicalName = "oss_xtlsnippet";
+            var searchColumnLogicalName = "oss_name";
+            var valueColumnLogicalName = "oss_xtlexpression";
+            var containsPlainTextColumnLogicalName = "oss_containsplaintext";
+
+            if (organizationConfig?.SnippetConfig != null)
+            {
+                tableLogicalName = organizationConfig.SnippetConfig.TableLogicalName ?? string.Empty;
+                searchColumnLogicalName = organizationConfig.SnippetConfig.NameColumnLogicalName ?? organizationConfig.SnippetConfig.SearchColumnLogicalName ?? string.Empty;
+                valueColumnLogicalName = organizationConfig.SnippetConfig.ValueColumnLogicalName ?? string.Empty;
+                containsPlainTextColumnLogicalName = string.Empty;
+            }
+
+            var fetch = $@"<fetch no-lock=""true"">
+                <entity name=""{tableLogicalName}"">
+                    <attribute name=""{valueColumnLogicalName}"" />
+                    {( string.IsNullOrEmpty(containsPlainTextColumnLogicalName) ? string.Empty : $@"<attribute name=""{containsPlainTextColumnLogicalName}"" />")}
+                    <filter operator=""and"">
+                        <condition attribute=""{searchColumnLogicalName}"" operator=""eq"" value=""{name}"" />
+                        { (!string.IsNullOrEmpty(filter) ? TokenMatcher.ProcessTokens(filter, primary, organizationConfig, service, tracing) : string.Empty) }
                     </filter>
                 </entity>
             </fetch>";
@@ -1087,7 +1133,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private static Entity FetchSnippet(string name, string filter, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
         {
-            var uniqueNameSnippet = FetchSnippetByUniqueName(name, service);
+            var uniqueNameSnippet = FetchSnippetByUniqueName(name, organizationConfig, service);
 
             if (uniqueNameSnippet != null)
             {
@@ -1100,27 +1146,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 tracing.Trace("Processing tokens in custom snippet filter");
             }
 
-            var fetch = $@"<fetch no-lock=""true"">
-                <entity name=""oss_xtlsnippet"">
-                    <attribute name=""oss_xtlexpression"" />
-                    <attribute name=""oss_containsplaintext"" />
-                    <filter operator=""and"">
-                        <condition attribute=""oss_name"" operator=""eq"" value=""{name}"" />
-                        { (!string.IsNullOrEmpty(filter) ? TokenMatcher.ProcessTokens(filter, primary, organizationConfig, service, tracing) : string.Empty) }
-                    </filter>
-                </entity>
-            </fetch>";
-            
-            if (!string.IsNullOrEmpty(filter))
-            {
-                tracing.Trace("Done processing tokens in custom snippet filter");
-            }
+            var nameSnippet = FetchSnippetByName(name, filter, primary, organizationConfig, service, tracing);
 
-            var snippet = service.RetrieveMultiple(new FetchExpression(fetch))
-                .Entities
-                .FirstOrDefault();
-
-            return snippet;
+            return nameSnippet;
         }
 
         public static FunctionHandler Snippet = (primary, service, tracing, organizationConfig, parameters) =>
@@ -1143,8 +1171,10 @@ namespace Xrm.Oss.XTL.Interpreter
                 return new ValueExpression(string.Empty, null);
             }
 
-            var containsPlainText = snippet.GetAttributeValue<bool>("oss_containsplaintext");
-            var value = snippet.GetAttributeValue<string>("oss_xtlexpression");
+            var valueColumnLogicalName = organizationConfig?.SnippetConfig?.ValueColumnLogicalName ?? "oss_xtlexpression";
+
+            var containsPlainText = organizationConfig?.SnippetConfig != null || snippet.GetAttributeValue<bool>("oss_containsplaintext");
+            var value = snippet.GetAttributeValue<string>(valueColumnLogicalName);
 
             // Wrap it in ${{ ... }} block
             var processedValue = containsPlainText ? value : $"${{{{ {value} }}}}";
