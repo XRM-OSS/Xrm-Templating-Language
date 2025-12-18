@@ -60,5 +60,5 @@ namespace Xrm.Oss.XTL.Interpreter
 
     // Backward compatibility alias
     [Obsolete("Use InterpreterConfig instead")]
-    public class InterpreterConfig : InterpreterConfig { }
+    public class OrganizationConfig : InterpreterConfig { }
 }
