@@ -9,7 +9,6 @@ namespace Xrm.Oss.XTL.Interpreter
 {
     public class XTLInterpreter
     {
-        private StringReader _reader = null;
         private int _position;
         private string _input;
         private char _previous;
@@ -18,9 +17,9 @@ namespace Xrm.Oss.XTL.Interpreter
         private Entity _primary;
         private IOrganizationService _service;
         private ITracingService _tracing;
-        private OrganizationConfig _organizationConfig;
+        private InterpreterConfig _interpreterConfig;
 
-        public delegate ValueExpression FunctionHandler(Entity primary, IOrganizationService service, ITracingService tracing, OrganizationConfig organizationConfig, List<ValueExpression> parameters);
+        public delegate ValueExpression FunctionHandler(Entity primary, IOrganizationService service, ITracingService tracing, InterpreterConfig interpreterConfig, List<ValueExpression> parameters);
 
         private Dictionary<string, FunctionHandler> _handlers = new Dictionary<string, FunctionHandler>
         {
@@ -69,16 +68,15 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Value", FunctionHandlers.GetValue }
         };
 
-        public XTLInterpreter(string input, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
+        public XTLInterpreter(string input, Entity primary, InterpreterConfig interpreterConfig, IOrganizationService service, ITracingService tracing)
         {
             _primary = primary;
             _service = service;
             _tracing = tracing;
-            _organizationConfig = organizationConfig;
-            _input = input;
+            _interpreterConfig = interpreterConfig;
+            _input = input ?? string.Empty;
             _position = 0;
 
-            _reader = new StringReader(input ?? string.Empty);
             GetChar();
             SkipWhiteSpace();
         }
@@ -87,29 +85,18 @@ namespace Xrm.Oss.XTL.Interpreter
         /// Reads the next character and sets it as current. Old current char becomes previous.
         /// </summary>
         /// <returns>True if read succeeded, false if end of input</returns>
-        private void GetChar(int? index = null)
-        {
-            if (index != null)
-            {
-                // Initialize a new reader to move back to the beginning
-                _reader = new StringReader(_input);
-                _position = index.Value;
-
-                // Skip to searched index
-                for (var i = 0; i < index; i++)
-                {
-                    _reader.Read();
-                }
-            }
-
+        private void GetChar() {
             _previous = _current;
-            var character = _reader.Read();
-            _current = (char)character;
-            
-            if (character != -1)
-            {
-                _position++;
+            if (_position >= _input.Length) {
+                _current = '\uffff';
+            } else {
+                _current = _input[_position++];
             }
+        }
+
+        private void GoTo(int pos) {
+            _position = pos - 1; // So next GetChar() reads from pos
+            GetChar();
         }
 
         private void Expected(string expected)
@@ -281,7 +268,7 @@ namespace Xrm.Oss.XTL.Interpreter
             var lazyExecution = new Lazy<ValueExpression>(() =>
             {
                 _tracing.Trace($"Processing handler {name}");
-                var result = _handlers[name](_primary, _service, _tracing, _organizationConfig, parameters);
+                var result = _handlers[name](_primary, _service, _tracing, _interpreterConfig, parameters);
                 _tracing.Trace($"Successfully processed handler {name}");
 
                 return result;
@@ -338,12 +325,13 @@ namespace Xrm.Oss.XTL.Interpreter
                 Match('>');
                 SkipWhiteSpace();
 
-                var lambdaPosition = this._position - 1;
+                var lambdaPosition = this._position;
 
                 var lazyExecution = new Func<List<ValueExpression>, ValueExpression>((lambdaArgs) =>
                 {
                     var currentIndex = this._position;
-                    GetChar(lambdaPosition);
+                    
+                    GoTo(lambdaPosition);
 
                     var arguments = formulaArgs.ToList();
                     for (var i = 0; i < lambdaArgs.Count; i++) {
@@ -355,7 +343,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     }
 
                     var result = Formula(formulaArgs);
-                    GetChar(currentIndex - 1);
+                    GoTo(currentIndex);
 
                     return result;
                 });

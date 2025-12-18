@@ -37,7 +37,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ConfigHandler((Dictionary<string, object>) parameters.LastOrDefault(p => p?.Value is Dictionary<string, object>)?.Value ?? new Dictionary<string, object>());
         }
 
-        public static FunctionHandler Not = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Not = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var target = parameters.FirstOrDefault();
             var result = !CheckedCast<bool>(target?.Value, "Not expects a boolean input, consider using one of the Is methods");
@@ -45,7 +45,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
         };
 
-        public static FunctionHandler First = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler First = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count != 1)
             {
@@ -66,7 +66,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(outputText, outputValue);
         };
 
-        public static FunctionHandler Last = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Last = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count != 1)
             {
@@ -87,28 +87,28 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(outputText, outputValue);
         };
 
-        public static FunctionHandler IsLess = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler IsLess = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             bool result = Compare(parameters) < 0;
 
             return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
         };
 
-        public static FunctionHandler IsLessEqual = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler IsLessEqual = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             bool result = Compare(parameters) <= 0;
 
             return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
         };
 
-        public static FunctionHandler IsGreater = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler IsGreater = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             bool result = Compare(parameters) > 0;
 
             return new ValueExpression(result.ToString(CultureInfo.InvariantCulture), result);
         };
 
-        public static FunctionHandler IsGreaterEqual = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler IsGreaterEqual = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             bool result = Compare(parameters) >= 0;
 
@@ -129,7 +129,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return actual.CompareTo(expected);
         }
 
-        public static FunctionHandler IsEqual = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler IsEqual = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count != 2)
             {
@@ -207,7 +207,7 @@ namespace Xrm.Oss.XTL.Interpreter
             }
         };
 
-        public static FunctionHandler And = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler And = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -237,7 +237,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(bool.FalseString, false);
         };
 
-        public static FunctionHandler Or = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Or = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -262,7 +262,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(bool.FalseString, false);
         };
 
-        public static FunctionHandler IsNull = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler IsNull = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var target = parameters.FirstOrDefault();
 
@@ -274,7 +274,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(bool.FalseString, false);
         };
 
-        public static FunctionHandler If = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler If = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count != 3)
             {
@@ -295,7 +295,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(new Lazy<ValueExpression>(() => falseAction));
         };
 
-        public static FunctionHandler GetPrimaryRecord = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler GetPrimaryRecord = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (primary == null)
             {
@@ -305,9 +305,9 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Empty, primary);
         };
 
-        public static FunctionHandler GetRecordUrl = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler GetRecordUrl = (primary, service, tracing, interpreterConfig, parameters) =>
         {
-            if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OrganizationUrl))
+            if (interpreterConfig == null || string.IsNullOrEmpty(interpreterConfig.OrganizationUrl))
             {
                 throw new InvalidPluginExecutionException("GetRecordUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
             }
@@ -337,7 +337,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     LogicalName = entity.LogicalName
                 };
             });
-            var organizationUrl = organizationConfig.OrganizationUrl.EndsWith("/") ? organizationConfig.OrganizationUrl : organizationConfig.OrganizationUrl + "/";
+            var organizationUrl = interpreterConfig.OrganizationUrl.EndsWith("/") ? interpreterConfig.OrganizationUrl : interpreterConfig.OrganizationUrl + "/";
 
             var config = GetConfig(parameters);
             var linkText = config.GetValue<string>("linkText", "linkText must be a string");
@@ -352,9 +352,9 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(urls, urls);
         };
 
-        public static FunctionHandler GetOrganizationUrl = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler GetOrganizationUrl = (primary, service, tracing, interpreterConfig, parameters) =>
         {
-            if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OrganizationUrl))
+            if (interpreterConfig == null || string.IsNullOrEmpty(interpreterConfig.OrganizationUrl))
             {
                 throw new InvalidPluginExecutionException("GetOrganizationUrl can't find the Organization Url inside the plugin step secure configuration. Please add it.");
             }
@@ -366,17 +366,17 @@ namespace Xrm.Oss.XTL.Interpreter
 
             if (asHtml)
             {
-                var url = $"{organizationConfig.OrganizationUrl}{urlSuffix}";
+                var url = $"{interpreterConfig.OrganizationUrl}{urlSuffix}";
                 var href = $"<a href=\"{url}\">{(string.IsNullOrEmpty(linkText) ? url : linkText)}</a>";
                 return new ValueExpression(href, href);
             }
             else
             {
-                return new ValueExpression(organizationConfig.OrganizationUrl, organizationConfig.OrganizationUrl);
+                return new ValueExpression(interpreterConfig.OrganizationUrl, interpreterConfig.OrganizationUrl);
             }
         };
 
-        public static FunctionHandler Union = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Union = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -399,7 +399,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(null, union);
         };
 
-        public static FunctionHandler Map = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Map = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -427,7 +427,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Join(", ", mappedValues.Select(p => p.Text)), mappedValues);
         };
 
-        public static FunctionHandler Length = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Length = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 1)
             {
@@ -448,7 +448,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(stringValue.Length.ToString(), stringValue.Length.ToString());
         };
 
-        public static FunctionHandler Filter = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Filter = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -476,14 +476,14 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Join(", ", filteredValues.Select(p => p.Text)), filteredValues);
         };
 
-        public static FunctionHandler Coalesce = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Coalesce = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var firstNonNullValue = parameters.FirstOrDefault(p => p?.Value != null);
 
             return new ValueExpression(firstNonNullValue?.Text, firstNonNullValue?.Value);
         };
 
-        public static FunctionHandler Case = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Case = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count % 2 == 0)
             {
@@ -502,7 +502,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(result?.Text, result?.Value);
         };
 
-        public static FunctionHandler Sort = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Sort = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 1)
             {
@@ -558,7 +558,7 @@ namespace Xrm.Oss.XTL.Interpreter
             .ToDictionary(a => a.LogicalName, a => a?.DisplayName?.UserLocalizedLabel?.Label ?? a.LogicalName);
         };
 
-        public static FunctionHandler RenderRecordTable = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler RenderRecordTable = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             tracing.Trace("Parsing parameters");
 
@@ -717,7 +717,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
                     if (addRecordUrl)
                     {
-                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{GetRecordUrl(primary, service, tracing, organizationConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record), new ValueExpression(string.Empty, config.Dictionary) }).Value}</td>");
+                        stringBuilder.AppendLine($"<td style=\"{lineStyle}\">{GetRecordUrl(primary, service, tracing, interpreterConfig, new List<ValueExpression> { new ValueExpression(string.Empty, record), new ValueExpression(string.Empty, config.Dictionary) }).Value}</td>");
                     }
 
                     stringBuilder.AppendLine("</tr>");
@@ -730,7 +730,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(table, table);
         };
 
-        public static FunctionHandler Fetch = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Fetch = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 1)
             {
@@ -817,7 +817,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(string.Empty, records.Select(r => new ValueExpression(string.Empty, r)).ToList());
         };
 
-        public static FunctionHandler GetValue = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler GetValue = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (primary == null)
             {
@@ -856,7 +856,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return DataRetriever.ResolveTokenValue(field, target, service, config);
         };
 
-        public static FunctionHandler Join = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Join = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -894,12 +894,12 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(joined, joined);
         };
 
-        public static FunctionHandler NewLine = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler NewLine = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             return new ValueExpression(Environment.NewLine, Environment.NewLine);
         };
 
-        public static FunctionHandler Concat = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Concat = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var text = "";
 
@@ -938,7 +938,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return (T)value;
         }
 
-        public static FunctionHandler Substring = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Substring = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -958,7 +958,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(subString, subString);
         };
 
-        public static FunctionHandler IndexOf = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler IndexOf = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -976,7 +976,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(index.ToString(), index);
         };
 
-        public static FunctionHandler Replace = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Replace = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 3)
             {
@@ -992,24 +992,24 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(replaced, replaced);
         };
 
-        public static FunctionHandler Array = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Array = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             return new ValueExpression(string.Join(", ", parameters.Select(p => p.Text)), parameters);
         };
 
-        public static FunctionHandler DateTimeNow = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler DateTimeNow = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var date = DateTime.Now;
             return new ValueExpression(date.ToString("o", CultureInfo.InvariantCulture), date);
         };
 
-        public static FunctionHandler DateTimeUtcNow = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler DateTimeUtcNow = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var date = DateTime.UtcNow;
             return new ValueExpression(date.ToString("o", CultureInfo.InvariantCulture), date);
         };
 
-        public static FunctionHandler Static = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Static = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 1)
             {
@@ -1020,7 +1020,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(parameter.Text, parameter.Value);
         };
 
-        public static FunctionHandler DateToString = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler DateToString = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 1)
             {
@@ -1039,7 +1039,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date.ToString(CultureInfo.InvariantCulture));
         };
 
-        public static FunctionHandler Format = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Format = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -1066,18 +1066,18 @@ namespace Xrm.Oss.XTL.Interpreter
             }
         };
 
-        private static Entity FetchSnippetByUniqueName(string uniqueName, OrganizationConfig organizationConfig, IOrganizationService service)
+        private static Entity FetchSnippetByUniqueName(string uniqueName, InterpreterConfig interpreterConfig, IOrganizationService service)
         {
             var tableLogicalName = "oss_xtlsnippet";
             var searchColumnLogicalName = "oss_uniquename";
             var valueColumnLogicalName = "oss_xtlexpression";
             var containsPlainTextColumnLogicalName = "oss_containsplaintext";
 
-            if (organizationConfig?.SnippetConfig != null)
+            if (interpreterConfig?.SnippetConfig != null)
             {
-                tableLogicalName = organizationConfig.SnippetConfig.TableLogicalName ?? string.Empty;
-                searchColumnLogicalName = organizationConfig.SnippetConfig.SearchColumnLogicalName ?? string.Empty;
-                valueColumnLogicalName = organizationConfig.SnippetConfig.ValueColumnLogicalName ?? string.Empty;
+                tableLogicalName = interpreterConfig.SnippetConfig.TableLogicalName ?? string.Empty;
+                searchColumnLogicalName = interpreterConfig.SnippetConfig.SearchColumnLogicalName ?? string.Empty;
+                valueColumnLogicalName = interpreterConfig.SnippetConfig.ValueColumnLogicalName ?? string.Empty;
                 containsPlainTextColumnLogicalName = string.Empty;
             }
 
@@ -1098,18 +1098,18 @@ namespace Xrm.Oss.XTL.Interpreter
             return snippet;
         }
 
-        private static Entity FetchSnippetByName(string name, string filter, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
+        private static Entity FetchSnippetByName(string name, string filter, Entity primary, InterpreterConfig interpreterConfig, IOrganizationService service, ITracingService tracing)
         {
             var tableLogicalName = "oss_xtlsnippet";
             var searchColumnLogicalName = "oss_name";
             var valueColumnLogicalName = "oss_xtlexpression";
             var containsPlainTextColumnLogicalName = "oss_containsplaintext";
 
-            if (organizationConfig?.SnippetConfig != null)
+            if (interpreterConfig?.SnippetConfig != null)
             {
-                tableLogicalName = organizationConfig.SnippetConfig.TableLogicalName ?? string.Empty;
-                searchColumnLogicalName = organizationConfig.SnippetConfig.NameColumnLogicalName ?? organizationConfig.SnippetConfig.SearchColumnLogicalName ?? string.Empty;
-                valueColumnLogicalName = organizationConfig.SnippetConfig.ValueColumnLogicalName ?? string.Empty;
+                tableLogicalName = interpreterConfig.SnippetConfig.TableLogicalName ?? string.Empty;
+                searchColumnLogicalName = interpreterConfig.SnippetConfig.NameColumnLogicalName ?? interpreterConfig.SnippetConfig.SearchColumnLogicalName ?? string.Empty;
+                valueColumnLogicalName = interpreterConfig.SnippetConfig.ValueColumnLogicalName ?? string.Empty;
                 containsPlainTextColumnLogicalName = string.Empty;
             }
 
@@ -1119,7 +1119,7 @@ namespace Xrm.Oss.XTL.Interpreter
                     {( string.IsNullOrEmpty(containsPlainTextColumnLogicalName) ? string.Empty : $@"<attribute name=""{containsPlainTextColumnLogicalName}"" />")}
                     <filter operator=""and"">
                         <condition attribute=""{searchColumnLogicalName}"" operator=""eq"" value=""{name}"" />
-                        { (!string.IsNullOrEmpty(filter) ? TokenMatcher.ProcessTokens(filter, primary, organizationConfig, service, tracing) : string.Empty) }
+                        { (!string.IsNullOrEmpty(filter) ? TokenMatcher.ProcessTokens(filter, primary, interpreterConfig, service, tracing) : string.Empty) }
                     </filter>
                 </entity>
             </fetch>";
@@ -1131,9 +1131,9 @@ namespace Xrm.Oss.XTL.Interpreter
             return snippet;
         }
 
-        private static Entity FetchSnippet(string name, string filter, Entity primary, OrganizationConfig organizationConfig, IOrganizationService service, ITracingService tracing)
+        private static Entity FetchSnippet(string name, string filter, Entity primary, InterpreterConfig interpreterConfig, IOrganizationService service, ITracingService tracing)
         {
-            var uniqueNameSnippet = FetchSnippetByUniqueName(name, organizationConfig, service);
+            var uniqueNameSnippet = FetchSnippetByUniqueName(name, interpreterConfig, service);
 
             if (uniqueNameSnippet != null)
             {
@@ -1146,12 +1146,12 @@ namespace Xrm.Oss.XTL.Interpreter
                 tracing.Trace("Processing tokens in custom snippet filter");
             }
 
-            var nameSnippet = FetchSnippetByName(name, filter, primary, organizationConfig, service, tracing);
+            var nameSnippet = FetchSnippetByName(name, filter, primary, interpreterConfig, service, tracing);
 
             return nameSnippet;
         }
 
-        public static FunctionHandler Snippet = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler Snippet = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 1)
             {
@@ -1163,7 +1163,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var filter = config?.GetValue<string>("filter", "filter must be a string containing your fetchXml filter, which may contain XTL expressions on its own");
 
-            var snippet = FetchSnippet(name, filter, primary, organizationConfig, service, tracing);
+            var snippet = FetchSnippet(name, filter, primary, interpreterConfig, service, tracing);
 
             if (snippet == null)
             {
@@ -1171,9 +1171,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 return new ValueExpression(string.Empty, null);
             }
 
-            var valueColumnLogicalName = organizationConfig?.SnippetConfig?.ValueColumnLogicalName ?? "oss_xtlexpression";
+            var valueColumnLogicalName = interpreterConfig?.SnippetConfig?.ValueColumnLogicalName ?? "oss_xtlexpression";
 
-            var containsPlainText = organizationConfig?.SnippetConfig != null || snippet.GetAttributeValue<bool>("oss_containsplaintext");
+            var containsPlainText = interpreterConfig?.SnippetConfig != null || snippet.GetAttributeValue<bool>("oss_containsplaintext");
             var value = snippet.GetAttributeValue<string>(valueColumnLogicalName);
 
             // Wrap it in ${{ ... }} block
@@ -1181,14 +1181,14 @@ namespace Xrm.Oss.XTL.Interpreter
 
             tracing.Trace("Processing snippet tokens");
 
-            var result = TokenMatcher.ProcessTokens(processedValue, primary, organizationConfig, service, tracing);
+            var result = TokenMatcher.ProcessTokens(processedValue, primary, interpreterConfig, service, tracing);
 
             tracing.Trace("Done processing snippet tokens");
 
             return new ValueExpression(result, result);
         };
 
-        public static FunctionHandler ConvertDateTime = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler ConvertDateTime = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
@@ -1237,7 +1237,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(text, localTime);
         };
 
-        public static FunctionHandler RetrieveAudit = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler RetrieveAudit = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var firstParam = parameters.FirstOrDefault()?.Value;
             var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
@@ -1279,7 +1279,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(auditValue?.Item1 ?? string.Empty, auditValue?.Item2);
         };
 
-        public static FunctionHandler GetRecordId = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler GetRecordId = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var firstParam = parameters.FirstOrDefault()?.Value;
             var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
@@ -1300,7 +1300,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(textValue, reference.Id);
         };
 
-        public static FunctionHandler GetRecordLogicalName = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler GetRecordLogicalName = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             var firstParam = parameters.FirstOrDefault()?.Value;
             var reference = (firstParam as Entity)?.ToEntityReference() ?? firstParam as EntityReference;
@@ -1318,9 +1318,9 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(reference.LogicalName, reference.LogicalName);
         };
 
-        public static FunctionHandler GptPrompt = (primary, service, tracing, organizationConfig, parameters) =>
+        public static FunctionHandler GptPrompt = (primary, service, tracing, interpreterConfig, parameters) =>
         {
-            if (organizationConfig == null || string.IsNullOrEmpty(organizationConfig.OpenAIAccessToken))
+            if (interpreterConfig == null || string.IsNullOrEmpty(interpreterConfig.OpenAIAccessToken))
             {
                 throw new InvalidPluginExecutionException("GptPrompt can't find the OpenAI access token inside the plugin step secure configuration. Please add it.");
             }
@@ -1352,7 +1352,7 @@ namespace Xrm.Oss.XTL.Interpreter
             var httpClient = _httpClient.Value;
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/completions");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", organizationConfig.OpenAIAccessToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", interpreterConfig.OpenAIAccessToken);
 
             var jsonRequest = GenericJsonSerializer.Serialize(gptRequest);
 

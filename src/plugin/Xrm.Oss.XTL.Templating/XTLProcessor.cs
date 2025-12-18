@@ -16,14 +16,14 @@ namespace Xrm.Oss.XTL.Templating
     public class XTLProcessor : IPlugin
     {
         private ProcessorConfig _config;
-        private OrganizationConfig _organizationConfig;
+        private InterpreterConfig _interpreterConfig;
 
         public XTLProcessor(): this("", "") { }
 
         public XTLProcessor (string unsecure, string secure)
         {
             _config = ProcessorConfig.Parse(unsecure);
-            _organizationConfig = OrganizationConfig.Parse(secure);
+            _interpreterConfig = InterpreterConfig.Parse(secure);
         }
 
         public void Execute(IServiceProvider serviceProvider)
@@ -117,10 +117,10 @@ namespace Xrm.Oss.XTL.Templating
                     return;
                 }
 
-                var organizationConfig = _organizationConfig ?? new OrganizationConfig();
-                organizationConfig.OrganizationUrl = config.OrganizationUrl;
+                var interpreterConfig = _interpreterConfig ?? new InterpreterConfig();
+                interpreterConfig.OrganizationUrl = config.OrganizationUrl;
 
-                var output = TokenMatcher.ProcessTokens(templateText, dataSource, organizationConfig, service, tracing);
+                var output = TokenMatcher.ProcessTokens(templateText, dataSource, interpreterConfig, service, tracing);
 
                 var result = new ProcessingResult
                 {
@@ -196,7 +196,7 @@ namespace Xrm.Oss.XTL.Templating
                 return;
             }
 
-            var output = TokenMatcher.ProcessTokens(templateText, dataSource, _organizationConfig, service, tracing);
+            var output = TokenMatcher.ProcessTokens(templateText, dataSource, _interpreterConfig, service, tracing);
 
             target[targetField] = output;
             TriggerUpdateConditionally(output, dataSource, _config, service);
@@ -246,7 +246,7 @@ namespace Xrm.Oss.XTL.Templating
         {
             if (!string.IsNullOrEmpty(config.ExecutionCriteria))
             {
-                var criteriaInterpreter = new XTLInterpreter(config.ExecutionCriteria, dataSource, _organizationConfig, service, tracing);
+                var criteriaInterpreter = new XTLInterpreter(config.ExecutionCriteria, dataSource, _interpreterConfig, service, tracing);
                 var result = criteriaInterpreter.Produce();
 
                 var criteriaMatched = false;

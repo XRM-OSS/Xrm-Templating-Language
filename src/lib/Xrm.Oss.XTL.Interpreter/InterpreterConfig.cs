@@ -26,7 +26,7 @@ namespace Xrm.Oss.XTL.Interpreter
     }
 
     [DataContract]
-    public class OrganizationConfig : IConfig
+    public class InterpreterConfig : IConfig
     {
         public string Raw { get; set; }
 
@@ -39,7 +39,7 @@ namespace Xrm.Oss.XTL.Interpreter
         [DataMember(Name = "snippetConfig")]
         public SnippetConfig SnippetConfig { get; set; }
 
-        public static OrganizationConfig Parse(string json)
+        public static InterpreterConfig Parse(string json)
         {
             if (string.IsNullOrEmpty(json))
             {
@@ -48,13 +48,17 @@ namespace Xrm.Oss.XTL.Interpreter
 
             using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
             {
-                var serializer = new DataContractJsonSerializer(typeof(OrganizationConfig));
+                var serializer = new DataContractJsonSerializer(typeof(InterpreterConfig));
 
-                var config = serializer.ReadObject(memoryStream) as OrganizationConfig;
+                var config = serializer.ReadObject(memoryStream) as InterpreterConfig;
                 config.Raw = json;
 
                 return config;
             }
         }
     }
+
+    // Backward compatibility alias
+    [Obsolete("Use InterpreterConfig instead")]
+    public class InterpreterConfig : InterpreterConfig { }
 }

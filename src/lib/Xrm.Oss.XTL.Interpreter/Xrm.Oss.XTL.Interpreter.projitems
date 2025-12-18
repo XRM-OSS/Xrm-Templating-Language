@@ -13,7 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataRetriever.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FunctionHandlers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IConfig.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OrganizationConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InterpreterConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyStringifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TokenMatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValueExpression.cs" />

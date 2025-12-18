@@ -534,7 +534,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "RecordUrl ( PrimaryRecord ( ) )";
             var result = string.Empty;
 
-            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(() => result = new XTLInterpreter(formula, email, new InterpreterConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
 
             Assert.That(result, Is.EqualTo($"<a href=\"https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord\">https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord</a>"));
         }
@@ -558,7 +558,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "RecordUrl ( PrimaryRecord ( ), { linkText: \"Click me\" } )";
             var result = string.Empty;
 
-            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(() => result = new XTLInterpreter(formula, email, new InterpreterConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
 
             Assert.That(result, Is.EqualTo($"<a href=\"https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord\">Click me</a>"));
         }
@@ -582,7 +582,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "OrganizationUrl ()";
             var result = string.Empty;
 
-            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(() => result = new XTLInterpreter(formula, email, new InterpreterConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
 
             Assert.That(result, Is.EqualTo("https://crm/"));
         }
@@ -607,7 +607,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "OrganizationUrl ({ asHtml: true, linkText: \"Link Text\", urlSuffix: \"suffix\"})";
             var result = string.Empty;
 
-            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(() => result = new XTLInterpreter(formula, email, new InterpreterConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
 
             Assert.That(result, Is.EqualTo("<a href=\"https://crm/suffix\">Link Text</a>"));
         }
@@ -632,7 +632,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "OrganizationUrl ({ asHtml: true })";
             var result = string.Empty;
 
-            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(() => result = new XTLInterpreter(formula, email, new InterpreterConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
 
             Assert.That(result, Is.EqualTo("<a href=\"https://crm/\">https://crm/</a>"));
         }
@@ -657,7 +657,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "RecordUrl ( PrimaryRecord ( ), { appId: \"123456\", linkText: \"Click me\" } )";
             var result = string.Empty;
 
-            Assert.That(() => result = new XTLInterpreter(formula, email, new OrganizationConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
+            Assert.That(() => result = new XTLInterpreter(formula, email, new InterpreterConfig { OrganizationUrl = "https://crm/" }, service, tracing).Produce(), Throws.Nothing);
 
             Assert.That(result, Is.EqualTo($"<a href=\"https://crm/main.aspx?etn={email.LogicalName}&id={email.Id}&newWindow=true&pagetype=entityrecord&appid=123456\">Click me</a>"));
         }
@@ -731,7 +731,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 
             var formula = "RecordUrl ( Value(\"regardingobjectid\"), { linkText: Value(\"regardingobjectid.firstname\") })";
 
-            var result1 = new XTLInterpreter(formula, emailWithSubject, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
+            var result1 = new XTLInterpreter(formula, emailWithSubject, new InterpreterConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
 
             Assert.That(result1, Is.EqualTo("<a href=\"https://test.local/main.aspx?etn=contact&id=a99b0170-d463-4f70-8db9-e2d8ee348f5f&newWindow=true&pagetype=entityrecord\">Frodo</a>"));
         }

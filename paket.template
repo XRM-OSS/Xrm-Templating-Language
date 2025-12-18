@@ -19,7 +19,7 @@ files
     src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs      ==> contentFiles/cs/any/lib
     src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs       ==> contentFiles/cs/any/lib
     src\lib\Xrm.Oss.XTL.Interpreter\ConfigHandler.cs        ==> contentFiles/cs/any/lib
-    src\lib\Xrm.Oss.XTL.Interpreter\OrganizationConfig.cs   ==> contentFiles/cs/any/lib
+    src\lib\Xrm.Oss.XTL.Interpreter\InterpreterConfig.cs   ==> contentFiles/cs/any/lib
     src\lib\Xrm.Oss.XTL.Interpreter\IConfig.cs              ==> contentFiles/cs/any/lib
     src\lib\Xrm.Oss.XTL.Interpreter\TokenMatcher.cs         ==> contentFiles/cs/any/lib
     src\lib\Xrm.Oss.XTL.Interpreter\GptRequest.cs           ==> contentFiles/cs/any/lib
@@ -33,7 +33,7 @@ files
     src\lib\Xrm.Oss.XTL.Interpreter\ValueExpression.cs      ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\XTLInterpreter.cs       ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\ConfigHandler.cs        ==> content
-    src\lib\Xrm.Oss.XTL.Interpreter\OrganizationConfig.cs   ==> content
+    src\lib\Xrm.Oss.XTL.Interpreter\InterpreterConfig.cs   ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\IConfig.cs              ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\TokenMatcher.cs         ==> content
     src\lib\Xrm.Oss.XTL.Interpreter\GptRequest.cs         ==> content

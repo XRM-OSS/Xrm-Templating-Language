@@ -22,7 +22,7 @@ namespace Xrm.Oss.XTL.Interpreter
             return tokens;
         }
 
-        public static string ProcessTokens(string templateText, Entity dataSource, OrganizationConfig config, IOrganizationService service, ITracingService tracing)
+        public static string ProcessTokens(string templateText, Entity dataSource, InterpreterConfig config, IOrganizationService service, ITracingService tracing)
         {
             var tokens = MatchTokens(templateText);
 

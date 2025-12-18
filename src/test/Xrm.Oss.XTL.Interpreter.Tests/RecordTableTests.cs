@@ -949,7 +949,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 </tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
-            var result = new XTLInterpreter(formula, contact, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
+            var result = new XTLInterpreter(formula, contact, new InterpreterConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
 
             Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
         }
@@ -1017,7 +1017,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 </tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
-            var result = new XTLInterpreter(formula, contact, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
+            var result = new XTLInterpreter(formula, contact, new InterpreterConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
 
             Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
         }
@@ -1085,7 +1085,7 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
 </tr>
 </table>".Replace("\r", "").Replace("\n", "");
 
-            var result = new XTLInterpreter(formula, contact, new OrganizationConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
+            var result = new XTLInterpreter(formula, contact, new InterpreterConfig { OrganizationUrl = "https://test.local" }, service, tracing).Produce();
 
             Assert.That(result.Replace("\r", "").Replace("\n", ""), Is.EqualTo(expected));
         }
