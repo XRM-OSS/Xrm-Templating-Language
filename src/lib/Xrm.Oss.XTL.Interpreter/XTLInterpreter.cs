@@ -323,7 +323,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 Match(')');
 
                 var usedReservedWords = variableNames
-                    .Where(n => new List<string> { "true", "false", "null" }.Concat(_handlers.Keys).Concat(_interpreterConfig?.CustomHandlers?.Keys ?? new List<string>()).Contains(n))
+                    .Where(n => new List<string> { "true", "false", "null" }.Concat(_handlers.Keys).Concat(_interpreterConfig?.CustomHandlers?.Keys?.ToList() ?? new List<string>()).Contains(n))
                     .ToList();
 
                 if (usedReservedWords.Count > 0)
