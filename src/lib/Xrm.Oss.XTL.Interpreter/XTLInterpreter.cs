@@ -277,9 +277,9 @@ namespace Xrm.Oss.XTL.Interpreter
                 }
                 else
                 {
-                    _tracing.Trace($"Processing default handler {name}");
+                    _tracing.Trace($"Processing handler {name}");
                     var result = _handlers[name](_primary, _service, _tracing, _interpreterConfig, parameters);
-                    _tracing.Trace($"Successfully processed default handler {name}");
+                    _tracing.Trace($"Successfully processed handler {name}");
 
                     return result;
                 }
