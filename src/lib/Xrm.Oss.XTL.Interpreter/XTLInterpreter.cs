@@ -7,6 +7,8 @@ using Microsoft.Xrm.Sdk;
 
 namespace Xrm.Oss.XTL.Interpreter
 {
+    public delegate ValueExpression FunctionHandler(Entity primary, IOrganizationService service, ITracingService tracing, InterpreterConfig interpreterConfig, List<ValueExpression> parameters);
+
     public class XTLInterpreter
     {
         private int _position;
@@ -18,8 +20,6 @@ namespace Xrm.Oss.XTL.Interpreter
         private IOrganizationService _service;
         private ITracingService _tracing;
         private InterpreterConfig _interpreterConfig;
-
-        public delegate ValueExpression FunctionHandler(Entity primary, IOrganizationService service, ITracingService tracing, InterpreterConfig interpreterConfig, List<ValueExpression> parameters);
 
         private Dictionary<string, FunctionHandler> _handlers = new Dictionary<string, FunctionHandler>
         {
@@ -255,7 +255,7 @@ namespace Xrm.Oss.XTL.Interpreter
 
         private ValueExpression ApplyExpression (string name, List<ValueExpression> parameters, Dictionary<string, ValueExpression> formulaArgs = null) 
         {
-            if (!_handlers.ContainsKey(name)) {
+            if (!_handlers.ContainsKey(name) && !(_interpreterConfig?.CustomHandlers?.ContainsKey(name) ?? false)) {
                 throw new InvalidPluginExecutionException($"Function {name} is not known!");
             }
 
@@ -267,11 +267,22 @@ namespace Xrm.Oss.XTL.Interpreter
 
             var lazyExecution = new Lazy<ValueExpression>(() =>
             {
-                _tracing.Trace($"Processing handler {name}");
-                var result = _handlers[name](_primary, _service, _tracing, _interpreterConfig, parameters);
-                _tracing.Trace($"Successfully processed handler {name}");
+                if (_interpreterConfig?.CustomHandlers?.ContainsKey(name) ?? false)
+                {
+                    _tracing.Trace($"Processing custom handler {name}");
+                    var result = _handlers[name](_primary, _service, _tracing, _interpreterConfig, parameters);
+                    _tracing.Trace($"Successfully processed custom handler {name}");
 
-                return result;
+                    return result;
+                }
+                else
+                {
+                    _tracing.Trace($"Processing default handler {name}");
+                    var result = _handlers[name](_primary, _service, _tracing, _interpreterConfig, parameters);
+                    _tracing.Trace($"Successfully processed default handler {name}");
+
+                    return result;
+                }
             });
 
             return new ValueExpression(lazyExecution);
@@ -312,7 +323,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 Match(')');
 
                 var usedReservedWords = variableNames
-                    .Where(n => new List<string> { "true", "false", "null" }.Concat(_handlers.Keys).Contains(n))
+                    .Where(n => new List<string> { "true", "false", "null" }.Concat(_handlers.Keys).Concat(_interpreterConfig?.CustomHandlers?.Keys ?? new List<string>()).Contains(n))
                     .ToList();
 
                 if (usedReservedWords.Count > 0)

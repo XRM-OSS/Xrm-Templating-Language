@@ -1,0 +1,22 @@
+{
+    "name": "Xrm-Templating-Language",
+    "build": {
+      "dockerfile": "Dockerfile"
+    },
+    "settings": {
+      "terminal.integrated.defaultProfile.linux": "bash"
+    },
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "ms-dotnettools.csharp",
+          "dbaeumer.vscode-eslint",
+          "esbenp.prettier-vscode",
+          "ms-dotnettools.csdevkit",
+          "microsoft-isvexptools.powerplatform-vscode"
+        ]
+      }
+    },
+    "forwardPorts": [5000, 5001, 4280],
+    "remoteUser": "vscode"
+}

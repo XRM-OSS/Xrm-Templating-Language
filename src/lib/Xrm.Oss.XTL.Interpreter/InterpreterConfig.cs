@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
+using static Xrm.Oss.XTL.Interpreter.XTLInterpreter;
 
 namespace Xrm.Oss.XTL.Interpreter
 {
@@ -38,6 +39,8 @@ namespace Xrm.Oss.XTL.Interpreter
 
         [DataMember(Name = "snippetConfig")]
         public SnippetConfig SnippetConfig { get; set; }
+
+        public Dictionary<string, FunctionHandler> CustomHandlers { get; set; }
 
         public static InterpreterConfig Parse(string json)
         {
