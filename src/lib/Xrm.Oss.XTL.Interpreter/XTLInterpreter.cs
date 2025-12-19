@@ -270,7 +270,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 if (_interpreterConfig?.CustomHandlers?.ContainsKey(name) ?? false)
                 {
                     _tracing.Trace($"Processing custom handler {name}");
-                    var result = _handlers[name](_primary, _service, _tracing, _interpreterConfig, parameters);
+                    var result = _interpreterConfig.CustomHandlers[name](_primary, _service, _tracing, _interpreterConfig, parameters);
                     _tracing.Trace($"Successfully processed custom handler {name}");
 
                     return result;
