@@ -26,10 +26,10 @@ namespace Xrm.Oss.XTL.Templating
             _innerTracing = innerTracing;
         }
 
-        public void Trace(string format, params object[] args)
+        public void Trace(string message, params object[] args)
         {
-            _traceBuilder.AppendLine(format);
-            _innerTracing.Trace(format);
+            _traceBuilder.AppendLine(message);
+            _innerTracing.Trace("{0}", message);
         }
     }
 }
