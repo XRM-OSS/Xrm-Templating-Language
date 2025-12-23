@@ -39,6 +39,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "GptPrompt", FunctionHandlers.GptPrompt },
             { "If", FunctionHandlers.If },
             { "IndexOf", FunctionHandlers.IndexOf },
+            { "InputParameter", FunctionHandlers.GetInputParameter },
             { "IsEqual", FunctionHandlers.IsEqual },
             { "IsGreater", FunctionHandlers.IsGreater },
             { "IsGreaterEqual", FunctionHandlers.IsGreaterEqual },

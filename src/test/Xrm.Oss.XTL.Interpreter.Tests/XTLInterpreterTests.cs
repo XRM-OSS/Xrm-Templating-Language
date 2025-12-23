@@ -1218,5 +1218,91 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var result = new XTLInterpreter(@"Value ( ""partyid.fullname"", { explicitTarget: Last( Value(""to"") ) } )", email, null, service, tracing).Produce();
             Assert.That(result, Is.EqualTo("Bilbo Baggins"));
         }
+
+        [Test]
+        public void It_Should_Receive_Int_Input_Parameters()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var interpreterConfig = new InterpreterConfig
+            {
+                InputParameters =
+                {
+                    { "someInt", 4 }
+                }
+            };
+
+            var result = new XTLInterpreter(@"InputParameter('someInt')", new Entity(), interpreterConfig, service, tracing).Produce();
+            Assert.That(result, Is.EqualTo("4"));
+        }
+
+        [Test]
+        public void It_Should_Receive_String_Input_Parameters()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var interpreterConfig = new InterpreterConfig
+            {
+                InputParameters =
+                {
+                    { "someString", "Bilbo Baggins" }
+                }
+            };
+
+            var result = new XTLInterpreter(@"InputParameter('someString')", new Entity(), interpreterConfig, service, tracing).Produce();
+            Assert.That(result, Is.EqualTo("Bilbo Baggins"));
+        }
+
+        [Test]
+        public void It_Should_Gracefully_Handle_Null_Input_Parameters()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var interpreterConfig = new InterpreterConfig
+            {
+                InputParameters =
+                {
+                    { "someString", null }
+                }
+            };
+
+            var result = new XTLInterpreter(@"InputParameter('someString')", new Entity(), interpreterConfig, service, tracing).Produce();
+            Assert.That(result, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void It_Should_Gracefully_Handle_Missing_Input_Parameters()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var interpreterConfig = new InterpreterConfig
+            {
+                InputParameters = {}
+            };
+
+            var result = new XTLInterpreter(@"InputParameter('someString')", new Entity(), interpreterConfig, service, tracing).Produce();
+            Assert.That(result, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void It_Should_Gracefully_Handle_Missing_Input_Parameters_Dictionary()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var interpreterConfig = new InterpreterConfig();
+
+            var result = new XTLInterpreter(@"InputParameter('someString')", new Entity(), interpreterConfig, service, tracing).Produce();
+            Assert.That(result, Is.EqualTo(string.Empty));
+        }
     }
 }

@@ -1318,6 +1318,20 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(reference.LogicalName, reference.LogicalName);
         };
 
+        public static FunctionHandler GetInputParameter = (primary, service, tracing, interpreterConfig, parameters) =>
+        {
+            var firstParam = parameters.FirstOrDefault()?.Value;
+            var inputParameter = CheckedCast<string>(firstParam, "GetInputParameter expects a string as first parameter!");
+            
+            if (string.IsNullOrEmpty(inputParameter) || interpreterConfig?.InputParameters?.ContainsKey(inputParameter) ?? true)
+            {
+                return new ValueExpression(string.Empty, null);
+            }
+
+            var value = interpreterConfig.InputParameters[inputParameter];
+            return new ValueExpression(value?.ToString(), value);
+        };
+
         public static FunctionHandler GptPrompt = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (interpreterConfig == null || string.IsNullOrEmpty(interpreterConfig.OpenAIAccessToken))

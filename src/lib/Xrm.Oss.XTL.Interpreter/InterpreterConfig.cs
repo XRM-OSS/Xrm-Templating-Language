@@ -40,6 +40,9 @@ namespace Xrm.Oss.XTL.Interpreter
         [DataMember(Name = "snippetConfig")]
         public SnippetConfig SnippetConfig { get; set; }
 
+        [DataMember(Name = "inputParameters")]
+        public Dictionary<string, object> InputParameters { get; set; }
+
         public Dictionary<string, FunctionHandler> CustomHandlers { get; set; }
 
         public static InterpreterConfig Parse(string json)
