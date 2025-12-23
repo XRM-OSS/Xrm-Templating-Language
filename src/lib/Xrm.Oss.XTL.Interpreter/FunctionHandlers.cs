@@ -1323,7 +1323,10 @@ namespace Xrm.Oss.XTL.Interpreter
             var firstParam = parameters.FirstOrDefault()?.Value;
             var inputParameter = CheckedCast<string>(firstParam, "GetInputParameter expects a string as first parameter!");
             
-            if (string.IsNullOrEmpty(inputParameter) || (interpreterConfig?.InputParameters?.ContainsKey(inputParameter) ?? true))
+            if (string.IsNullOrEmpty(inputParameter) || 
+                interpreterConfig == null || 
+                interpreterConfig.InputParameters == null ||
+                !interpreterConfig.InputParameters.ContainsKey(inputParameter))
             {
                 return new ValueExpression(string.Empty, null);
             }
