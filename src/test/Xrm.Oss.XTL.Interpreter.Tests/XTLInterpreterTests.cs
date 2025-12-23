@@ -1234,8 +1234,8 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
                 }
             };
 
-            var result = new XTLInterpreter(@"InputParameter('someInt')", new Entity(), interpreterConfig, service, tracing).Produce();
-            Assert.That(result, Is.EqualTo("4"));
+            var result = new XTLInterpreter(@"If ( IsEqual ( 4, InputParameter('someInt') ), 'Match', 'No Match' )", new Entity(), interpreterConfig, service, tracing).Produce();
+            Assert.That(result, Is.EqualTo("Match"));
         }
 
         [Test]
