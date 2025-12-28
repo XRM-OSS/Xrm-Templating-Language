@@ -95,5 +95,38 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var formula = "Format(DateTimeUtcNow(), { format: \"{0:yyyyMMdd}\" })";
             Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Is.EqualTo(DateTime.UtcNow.ToString("yyyyMMdd")));
         }
+
+        [Test]
+        public void It_Should_Format_String()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "FormatString('Hey there $0', 'Bilbo Baggins')";
+            Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Is.EqualTo("Hey there Bilbo Baggins"));
+        }
+
+        [Test]
+        public void It_Should_Escape_Dollars_In_Format_String()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = @"FormatString('Hey there $0, you owe me 5\$', 'Bilbo Baggins')";
+            Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Is.EqualTo("Hey there Bilbo Baggins, you owe me 5$"));
+        }
+
+        [Test]
+        public void It_Should_Not_Proces_Format_String_Replacements()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = @"FormatString('Hey there $0', '$1')";
+            Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Is.EqualTo("Hey there $1"));
+        }
     }
 }

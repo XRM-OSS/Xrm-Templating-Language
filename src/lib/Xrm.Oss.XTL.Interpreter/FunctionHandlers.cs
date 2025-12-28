@@ -1095,6 +1095,54 @@ namespace Xrm.Oss.XTL.Interpreter
             }
         };
 
+        /// <summary>
+        /// Composes values using $0, $1, $2... placeholders. Escape $ as \$.
+        /// </summary>
+        public static FunctionHandler FormatString = (primary, service, tracing, interpreterConfig, parameters) =>
+        {
+            if (parameters.Count < 1)
+            {
+                throw new InvalidPluginExecutionException("FormatString needs at least a format string");
+            }
+
+            var format = CheckedCast<string>(parameters[0].Value, "First parameter must be a format string");
+            var args = parameters.Skip(1).ToList();
+
+            string result = Regex.Replace(
+                format,
+                @"\\\$|\$(\d+)",
+                match =>
+                {
+                    // Escaped dollar
+                    if (match.Value == @"\$")
+                    {
+                        return "$";
+                    }
+
+                    // Placeholder
+                    int index = int.Parse(match.Groups[1].Value);
+                    if (index < 0 || index >= args.Count)
+                    {
+                        return string.Empty;
+                    }
+
+                    var value = args[index].Value;
+
+                    if (value is Money)
+                    {
+                        value = ((Money) value).Value;
+                    }
+                    if (value is OptionSetValue)
+                    {
+                        value = ((OptionSetValue) value).Value;
+                    }
+
+                    return value?.ToString() ?? string.Empty;
+                });
+
+            return new ValueExpression(result, result);
+        };
+
         private static Entity FetchSnippetByUniqueName(string uniqueName, InterpreterConfig interpreterConfig, IOrganizationService service)
         {
             var tableLogicalName = "oss_xtlsnippet";

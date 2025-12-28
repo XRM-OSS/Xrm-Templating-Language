@@ -36,6 +36,7 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Filter", FunctionHandlers.Filter },
             { "First", FunctionHandlers.First },
             { "Format", FunctionHandlers.Format },
+            { "FormatString", FunctionHandlers.FormatString },
             { "GptPrompt", FunctionHandlers.GptPrompt },
             { "If", FunctionHandlers.If },
             { "IndexOf", FunctionHandlers.IndexOf },
