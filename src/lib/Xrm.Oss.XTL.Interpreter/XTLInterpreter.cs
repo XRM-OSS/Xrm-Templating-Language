@@ -160,15 +160,69 @@ namespace Xrm.Oss.XTL.Interpreter
                 {
                     var delimiter = _current;
                     var stringConstant = string.Empty;
+                    var startPosition = _position - 1; // Track where string started
                     
                     // Skip opening quote
                     GetChar();
 
-                    // Allow to escape quotes by backslashes
-                    while ((_current != delimiter || _previous == '\\') && !IsEof())
+                    while (!IsEof())
                     {
+                        if (_current == '\\')
+                        {
+                            // Move to the escaped character
+                            GetChar();
+                            
+                            if (IsEof())
+                            {
+                                throw new InvalidPluginExecutionException(
+                                    $"Unexpected end of input after escape character in string starting at position {startPosition}"
+                                );
+                            }
+                            
+                            switch (_current)
+                            {
+                                case 'n':
+                                    stringConstant += '\n';
+                                    break;
+                                case 't':
+                                    stringConstant += '\t';
+                                    break;
+                                case 'r':
+                                    stringConstant += '\r';
+                                    break;
+                                case '\\':
+                                    stringConstant += '\\';
+                                    break;
+                                case '"':
+                                case '\'':
+                                    stringConstant += _current;
+                                    break;
+                                default:
+                                    // Unknown escape, keep both
+                                    stringConstant += '\\';
+                                    stringConstant += _current;
+                                    break;
+                            }
+                            GetChar();
+                            continue;
+                        }
+                        
+                        if (_current == delimiter)
+                        {
+                            // Found closing quote
+                            break;
+                        }
+                        
                         stringConstant += _current;
                         GetChar();
+                    }
+
+                    // Check if we found the closing quote or hit EOF
+                    if (IsEof() && _current != delimiter)
+                    {
+                        throw new InvalidPluginExecutionException(
+                            $"Unclosed string literal starting at position {startPosition}"
+                        );
                     }
 
                     // Skip closing quote
