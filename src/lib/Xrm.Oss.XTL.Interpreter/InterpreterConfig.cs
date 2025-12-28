@@ -43,6 +43,9 @@ namespace Xrm.Oss.XTL.Interpreter
         [DataMember(Name = "inputParameters")]
         public Dictionary<string, object> InputParameters { get; set; } = new Dictionary<string, object>();
 
+        [DataMember(Name = "outputParameters")]
+        public Dictionary<string, object> OutputParameters { get; set; } = new Dictionary<string, object>();
+
         public Dictionary<string, FunctionHandler> CustomHandlers { get; set; } = new Dictionary<string, FunctionHandler>();
 
         public static InterpreterConfig Parse(string json)

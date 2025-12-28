@@ -1039,30 +1039,78 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(date.ToString(CultureInfo.InvariantCulture), date.ToString(CultureInfo.InvariantCulture));
         };
 
+        /// <summary>
+        /// Formats a single value with a format specifier (like .ToString(format))
+        /// </summary>
         public static FunctionHandler Format = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (parameters.Count < 2)
             {
-                throw new InvalidPluginExecutionException("Format needs a value to format and a config for defining further options");
+                throw new InvalidPluginExecutionException("Format needs a value and a format string");
             }
 
             var value = parameters[0].Value;
+            
+            // Handle special CRM types
+            if (value is Money money) value = money.Value;
+            if (value is OptionSetValue optionSet) value = optionSet.Value;
+            
+            // Support both styles:
+            // Format(value, { format: "C2" }) 
+            // Format(value, { format: "{0:C2}" })
             var config = GetConfig(parameters);
-            var format = config.GetValue<string>("format", "format must be a string!");
-
-            var knownTypes = new Dictionary<Type, Func<object, ValueExpression>>
+            var formatString = config.GetValue<string>("format", "format must be a string!");
+            
+            try
             {
-                { typeof(Money), (obj) => { var val = obj as Money; var formatted = string.Format(CultureInfo.InvariantCulture, format, val.Value); return new ValueExpression( formatted, formatted ); } }
-            };
-
-            if(knownTypes.ContainsKey(value.GetType()))
-            {
-                return knownTypes[value.GetType()](value);
-            }
-            else
-            {
-                var formatted = string.Format(CultureInfo.InvariantCulture, format, value);
+                string formatted;
+                
+                // If format contains {0:, use string.Format
+                if (formatString.Contains("{0:") || formatString.Contains("{0}"))
+                {
+                    formatted = string.Format(CultureInfo.InvariantCulture, formatString, value);
+                }
+                // Otherwise, use direct formatting
+                else if (value is IFormattable formattable)
+                {
+                    formatted = formattable.ToString(formatString, CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    formatted = value?.ToString() ?? string.Empty;
+                }
+                
                 return new ValueExpression(formatted, formatted);
+            }
+            catch (FormatException ex)
+            {
+                throw new InvalidPluginExecutionException($"Invalid format '{formatString}': {ex.Message}");
+            }
+        };
+
+        /// <summary>
+        /// Composes multiple values into a format string (like string.Format)
+        /// </summary>
+        public static FunctionHandler FormatString = (primary, service, tracing, interpreterConfig, parameters) =>
+        {
+            if (parameters.Count < 1)
+            {
+                throw new InvalidPluginExecutionException("FormatString needs at least a format string");
+            }
+
+            var format = CheckedCast<string>(parameters[0].Value, "First parameter must be a format string");
+            
+            // Positional parameters only - exactly like C# string.Format
+            var args = parameters.Skip(1).Select(p => p.Value).ToArray();
+            
+            try
+            {
+                var result = string.Format(CultureInfo.InvariantCulture, format, args);
+                return new ValueExpression(result, result);
+            }
+            catch (FormatException ex)
+            {
+                throw new InvalidPluginExecutionException($"Invalid format string: {ex.Message}");
             }
         };
 
