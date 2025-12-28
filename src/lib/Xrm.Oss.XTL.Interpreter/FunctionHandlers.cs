@@ -1095,32 +1095,6 @@ namespace Xrm.Oss.XTL.Interpreter
             }
         };
 
-        /// <summary>
-        /// Composes multiple values into a format string (like string.Format)
-        /// </summary>
-        public static FunctionHandler FormatString = (primary, service, tracing, interpreterConfig, parameters) =>
-        {
-            if (parameters.Count < 1)
-            {
-                throw new InvalidPluginExecutionException("FormatString needs at least a format string");
-            }
-
-            var format = CheckedCast<string>(parameters[0].Value, "First parameter must be a format string");
-            
-            // Positional parameters only - exactly like C# string.Format
-            var args = parameters.Skip(1).Select(p => p.Value).ToArray();
-            
-            try
-            {
-                var result = string.Format(CultureInfo.InvariantCulture, format, args);
-                return new ValueExpression(result, result);
-            }
-            catch (FormatException ex)
-            {
-                throw new InvalidPluginExecutionException($"Invalid format string: {ex.Message}");
-            }
-        };
-
         private static Entity FetchSnippetByUniqueName(string uniqueName, InterpreterConfig interpreterConfig, IOrganizationService service)
         {
             var tableLogicalName = "oss_xtlsnippet";
