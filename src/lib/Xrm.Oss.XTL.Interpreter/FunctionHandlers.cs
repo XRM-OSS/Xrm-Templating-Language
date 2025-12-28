@@ -1052,8 +1052,15 @@ namespace Xrm.Oss.XTL.Interpreter
             var value = parameters[0].Value;
             
             // Handle special CRM types
-            if (value is Money money) value = money.Value;
-            if (value is OptionSetValue optionSet) value = optionSet.Value;
+            if (value is Money)
+            {
+                value = ((Money) value).Value;
+            }
+
+            if (value is OptionSetValue)
+            {
+                value = ((OptionSetValue) value).Value;
+            }
             
             // Support both styles:
             // Format(value, { format: "C2" }) 
@@ -1071,9 +1078,9 @@ namespace Xrm.Oss.XTL.Interpreter
                     formatted = string.Format(CultureInfo.InvariantCulture, formatString, value);
                 }
                 // Otherwise, use direct formatting
-                else if (value is IFormattable formattable)
+                else if (value is IFormattable)
                 {
-                    formatted = formattable.ToString(formatString, CultureInfo.InvariantCulture);
+                    formatted = ((IFormattable) value).ToString(formatString, CultureInfo.InvariantCulture);
                 }
                 else
                 {
