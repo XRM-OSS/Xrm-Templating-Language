@@ -31,6 +31,8 @@ namespace Xrm.Oss.XTL.Interpreter
 
             return client;
         });
+
+        private static readonly Regex PlaceholderRegex = new Regex(@"\\\$|\$(\d+)", RegexOptions.Compiled);
         
         private static ConfigHandler GetConfig(List<ValueExpression> parameters)
         {
@@ -1108,9 +1110,8 @@ namespace Xrm.Oss.XTL.Interpreter
             var format = CheckedCast<string>(parameters[0].Value, "First parameter must be a format string");
             var args = parameters.Skip(1).ToList();
 
-            string result = Regex.Replace(
+            string result = PlaceholderRegex.Replace(
                 format,
-                @"\\\$|\$(\d+)",
                 match =>
                 {
                     // Escaped dollar
