@@ -57,6 +57,7 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
     - [DateToString](#datetostring)
     - [ConvertDateTime](#convertdatetime)
     - [Format](#format)
+    - [FormatString](#formatstring)
     - [RetrieveAudit](#retrieveaudit)
     - [Snippet](#snippet)
       - [Example - Refer to Snippet using unique name](#example---refer-to-snippet-using-unique-name)
@@ -668,6 +669,27 @@ Format( Value("index"),  { format: "{0:00000}" } ) // Will print 00001 for index
 ```
 
 Refer to the .NET style for date formatting.
+
+### FormatString
+**Available since: v3.9.16**
+
+Used for inserting values into a format string.
+
+Values can be accessed via $index, where the index starts at 0
+(e.g. $0, $1, $2, …).
+
+Only numeric placeholders are replaced. Any $ that is not followed by a number is treated as literal text.
+
+If the format string needs to contain a $ character followed by a number that must not be replaced, escape it with a backslash: \$.
+
+Replacement is applied only to the format string.
+Inserted values are not processed again.
+
+Example:
+``` JavaScript
+FormatString( 'Hey $0, you did not buy anything, so your invoice is \$0!', 'Bilbo' ) // Will print 'Hey Bilbo, you did not buy anything, so your invoice is $0!
+```
+
 
 ### RetrieveAudit
 **Available since: v3.8.1**

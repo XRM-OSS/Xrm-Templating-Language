@@ -114,8 +114,8 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
             var service = context.GetFakedOrganizationService();
             var tracing = context.GetFakeTracingService();
 
-            var formula = @"FormatString('Hey there $0, you owe me 5\$', 'Bilbo Baggins')";
-            Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Is.EqualTo("Hey there Bilbo Baggins, you owe me 5$"));
+            var formula = @"FormatString('Hey there $0, your invoice is \$5', 'Bilbo Baggins')";
+            Assert.That(() => new XTLInterpreter(formula, null, null, service, tracing).Produce(), Is.EqualTo("Hey there Bilbo Baggins, your invoice is $5"));
         }
 
         [Test]
