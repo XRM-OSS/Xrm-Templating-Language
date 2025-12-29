@@ -424,7 +424,7 @@ namespace Xrm.Oss.XTL.Interpreter
                 throw new InvalidPluginExecutionException("Lambda function must be a proper arrow function");
             }
 
-            var mappedValues = values.Select(v => lambda(new List<ValueExpression> { v })).ToList();
+            var mappedValues = values.Select((v, i) => lambda(new List<ValueExpression> { v, new ValueExpression(i.ToString(), i) })).ToList();
             
             return new ValueExpression(string.Join(", ", mappedValues.Select(p => p.Text)), mappedValues);
         };
