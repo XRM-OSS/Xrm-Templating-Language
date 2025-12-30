@@ -25,6 +25,7 @@ A domain specific language for Dynamics CRM allowing for easy text template proc
     - [Not](#not)
     - [IsNull](#isnull)
     - [Coalesce](#coalesce)
+    - [With](#with)
     - [Case](#case)
     - [IsEqual](#isequal)
     - [IsLess](#isless)
@@ -216,6 +217,22 @@ Coalesce ( Value ( "parentaccountid" ), Value ( "parentcontactid" ), "None" )
 If parentaccountid is not null, it will be used.
 Otherwise, if parentcontactid is not null, it will be used.
 If none of these two are not null, the static "None" will be used.
+
+### With
+**Available since: v3.9.17**
+
+Gives possibility to save expressions into variables to reuse them.
+Especially useful for expensive expressions such as fetches.
+Takes a dictionary object containing the variable keys and values as first parameter and a Lambda function as second parameter.
+
+All names in the lambda parameters have to be present with the same name as variable keys in the dictionary object.
+
+Example:
+``` JavaScript
+With({ fragments: ["Lord", "of", "the", "Rings"] }, ( fragments ) => Join(" ", Map(fragments, (s) => Substring(s, 0, 1))))
+```
+
+will result in `"L o t R"`.
 
 ### Case
 **Available since: v3.9.6**
