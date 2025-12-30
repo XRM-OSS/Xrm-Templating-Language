@@ -1413,6 +1413,64 @@ namespace Xrm.Oss.XTL.Interpreter
             return new ValueExpression(value?.ToString(), value);
         };
 
+        /// <summary>
+        /// Defines temporary variables for use in an expression.
+        /// Usage: With({ x: Value("amount"), y: 10 }, (x, y) => FormatString("$0 + $1", x, y))
+        /// </summary>
+        public static FunctionHandler With = (primary, service, tracing, interpreterConfig, parameters) =>
+        {
+            if (parameters.Count < 2)
+            {
+                throw new InvalidPluginExecutionException("With needs a dictionary of variables and a lambda expression");
+            }
+
+            // First parameter: dictionary of variables
+            var variables = CheckedCast<Dictionary<string, object>>(
+                parameters[0].Value, 
+                "First parameter of With must be a dictionary"
+            );
+
+            // Second parameter: lambda expression
+            var lambdaParam = parameters[1];
+            var lambdaFunc = lambdaParam.Value as Func<List<ValueExpression>, ValueExpression>;
+            
+            if (lambdaFunc == null)
+            {
+                throw new InvalidPluginExecutionException(
+                    "Second parameter of With must be a lambda expression"
+                );
+            }
+
+            // Get lambda parameter names
+            if (lambdaParam.Args == null)
+            {
+                throw new InvalidPluginExecutionException(
+                    "Lambda expression must have named parameters"
+                );
+            }
+
+            var lambdaParamNames = lambdaParam.Args.Keys.ToList();
+
+            // Check all required variables are provided
+            var missingVars = lambdaParamNames.Where(name => !variables.ContainsKey(name)).ToList();
+            if (missingVars.Any())
+            {
+                throw new InvalidPluginExecutionException(
+                    $"Lambda parameters {string.Join(", ", missingVars.Select(v => $"'{v}'"))} not found in With dictionary"
+                );
+            }
+
+            // Map dictionary values to lambda parameters in correct order
+            var args = lambdaParamNames
+                .Select(name => new ValueExpression(
+                    variables[name]?.ToString() ?? string.Empty, 
+                    variables[name]
+                ))
+                .ToList();
+
+            return lambdaFunc(args);
+        };
+
         public static FunctionHandler GptPrompt = (primary, service, tracing, interpreterConfig, parameters) =>
         {
             if (interpreterConfig == null || string.IsNullOrEmpty(interpreterConfig.OpenAIAccessToken))

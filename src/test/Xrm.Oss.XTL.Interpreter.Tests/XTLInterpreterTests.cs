@@ -469,6 +469,44 @@ namespace Xrm.Oss.XTL.Interpreter.Tests
         }
 
         [Test]
+        public void It_Should_Make_Variables_Available_In_With()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "With({ question: 'What is the answer to the Ultimate Question of Life, the Universe, and Everything', answer: 42 }, ( question, answer ) => FormatString('$0?\n- $1', question, answer))";
+            var result = new XTLInterpreter(formula, new Entity(), null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("What is the answer to the Ultimate Question of Life, the Universe, and Everything?\n- 42"));
+        }
+
+        [Test]
+        public void It_Should_Not_Rely_On_Parameter_Order_In_With()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "With({ question: 'What is the answer to the Ultimate Question of Life, the Universe, and Everything', answer: 42 }, ( answer, question ) => FormatString('$0?\n- $1', question, answer))";
+            var result = new XTLInterpreter(formula, new Entity(), null, service, tracing).Produce();
+
+            Assert.That(result, Is.EqualTo("What is the answer to the Ultimate Question of Life, the Universe, and Everything?\n- 42"));
+        }
+
+        [Test]
+        public void It_Should_Throw_On_Missing_Parameter_In_With()
+        {
+            var context = new XrmFakedContext();
+            var service = context.GetFakedOrganizationService();
+            var tracing = context.GetFakeTracingService();
+
+            var formula = "With({ answer: 42 }, ( answer, question ) => FormatString('$0?\n- $1', question, answer))";
+
+            Assert.That(() => new XTLInterpreter(formula, new Entity(), null, service, tracing).Produce(), Throws.Exception);
+        }
+
+        [Test]
         public void Coalesce_Should_Return_First_Non_Null_Value()
         {
             var context = new XrmFakedContext();

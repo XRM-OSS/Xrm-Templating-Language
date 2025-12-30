@@ -67,7 +67,8 @@ namespace Xrm.Oss.XTL.Interpreter
             { "Static", FunctionHandlers.Static },
             { "Substring", FunctionHandlers.Substring },
             { "Union", FunctionHandlers.Union },
-            { "Value", FunctionHandlers.GetValue }
+            { "Value", FunctionHandlers.GetValue },
+            { "With", FunctionHandlers.With }
         };
 
         public XTLInterpreter(string input, Entity primary, InterpreterConfig interpreterConfig, IOrganizationService service, ITracingService tracing)

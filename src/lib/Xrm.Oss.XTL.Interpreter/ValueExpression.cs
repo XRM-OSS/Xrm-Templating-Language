@@ -8,6 +8,7 @@ namespace Xrm.Oss.XTL.Interpreter
     {
         private Lazy<string> _text;
         private Lazy<object> _value;
+        public Dictionary<string, ValueExpression> Args { get; private set; }
 
         public string Text
         {
@@ -41,6 +42,7 @@ namespace Xrm.Oss.XTL.Interpreter
         {
             _text = new Lazy<string>(() => string.Empty);
             _value = new Lazy<object>(() => expression);
+            Args = args;
         }
     }
 }
